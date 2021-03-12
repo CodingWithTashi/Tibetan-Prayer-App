@@ -1,10 +1,13 @@
 package com.codingwithtashi.dailyprayer
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -12,8 +15,10 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import dagger.hilt.EntryPoint
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView : BottomNavigationView;
     lateinit var navHostFragment: NavHostFragment;
@@ -27,8 +32,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        val view = layoutInflater.inflate(R.layout.tool_bar,null);
-        commonToolbar = view.findViewById(R.id.common_toolbar);
+        commonToolbar = findViewById(R.id.common_toolbar);
         bottomNavigationView =findViewById(R.id.bottom_nav);
         setSupportActionBar(commonToolbar)
 
@@ -43,10 +47,29 @@ class MainActivity : AppCompatActivity() {
     private fun bottomNavListener() {
         navHostFragment.navController.addOnDestinationChangedListener { _, destination, _ ->
             if(destination.id == R.id.detailFragment)
-                bottomNavigationView.visibility = View.GONE
-             else
-                bottomNavigationView.visibility = View.VISIBLE
+            {
+                bottomNavigationView.visibility = GONE
+                commonToolbar.visibility = GONE
+            }else{
+                bottomNavigationView.visibility = VISIBLE
+                commonToolbar.visibility = VISIBLE
+            }
+
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.option_menu,menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.settings->{
+                startActivity(Intent(this,SettingActivity::class.java));
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 }

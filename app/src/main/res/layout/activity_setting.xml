@@ -4,20 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_700"
-    tools:context=".ui.RoutineFragment">
-
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/add_prayer"
-        android:layout_width="wrap_content"
+    tools:context=".SettingActivity"
+    android:background="@color/purple_700">
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/setting_toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/no_prayer_added"
-        android:textSize="20sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="@string/app_name"
+        app:titleTextColor="@android:color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

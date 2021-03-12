@@ -4,22 +4,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.HomeFragment">
-    <include
-        android:id="@+id/toolbar_layout"
-        layout="@layout/tool_bar"/>
-<androidx.recyclerview.widget.RecyclerView
-    android:layout_below="@+id/toolbar_layout"
-    android:id="@+id/prayer_list_container"
-    tools:listitem="@layout/single_list_item"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:background="@color/purple_700"
+        android:id="@+id/prayer_list_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/single_list_item" />
+
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/circular_progress"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:indeterminate="true"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/no_prayer_found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="@string/no_prayer_added"
+        android:textSize="20sp"
+        android:visibility="gone" />
 
 </RelativeLayout>

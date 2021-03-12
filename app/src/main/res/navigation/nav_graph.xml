@@ -10,6 +10,7 @@
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" >
         <action
+            app:popExitAnim="@anim/fade_out"
             android:id="@+id/action_homeFragment_to_detailFragment"
             app:destination="@id/detailFragment" />
     </fragment>
@@ -19,6 +20,7 @@
         android:label="fragment_routine"
         tools:layout="@layout/fragment_routine" >
         <action
+            app:popExitAnim="@anim/fade_out"
             android:id="@+id/action_routineFragment_to_detailFragment"
             app:destination="@id/detailFragment" />
     </fragment>

@@ -20,8 +20,10 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
             app:title="Collapsing"
+            android:theme="@style/CollapsingToolbarTheme"
             app:toolbarId="@+id/toolbar">
             <ImageView
+                android:id="@+id/cover_img"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
@@ -39,6 +41,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
+        android:background="@color/purple_700"
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -50,6 +53,7 @@
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:background="@color/purple_700"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -86,21 +90,24 @@
         app:rippleColor="#E4D6D6"
         android:clipToPadding="false"
         android:padding="@dimen/standard_12"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TextView
+            android:textColor="@android:color/white"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/auto_scroll" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:backgroundTint="@color/brown_700"
             android:id="@+id/fab1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             app:fabSize="mini"
-            app:srcCompat="@drawable/scroll" />
+            app:tint="@android:color/white"
+            app:srcCompat="@drawable/scroll_wh" />
     </LinearLayout>
 
     <LinearLayout
@@ -114,23 +121,30 @@
         app:rippleColor="#E4D6D6"
         android:clipToPadding="false"
         android:padding="@dimen/standard_12"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <TextView
+            android:textColor="@android:color/white"
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/record_prayer" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:backgroundTint="@color/brown_700"
             android:id="@+id/fab2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             app:fabSize="mini"
-            app:srcCompat="@drawable/ic_baseline_mic_24"/>
+            app:srcCompat="@drawable/ic_baseline_mic_24"
+            app:tint="@android:color/white"/>
     </LinearLayout>
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:layout_margin="5dp"
+        android:backgroundTint="@color/brown_700"
+        app:iconTint="@android:color/white"
+        android:textColor="@android:color/white"
         android:id="@+id/floating_action_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

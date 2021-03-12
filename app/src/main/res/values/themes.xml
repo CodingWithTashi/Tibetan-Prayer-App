@@ -2,8 +2,8 @@
     <!-- Base application theme. -->
     <style name="Theme.DailyPrayer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimary">@color/brown_500</item>
+        <item name="colorPrimaryVariant">#573C07</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>
@@ -12,5 +12,11 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+    </style>
+    <style name="CollapsingToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <!-- HERE ARE THE CHANGES - Change color of different texts -->
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="colorControlNormal">@android:color/black</item>
     </style>
 </resources>
