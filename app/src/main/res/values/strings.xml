@@ -15,4 +15,5 @@
     <string name="no_prayer_found">No Prayer Found</string>
     <string name="no_prayer_added">No Routine Prayer Found</string>
     <string name="no_notification">No Notification</string>
+    <string name="favourite">Favourite</string>
 </resources>

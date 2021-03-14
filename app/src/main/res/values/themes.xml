@@ -19,4 +19,5 @@
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="colorControlNormal">@android:color/black</item>
     </style>
+
 </resources>

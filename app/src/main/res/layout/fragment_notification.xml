@@ -1,22 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/notification_container"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.NotificationFragment"
     android:background="@color/purple_700">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+
+    </RelativeLayout>
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/notification_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/no_notification"
         android:textSize="20sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:visibility="visible"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

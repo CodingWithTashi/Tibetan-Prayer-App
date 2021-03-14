@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Daily Prayer</string>
-
+    <string name="notification">Notification</string>
+    <string name="home">Home</string>
+    <string name="routine">Routine</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_place_holder">This is dummy Title</string>
+    <string name="content_place_holder">This is content to be load</string>
+    <string name="sno_place_holder">1. </string>
+    <string name="prayer_name">Prayer Name</string>
+    <string name="option">Option</string>
+    <string name="auto_scroll">Auto Scroll</string>
+    <string name="record_prayer">Record Prayer</string>
+    <string name="no_prayer_found">No Prayer Found</string>
+    <string name="no_prayer_added">No Routine Prayer Found</string>
+    <string name="no_notification">No Notification</string>
+    <string name="favourite">Favourite</string>
 </resources>

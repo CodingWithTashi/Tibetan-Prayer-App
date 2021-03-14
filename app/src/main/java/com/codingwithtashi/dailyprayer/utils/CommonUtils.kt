@@ -6,11 +6,13 @@ import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 
 class CommonUtils {
-   fun displaySnackBar(view: View, msg:String){
-       Snackbar.make(view,msg,Snackbar.LENGTH_SHORT);
+   companion object {
+       fun displaySnackBar(view: View, msg:String){
+           Snackbar.make(view,msg,Snackbar.LENGTH_SHORT).show();
+       }
+       fun displayShortMessage(context: Context,msg: String){
+           Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+       }
    }
-    fun displayShortMessage(context: Context,msg: String){
-        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
-    }
 
 }

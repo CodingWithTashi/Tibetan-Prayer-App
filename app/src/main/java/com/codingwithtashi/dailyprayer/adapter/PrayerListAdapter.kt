@@ -4,16 +4,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.model.Prayer
-import com.codingwithtashi.dailyprayer.viewmodel.HomeViewModel
+import com.codingwithtashi.dailyprayer.utils.FragmentType
 import com.google.android.material.textview.MaterialTextView
 
 /**
  * Created by kunchok on 10/03/2021
  */
-class PrayerListAdapter(var prayerList: ArrayList<Prayer>,var listener: ItemClickListener) : RecyclerView.Adapter<PrayerListAdapter.ViewHolder>() {
+class PrayerListAdapter(var listener: ItemClickListener,var type: String) : ListAdapter<Prayer,PrayerListAdapter.ViewHolder>(DiffCallback()) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -22,23 +24,44 @@ class PrayerListAdapter(var prayerList: ArrayList<Prayer>,var listener: ItemClic
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val sno = position+1;
-        holder.title.text ="$sno. ";
-        holder.content.text = prayerList[position].title;
-        holder.itemView.setOnClickListener {
-            listener.onItemClick(prayer = prayerList[position])
-            Navigation.findNavController(holder.itemView).navigate(R.id.action_homeFragment_to_detailFragment);
-        }
+        val currentItem = getItem(position)
+        holder.bind(currentItem,listener,type);
     }
 
-    override fun getItemCount(): Int {
-        return prayerList.size
-    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: MaterialTextView = itemView.findViewById(R.id.sno);
         var content: MaterialTextView = itemView.findViewById(R.id.content);
 
+        fun bind(
+            prayer: Prayer?,
+            listener: ItemClickListener,
+            type: String
+        ) {
+            val sno = position+1;
+            title.text ="$sno. ";
+            content.text = prayer?.title;
+            itemView.setOnClickListener {
+                if (prayer != null) {
+                    listener.onItemClick(prayer = prayer)
+                }
+                if(type == FragmentType.HOME_FRAGMENT)
+                    Navigation.findNavController(itemView).navigate(R.id.action_homeFragment_to_detailFragment)
+                else
+                    Navigation.findNavController(itemView).navigate(R.id.action_routineFragment_to_detailFragment)
+
+            }
+        }
+
+
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<Prayer>() {
+        override fun areItemsTheSame(oldItem: Prayer, newItem: Prayer) =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: Prayer, newItem: Prayer) =
+            oldItem == newItem
     }
 
 }
