@@ -32,15 +32,20 @@
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
                     app:layout_collapseMode="parallax" />
-                <TextView
-                    android:textColor="@color/white"
-                    android:layout_marginTop="20dp"
+                <LinearLayout
+                    android:layout_marginTop="30dp"
                     android:layout_marginStart="40dp"
-                    android:id="@+id/counter"
-                    android:text="1"
-                    android:textSize="70sp"
+                    android:orientation="vertical"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textview.MaterialTextView
+                        android:textColor="@color/white"
+                        android:id="@+id/counter"
+                        android:text="1"
+                        android:textSize="60sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
             </RelativeLayout>
 
 
@@ -63,36 +68,72 @@
         android:layout_height="match_parent"
         android:padding="10dp"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-
-        <com.google.android.material.card.MaterialCardView
+        <LinearLayout
+            android:background="@color/purple_700"
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
             <LinearLayout
+                android:id="@+id/counter_layout"
                 android:background="@color/purple_700"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="10dp">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/title_detail"
-                    android:textStyle="bold"
+                android:layout_height="wrap_content">
+                <com.google.android.material.card.MaterialCardView
+                    android:background="@color/purple_700"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="2"
-                    android:text="@string/title_place_holder"
-                    android:textSize="20sp" />
+                    android:layout_height="wrap_content">
+                    <LinearLayout
+                        android:background="@color/purple_700"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/increment_btn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/increment"/>
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/reset_btn"
+                            android:layout_marginLeft="15dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/reset"/>
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/content_detail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/content_place_holder"
-                    android:textSize="20sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:background="@color/purple_700"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/title_detail"
+                        android:textStyle="bold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:text="@string/title_place_holder"
+                        android:textSize="20sp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/content_detail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/content_place_holder"
+                        android:textSize="22sp"/>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+
 
     </androidx.core.widget.NestedScrollView>
     <LinearLayout
@@ -144,7 +185,7 @@
             android:layout_gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/record_prayer" />
+            android:text="@string/clear_counter" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:backgroundTint="@color/brown_700"
@@ -153,7 +194,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             app:fabSize="mini"
-            app:srcCompat="@drawable/ic_baseline_mic_24"
+            app:srcCompat="@drawable/ic_baseline_clear_24"
             app:tint="@android:color/white"/>
     </LinearLayout>
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton

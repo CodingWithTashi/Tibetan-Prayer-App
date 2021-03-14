@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
  * Created by kunchok on 10/03/2021
  */
 @HiltViewModel
-class PrayerViewMode @Inject constructor(private var prayerDao: PrayerDao) : ViewModel() {
+class PrayerViewModel @Inject constructor(private var prayerDao: PrayerDao) : ViewModel() {
     val searchQuery = MutableStateFlow(Prayer())
     val prayers = prayerDao.getPrayers().asLiveData()
     val favPrayers = prayerDao.getFavouritePrayer().asLiveData()

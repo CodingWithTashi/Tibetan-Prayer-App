@@ -15,7 +15,10 @@ import com.codingwithtashi.dailyprayer.adapter.ItemClickListener
 import com.codingwithtashi.dailyprayer.adapter.PrayerListAdapter
 import com.codingwithtashi.dailyprayer.model.Prayer
 import com.codingwithtashi.dailyprayer.utils.FragmentType
-import com.codingwithtashi.dailyprayer.viewmodel.PrayerViewMode
+import com.codingwithtashi.dailyprayer.utils.PrayerPreference
+import com.codingwithtashi.dailyprayer.utils.PreferenceConst
+import com.codingwithtashi.dailyprayer.viewmodel.PrayerViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textview.MaterialTextView
 
@@ -23,7 +26,7 @@ class RoutineFragment : Fragment(), ItemClickListener {
     lateinit var noPrayerAddedText: MaterialTextView;
     lateinit var favPrayerRecyclerView: RecyclerView;
     lateinit var circularProgressBar: CircularProgressIndicator;
-    private val prayerViewMode: PrayerViewMode by activityViewModels();
+    private val prayerViewModel: PrayerViewModel by activityViewModels();
     lateinit var favPrayerAdapter: PrayerListAdapter
 
     override fun onCreateView(
@@ -44,7 +47,7 @@ class RoutineFragment : Fragment(), ItemClickListener {
             setHasFixedSize(true)
 
         }
-        prayerViewMode.favPrayers.observe(viewLifecycleOwner
+        prayerViewModel.favPrayers.observe(viewLifecycleOwner
         ) {
 
             if(it.isEmpty()){
@@ -69,7 +72,26 @@ class RoutineFragment : Fragment(), ItemClickListener {
     }
 
     override fun onItemClick(prayer: Prayer) {
-        prayerViewMode.select(prayer);
+        prayerViewModel.select(prayer);
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        context?.let { PrayerPreference.setContext(it) };
+
+        val pref = PrayerPreference.getPreference().getBoolean(PreferenceConst.IS_ROUTINE_OPEN_FIRST,false);
+        if(!pref){
+            PrayerPreference.getPreference().edit().putBoolean(PreferenceConst.IS_ROUTINE_OPEN_FIRST,true).apply()
+            context?.let {
+                MaterialAlertDialogBuilder(it)
+                    .setTitle("Routine Page")
+                    .setMessage("These is where your favourite or added routine prayer will display.\n1. Go to detail prayer and click on favourite icon on top to see change\nTeam Daily Prayer")
+                    .setPositiveButton("Okay") { dialog, which ->
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 
 }

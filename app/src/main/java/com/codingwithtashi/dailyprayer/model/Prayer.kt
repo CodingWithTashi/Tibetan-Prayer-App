@@ -17,7 +17,8 @@ data class Prayer(
     var title:String? = null,
     var content:String? = null,
     var imageUrl: String? = null,
-    var isFavourite: Boolean? = false
+    var isFavourite: Boolean? = false,
+    var count: Int? = null
 ): Parcelable{
 
 }

@@ -5,8 +5,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.model.PrayerNotification
 
-class NotificationAdapter(private val items: MutableList<String>) : RecyclerView.Adapter<NotificationAdapter.VH>() {
+class NotificationAdapter(private val items: MutableList<PrayerNotification>) : RecyclerView.Adapter<NotificationAdapter.VH>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         return VH(parent)
@@ -18,8 +19,8 @@ class NotificationAdapter(private val items: MutableList<String>) : RecyclerView
 
     override fun getItemCount(): Int = items.size
 
-    fun addItem(name: String) {
-        items.add(name)
+    fun addItem(prayerNotification: PrayerNotification) {
+        items.add(prayerNotification)
         notifyItemInserted(items.size)
     }
 
@@ -30,9 +31,13 @@ class NotificationAdapter(private val items: MutableList<String>) : RecyclerView
 
     class VH(parent: ViewGroup) : RecyclerView.ViewHolder(
         LayoutInflater.from(parent.context).inflate(R.layout.notification_single_item, parent, false)) {
-        fun bind(name: String) = with(itemView) {
+        fun bind(prayerNotification: PrayerNotification) = with(itemView) {
             val txtTitle = itemView.findViewById<TextView>(R.id.txtTitle)
-            txtTitle.text = name
+            val desc = itemView.findViewById<TextView>(R.id.description)
+            val time = itemView.findViewById<TextView>(R.id.notification_time)
+            txtTitle.text = prayerNotification.title
+            desc.text = prayerNotification.content
+            time.text = prayerNotification.time
         }
     }
 }

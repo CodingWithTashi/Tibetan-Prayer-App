@@ -4,6 +4,8 @@ import android.animation.Animator
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -19,11 +21,12 @@ import com.bumptech.glide.RequestManager
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.model.Prayer
 import com.codingwithtashi.dailyprayer.utils.CommonUtils
-import com.codingwithtashi.dailyprayer.viewmodel.DetailViewModel
-import com.codingwithtashi.dailyprayer.viewmodel.PrayerViewMode
+import com.codingwithtashi.dailyprayer.viewmodel.NotificationViewModel
+import com.codingwithtashi.dailyprayer.viewmodel.PrayerViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +37,9 @@ import javax.inject.Inject
 class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     lateinit var title: MaterialTextView;
     lateinit var content: MaterialTextView;
+    lateinit var counter: MaterialTextView;
+    lateinit var incrementBtn: MaterialButton;
+    lateinit var resetBtn: MaterialButton;
     lateinit var floatingActionButton: ExtendedFloatingActionButton;
     lateinit var fabLayout1: LinearLayout;
     lateinit var fabLayout2: LinearLayout;
@@ -44,6 +50,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     lateinit var collapsingToolbarLayout: CollapsingToolbarLayout;
     lateinit var toolbar: Toolbar;
     lateinit var coordinatorLayout: CoordinatorLayout;
+    lateinit var counterLayout: LinearLayout;
     val TAG = DetailFragment::class.simpleName
     var favIcon: MenuItem? = null
     lateinit var currentPrayer: Prayer;
@@ -57,8 +64,8 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     var offSetValue = 0;
 
     //get same viewmodel
-    private val prayerViewMode: PrayerViewMode by activityViewModels();
-    private val detailViewModel: DetailViewModel by activityViewModels();
+    private val prayerViewModel: PrayerViewModel by activityViewModels();
+    private val notificationViewModel: NotificationViewModel by activityViewModels();
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -75,6 +82,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
 
     private fun initViews(view: View) {
         title = view.findViewById(R.id.title_detail);
+        counter = view.findViewById(R.id.counter);
         content = view.findViewById(R.id.content_detail);
         floatingActionButton = view.findViewById(R.id.floating_action_button);
         fabLayout1 = view.findViewById(R.id.fabLayout1);
@@ -86,6 +94,11 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
         scrollView = view.findViewById(R.id.scroll_view);
         toolbar = view.findViewById(R.id.detail_toolbar);
         coordinatorLayout = view.findViewById(R.id.detail_container);
+        counterLayout = view.findViewById(R.id.counter_layout);
+        incrementBtn = view.findViewById(R.id.increment_btn);
+        resetBtn = view.findViewById(R.id.reset_btn);
+        counterLayout = view.findViewById(R.id.counter_layout);
+
         toolbar.inflateMenu(R.menu.detail_menu)
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
         currentPrayer = Prayer();
@@ -111,7 +124,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
                         currentPrayer.isFavourite = true
                     }
 
-                    prayerViewMode.updateCurrentPrayer(currentPrayer)
+                    prayerViewModel.updateCurrentPrayer(currentPrayer)
                     Log.e(TAG, "onOptionsItemSelected: ")
 
                     true
@@ -125,7 +138,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
 
         floatingActionButton.setOnClickListener(View.OnClickListener {
 
-            if (View.GONE == fabBGLayout.visibility) {
+            if (GONE == fabBGLayout.visibility) {
                 showFABMenu()
             } else {
                 closeFABMenu()
@@ -134,12 +147,22 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
 
         fabBGLayout.setOnClickListener { closeFABMenu() }
 
+        incrementBtn.setOnClickListener{
+            currentPrayer.count = counter.text.toString().toInt()+1
+            prayerViewModel.updateCurrentPrayer(currentPrayer)
+        }
+        resetBtn.setOnClickListener{
+            currentPrayer.count = 0;
+            prayerViewModel.updateCurrentPrayer(currentPrayer)
+        }
 
 
-        prayerViewMode.selected.observe(viewLifecycleOwner, Observer {
+        prayerViewModel.selected.observe(viewLifecycleOwner, Observer {
             currentPrayer = it
             title.text = it.title
             content.text = it.content
+            collapsingToolbarLayout.title = it.title
+            counter.text=it.count.toString()
             glide.load(it.imageUrl).into(coverImage)
             favIcon = menuItem.findItem(R.id.favourite);
             if (it.isFavourite!!) {
@@ -192,9 +215,9 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     }
 
     private fun showFABMenu() {
-        fabLayout1.visibility = View.VISIBLE
-        fabLayout2.visibility = View.VISIBLE
-        fabBGLayout.visibility = View.VISIBLE
+        fabLayout1.visibility = VISIBLE
+        fabLayout2.visibility = VISIBLE
+        fabBGLayout.visibility = VISIBLE
         //floatingActionButton.animate().rotationBy(180F)
         if (offSetValue != 0) {
             fabLayout1.animate().translationY(resources.getDimension(R.dimen.standard_75))
@@ -209,6 +232,10 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
         offSetValue = verticalOffset;
         favIcon?.isVisible = verticalOffset == 0
+        if(verticalOffset==0)
+            counterLayout.visibility= VISIBLE
+        else
+            counterLayout.visibility=GONE
 
     }
 

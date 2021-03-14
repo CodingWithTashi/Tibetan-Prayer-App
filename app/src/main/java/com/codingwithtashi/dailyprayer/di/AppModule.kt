@@ -50,6 +50,10 @@ class AppModule {
     @Singleton
     fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 
+    @Provides
+    @Singleton
+    fun provideApplicationContext(@ApplicationContext context: Context) = context
+
 }
 
 @Retention(AnnotationRetention.RUNTIME)

@@ -16,4 +16,7 @@
     <string name="no_prayer_added">No Routine Prayer Found</string>
     <string name="no_notification">No Notification</string>
     <string name="favourite">Favourite</string>
+    <string name="clear_counter">Clear Counter</string>
+    <string name="increment">Increment</string>
+    <string name="reset">Reset</string>
 </resources>

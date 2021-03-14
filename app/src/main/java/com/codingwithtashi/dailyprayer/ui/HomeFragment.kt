@@ -14,7 +14,10 @@ import com.codingwithtashi.dailyprayer.adapter.ItemClickListener
 import com.codingwithtashi.dailyprayer.adapter.PrayerListAdapter
 import com.codingwithtashi.dailyprayer.model.Prayer
 import com.codingwithtashi.dailyprayer.utils.FragmentType
-import com.codingwithtashi.dailyprayer.viewmodel.PrayerViewMode
+import com.codingwithtashi.dailyprayer.utils.PrayerPreference
+import com.codingwithtashi.dailyprayer.utils.PreferenceConst
+import com.codingwithtashi.dailyprayer.viewmodel.PrayerViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +28,7 @@ class HomeFragment : Fragment(),ItemClickListener {
     lateinit var prayerRecyclerView: RecyclerView;
     lateinit var noPrayerFoundText: MaterialTextView;
     lateinit var circularProgressBar: CircularProgressIndicator;
-    private val prayerViewMode: PrayerViewMode by activityViewModels();
+    private val prayerViewModel: PrayerViewModel by activityViewModels();
     lateinit var prayerAdapter: PrayerListAdapter
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,7 +48,7 @@ class HomeFragment : Fragment(),ItemClickListener {
             setHasFixedSize(true)
 
         }
-        prayerViewMode.prayers.observe(viewLifecycleOwner
+        prayerViewModel.prayers.observe(viewLifecycleOwner
         ) {
 
             if(it.isEmpty()){
@@ -69,7 +72,26 @@ class HomeFragment : Fragment(),ItemClickListener {
     }
 
     override fun onItemClick(prayer: Prayer) {
-        prayerViewMode.select(prayer);
+        prayerViewModel.select(prayer);
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        context?.let { PrayerPreference.setContext(it) };
+
+        val pref = PrayerPreference.getPreference().getBoolean(PreferenceConst.IS_APP_OPEN_FIRST,false);
+        if(!pref){
+            PrayerPreference.getPreference().edit().putBoolean(PreferenceConst.IS_APP_OPEN_FIRST,true).apply()
+            context?.let {
+                MaterialAlertDialogBuilder(it)
+                    .setTitle("Welcome Folks")
+                    .setMessage("Thanks for choosing Daily Prayer. With this Prayer App \n1. You can add routine\n2. You can count each prayer\n3.You can send prayer request\nTeam Daily Prayer")
+                    .setPositiveButton("Okay") { dialog, which ->
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 
 }
