@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.codingwithtashi.dailyprayer">
+    package="com.codingwithtashi.dailyprayer" >
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -11,9 +11,12 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/prayer"
         android:supportsRtl="true"
-        android:theme="@style/Theme.DailyPrayer">
-        <activity android:name=".SettingActivity"></activity>
-        <activity android:name=".MainActivity">
+        android:theme="@style/Theme.DailyPrayer" >
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
+        <activity android:name=".MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

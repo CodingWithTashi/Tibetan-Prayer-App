@@ -1,6 +1,8 @@
 package com.codingwithtashi.dailyprayer.ui
 
 import android.animation.Animator
+import android.app.Dialog
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -9,6 +11,7 @@ import android.view.View.VISIBLE
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.SeekBar
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -17,6 +20,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import com.bumptech.glide.RequestManager
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.model.Prayer
@@ -28,6 +32,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textview.MaterialTextView
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -42,6 +47,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     lateinit var resetBtn: MaterialButton;
     lateinit var floatingActionButton: ExtendedFloatingActionButton;
     lateinit var fabLayout1: LinearLayout;
+    lateinit var fab1: FloatingActionButton;
     lateinit var fabLayout2: LinearLayout;
     lateinit var fabBGLayout: View;
     lateinit var appBarLayout: AppBarLayout;
@@ -86,6 +92,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
         content = view.findViewById(R.id.content_detail);
         floatingActionButton = view.findViewById(R.id.floating_action_button);
         fabLayout1 = view.findViewById(R.id.fabLayout1);
+        fab1 = view.findViewById(R.id.fab1);
         fabLayout2 = view.findViewById(R.id.fabLayout2);
         fabBGLayout = view.findViewById(R.id.fabBGLayout);
         appBarLayout = view.findViewById(R.id.appbar_layout);
@@ -187,11 +194,22 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
             val height: Int = content.getMeasuredHeight()
 
         })
+        fab1.setOnClickListener{
+            appBarLayout.setExpanded(false, true)
+            val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+            val seekBarVal = prefs.getInt("seekbar_example", 3);
+            val speed = seekBarVal
+           // scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, 16000) }
+        }
 
-        scrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-            Log.e("ScrollView", "_scrollY_" + scrollY + "_oldScrollY_" + oldScrollY)
-            //Do something
-        })
+        scrollView.viewTreeObserver.addOnScrollChangedListener {
+            val bottom = scrollView.getChildAt(scrollView.childCount - 1).height - scrollView.height - scrollView.scrollY
+            if (bottom == 0) {
+                appBarLayout.setExpanded(true, true)
+                scrollView.fullScroll(View.FOCUS_UP)
+                scrollView.smoothScrollTo(0,0,1000)
+            }
+        }
     }
 
 
@@ -236,6 +254,43 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
             counterLayout.visibility= VISIBLE
         else
             counterLayout.visibility=GONE
+
+    }
+    private fun showDialog() {
+        var count = 0;
+        val dialog = activity?.let { Dialog(it) }
+        dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog?.setCancelable(false)
+        dialog?.setContentView(R.layout.seek_bar_dialog)
+        val selectBtn = dialog?.findViewById(R.id.select_btn) as MaterialButton
+        val cancelBtn = dialog?.findViewById(R.id.cancel_btn) as MaterialButton
+        val seekBar = dialog.findViewById(R.id.your_dialog_seekbar) as SeekBar
+        selectBtn.setOnClickListener {
+            dialog.dismiss()
+            var speed = count*10000;
+            Log.e("TAG", "showDialog: SPPED"+speed, )
+            appBarLayout.setExpanded(false, true)
+            scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, (speed)) }
+        }
+        cancelBtn.setOnClickListener { dialog.dismiss() }
+        dialog.show()
+        val yourSeekBarListener: SeekBar.OnSeekBarChangeListener = object :
+            SeekBar.OnSeekBarChangeListener {
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                //add code here
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                //add code here
+            }
+
+            override fun onProgressChanged(seekBark: SeekBar, progress: Int, fromUser: Boolean) {
+                count = progress;
+                Log.e("TAG", "onProgressChanged: "+progress, )
+            }
+        }
+        seekBar.setOnSeekBarChangeListener(yourSeekBarListener);
+
 
     }
 

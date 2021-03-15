@@ -136,6 +136,12 @@
 
 
     </androidx.core.widget.NestedScrollView>
+    <View
+        android:id="@+id/fabBGLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorTransBg"
+        android:visibility="gone" />
     <LinearLayout
         android:id="@+id/fabLayout1"
         android:layout_width="wrap_content"
@@ -215,12 +221,7 @@
         app:rippleColor="#E4D6D6"
         android:contentDescription="@string/option" />
 
-    <View
-        android:id="@+id/fabBGLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorTransBg"
-        android:visibility="gone" />
+
 
 
 
