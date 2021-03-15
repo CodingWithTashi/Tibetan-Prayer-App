@@ -1,5 +1,6 @@
 package com.codingwithtashi.dailyprayer.ui
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -7,6 +8,7 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.codingwithtashi.dailyprayer.R
@@ -39,6 +41,7 @@ class HomeFragment : Fragment(),ItemClickListener {
         var itemClickListener = this;
 
         initViews(view);
+        setPreferences()
 
         circularProgressBar.visibility = VISIBLE
 
@@ -62,6 +65,16 @@ class HomeFragment : Fragment(),ItemClickListener {
             }
         }
         return view;
+    }
+
+    private fun setPreferences() {
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val name = prefs.getString("signature", null);
+        if(name==null){
+           activity?.setTitle(R.string.app_name)
+        }else
+            activity?.title = "Hi $name"
+
     }
 
     private fun initViews(view: View) {

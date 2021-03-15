@@ -1,31 +1,32 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="Design/Style">
+    <PreferenceCategory
+        app:title="Design/Style">
 
         <EditTextPreference
-            app:icon="@drawable/ic_launcher_background"
+            app:icon="@drawable/ic_baseline_person_24"
             app:key="signature"
             app:title="Your Name"
             app:useSimpleSummaryProvider="true" />
         <SeekBarPreference
-            app:icon="@drawable/ic_launcher_background"
+            app:icon="@drawable/scroll_wh"
             android:max="8"
             app:key="seekbar_example"
             app:title="Select autoscroll speed"
             app:defaultValue="1"/>
         <SeekBarPreference
-            app:icon="@drawable/ic_launcher_background"
-            android:max="30"
+            app:icon="@drawable/ic_baseline_font_download_24"
+            android:max="5"
             app:key="prayer_font"
             app:title="Prayer Font Size"
-            app:defaultValue="18"/>
+            app:defaultValue="0"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Language">
         <ListPreference
-            app:icon="@drawable/ic_launcher_background"
+            app:icon="@drawable/ic_baseline_language_24"
             app:defaultValue="reply"
             app:entries="@array/reply_entries"
             app:entryValues="@array/reply_values"

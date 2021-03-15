@@ -1,6 +1,7 @@
 package com.codingwithtashi.dailyprayer
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -13,6 +14,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.EntryPoint
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         initViews();
         setUpNavigation();
         bottomNavListener();
+        setPreference()
     }
 
     private fun initViews() {
@@ -36,6 +39,14 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView =findViewById(R.id.bottom_nav);
         setSupportActionBar(commonToolbar)
 
+    }
+    private fun setPreference() {
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val name = prefs.getString("signature", null);
+        if(name==null){
+            commonToolbar.setTitle(R.string.app_name)
+        }else
+            commonToolbar.title = "Hi $name"
 
     }
 

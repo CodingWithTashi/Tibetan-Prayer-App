@@ -81,8 +81,14 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
         val view = inflater.inflate(R.layout.fragment_detail, container, false)
         initViews(view);
         initListener(view);
-
+        setPreference()
         return view;
+    }
+
+    private fun setPreference() {
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val fontSize = prefs.getInt("prayer_font", 0);
+        content.textSize = fontSize.toFloat()+24
     }
 
 
@@ -198,8 +204,10 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
             appBarLayout.setExpanded(false, true)
             val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seekBarVal = prefs.getInt("seekbar_example", 3);
-            val speed = seekBarVal
-           // scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, 16000) }
+            val seekBarData = 15-seekBarVal
+            Log.e(TAG, "initListener: HEIGHT"+scrollView.getChildAt(0).height, )
+            val speed = scrollView.getChildAt(0).height*seekBarData
+            scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, speed) }
         }
 
         scrollView.viewTreeObserver.addOnScrollChangedListener {
