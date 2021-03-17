@@ -5,7 +5,7 @@
     android:background="@color/purple_700"
     android:orientation="vertical">
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/common_toolbar"
+        android:id="@+id/settings_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"

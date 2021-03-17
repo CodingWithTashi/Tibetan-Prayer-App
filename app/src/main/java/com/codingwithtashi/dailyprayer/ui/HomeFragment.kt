@@ -41,7 +41,6 @@ class HomeFragment : Fragment(),ItemClickListener {
         var itemClickListener = this;
 
         initViews(view);
-        setPreferences()
 
         circularProgressBar.visibility = VISIBLE
 

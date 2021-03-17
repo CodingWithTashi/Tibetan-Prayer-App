@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         initViews();
         setUpNavigation();
         bottomNavListener();
-        setPreference()
     }
 
     private fun initViews() {
