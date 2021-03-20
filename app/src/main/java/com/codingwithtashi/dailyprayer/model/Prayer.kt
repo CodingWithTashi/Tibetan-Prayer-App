@@ -20,5 +20,4 @@ data class Prayer(
     var isFavourite: Boolean? = false,
     var count: Int? = null
 ): Parcelable{
-
 }

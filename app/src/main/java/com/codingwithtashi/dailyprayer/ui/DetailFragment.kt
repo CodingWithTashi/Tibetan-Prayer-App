@@ -48,6 +48,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     lateinit var floatingActionButton: ExtendedFloatingActionButton;
     lateinit var fabLayout1: LinearLayout;
     lateinit var fab1: FloatingActionButton;
+    lateinit var fab2: FloatingActionButton;
     lateinit var fabLayout2: LinearLayout;
     lateinit var fabBGLayout: View;
     lateinit var appBarLayout: AppBarLayout;
@@ -99,6 +100,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
         floatingActionButton = view.findViewById(R.id.floating_action_button);
         fabLayout1 = view.findViewById(R.id.fabLayout1);
         fab1 = view.findViewById(R.id.fab1);
+        fab2 = view.findViewById(R.id.fab2);
         fabLayout2 = view.findViewById(R.id.fabLayout2);
         fabBGLayout = view.findViewById(R.id.fabBGLayout);
         appBarLayout = view.findViewById(R.id.appbar_layout);
@@ -208,6 +210,9 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
             Log.e(TAG, "initListener: HEIGHT"+scrollView.getChildAt(0).height, )
             val speed = scrollView.getChildAt(0).height*seekBarData
             scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, speed) }
+        }
+        fab2.setOnClickListener{
+            context?.let { it1 -> CommonUtils.displayShortMessage(it1,getString(R.string.feature_not_available_now)) }
         }
 
         scrollView.viewTreeObserver.addOnScrollChangedListener {

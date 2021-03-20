@@ -16,7 +16,8 @@
 
         <LinearLayout
             android:background="@color/purple_700"
-            android:padding="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -28,17 +29,19 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:text="@string/sno_place_holder"
-                android:textSize="22sp" />
+                android:textSize="24sp" />
 
             <com.google.android.material.textview.MaterialTextView
+                android:paddingTop="5dp"
+                android:paddingBottom="7dp"
                 android:id="@+id/content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="9"
                 android:ellipsize="end"
                 android:maxLines="2"
-                android:text="@string/title_place_holder"
-                android:textSize="20sp" />
+                android:text="རྒྱུན་ཆགས་གསུམ་པ།"
+                android:textSize="24sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

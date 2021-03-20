@@ -4,5 +4,7 @@
 
     <item android:title="Settings"
         android:id="@+id/settings"/>
+    <item android:title="Set routine"
+        android:id="@+id/routine"/>
 
 </menu>

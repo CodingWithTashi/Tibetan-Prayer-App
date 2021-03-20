@@ -10,6 +10,7 @@
 
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layoutAnimation="@anim/layout_animation"
         android:background="@color/purple_700"
         android:id="@+id/fav_prayer_list_container"
         android:layout_width="match_parent"

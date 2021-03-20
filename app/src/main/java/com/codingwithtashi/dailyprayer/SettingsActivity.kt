@@ -1,6 +1,8 @@
 package com.codingwithtashi.dailyprayer
 
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.appbar.MaterialToolbar
@@ -24,7 +26,14 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
+        Log.e("TAG", "onBackPressed: BACK PRESSWS", )
         finish()
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        onBackPressed()
+        return super.onOptionsItemSelected(item)
 
     }
 

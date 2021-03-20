@@ -6,16 +6,17 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/seekbar_value"
+        android:textSize="24sp"
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Seekbar Settings"/>
+        android:text="Auto Scroll"/>
 
     <SeekBar
         android:progressTint="@android:color/black"
         android:maxHeight="3dp"
         android:minHeight="3dp"
-        android:id="@+id/seekbar"
+        android:id="@+id/seekbar_example"
         android:thumbTint="@android:color/darker_gray"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

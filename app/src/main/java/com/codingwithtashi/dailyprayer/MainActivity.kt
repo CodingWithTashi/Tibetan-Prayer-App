@@ -78,6 +78,9 @@ class MainActivity : AppCompatActivity() {
             R.id.settings->{
                 startActivity(Intent(this,SettingsActivity::class.java));
             }
+            R.id.routine->{
+                startActivity(Intent(this,AlarmActivity::class.java));
+            }
         }
         return super.onOptionsItemSelected(item)
     }

@@ -2,11 +2,9 @@ package com.codingwithtashi.dailyprayer.viewmodel
 import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import com.codingwithtashi.dailyprayer.dao.PrayerDao
 import com.codingwithtashi.dailyprayer.model.Prayer
-import com.codingwithtashi.dailyprayer.repository.FirebaseRepository
 import javax.inject.Inject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.scopes.ViewModelScoped

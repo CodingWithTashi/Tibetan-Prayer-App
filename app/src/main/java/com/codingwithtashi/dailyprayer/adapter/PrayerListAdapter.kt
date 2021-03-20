@@ -39,7 +39,7 @@ class PrayerListAdapter(var listener: ItemClickListener,var type: String) : List
             type: String
         ) {
             val sno = position+1;
-            title.text ="$sno. ";
+            title.text ="༄༅། ";
             content.text = prayer?.title;
             itemView.setOnClickListener {
                 if (prayer != null) {
