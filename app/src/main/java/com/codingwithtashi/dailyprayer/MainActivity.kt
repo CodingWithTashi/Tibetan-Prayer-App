@@ -2,32 +2,40 @@ package com.codingwithtashi.dailyprayer
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import dagger.hilt.EntryPoint
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+    companion object{
+        var TAG = MainActivity::class.java.name
+    }
     private lateinit var bottomNavigationView : BottomNavigationView;
     lateinit var navHostFragment: NavHostFragment;
     lateinit var commonToolbar: MaterialToolbar;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        var data = getIntent().getExtras();
+        Log.e(TAG, "onCreate: $data", )
+        if(data!=null){
+            Log.e(TAG, "onCreate: "+data.getString("title"), )
+            Log.e(TAG, "onCreate: "+data.getString("body"), )
+        }
+
         initViews();
         setUpNavigation();
         bottomNavListener();
@@ -80,6 +88,19 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.routine->{
                 startActivity(Intent(this,AlarmActivity::class.java));
+            }
+            R.id.contact_us->{
+                val intent = Intent(Intent.ACTION_SENDTO)
+                intent.type = "text/plain";
+                intent.data = Uri.parse("mailto:developer.kharag@gmail.com");
+                //intent.putExtra(Intent.EXTRA_EMAIL, "developer.kharag@gmail.com")
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Prayer Request")
+                startActivity(Intent.createChooser(intent, "Send Email"))
+            }
+            R.id.more->{
+                val browserIntent =
+                    Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/techtibet"))
+                startActivity(browserIntent)
             }
         }
         return super.onOptionsItemSelected(item)

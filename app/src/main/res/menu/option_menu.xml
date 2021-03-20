@@ -6,5 +6,9 @@
         android:id="@+id/settings"/>
     <item android:title="Set routine"
         android:id="@+id/routine"/>
+    <item android:title="Prayer request"
+        android:id="@+id/contact_us"/>
+    <item android:title="More"
+        android:id="@+id/more"/>
 
 </menu>

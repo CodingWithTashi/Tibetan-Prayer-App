@@ -121,7 +121,8 @@
                         android:ellipsize="end"
                         android:maxLines="2"
                         android:text="@string/title_place_holder"
-                        android:textSize="20sp" />
+                        android:textSize="24sp"
+                        android:paddingBottom="7dp"/>
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/content_detail"

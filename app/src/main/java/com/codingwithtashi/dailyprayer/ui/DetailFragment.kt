@@ -89,7 +89,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     private fun setPreference() {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val fontSize = prefs.getInt("prayer_font", 0);
-        content.textSize = fontSize.toFloat()+24
+        content.textSize = fontSize.toFloat()+22
     }
 
 
