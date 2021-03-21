@@ -5,10 +5,13 @@
     <item android:title="Settings"
         android:id="@+id/settings"/>
     <item android:title="Set routine"
+        android:visible="false"
         android:id="@+id/routine"/>
     <item android:title="Prayer request"
         android:id="@+id/contact_us"/>
-    <item android:title="More"
+    <item android:title="Rate Us"
+        android:id="@+id/rate_us"/>
+    <item android:title="Follow TechTibet"
         android:id="@+id/more"/>
 
 </menu>

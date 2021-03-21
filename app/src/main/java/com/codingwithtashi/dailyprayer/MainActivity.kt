@@ -89,6 +89,9 @@ class MainActivity : AppCompatActivity() {
             R.id.routine->{
                 startActivity(Intent(this,AlarmActivity::class.java));
             }
+            R.id.rate_us->{
+                startActivity(Intent(this,AlarmActivity::class.java));
+            }
             R.id.contact_us->{
                 val intent = Intent(Intent.ACTION_SENDTO)
                 intent.type = "text/plain";

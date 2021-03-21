@@ -23,6 +23,7 @@ import com.codingwithtashi.dailyprayer.viewmodel.NotificationViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textview.MaterialTextView
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class NotificationFragment : Fragment() {
@@ -30,7 +31,7 @@ class NotificationFragment : Fragment() {
    lateinit var recyclerView:RecyclerView;
     lateinit var relativeLayout:RelativeLayout;
     lateinit var notificationAdapter:NotificationAdapter
-    lateinit var mutableListOfPrayerNotification: MutableList<PrayerNotification>
+    lateinit var notificationList: List<PrayerNotification>
     private val notificationViewModel: NotificationViewModel by activityViewModels();
 
     override fun onCreateView(
@@ -44,16 +45,17 @@ class NotificationFragment : Fragment() {
         notificationMsg.visibility= View.VISIBLE;
 
         recyclerView = view.findViewById(R.id.recyclerView)
-        mutableListOfPrayerNotification = mutableListOf()
+        notificationList = emptyList()
 
 
 
         val swipeHandler = object : SwipeToDeleteCallback(context) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val adapter = recyclerView.adapter as NotificationAdapter
+                notificationViewModel.deleteNotification(notificationList[viewHolder.adapterPosition])
                 adapter.removeAt(viewHolder.adapterPosition)
-                CommonUtils.displaySnackBar(relativeLayout,"Deleted");
-                if(mutableListOfPrayerNotification.size==0){
+                activity?.let { CommonUtils.displayShortMessage(it,"Deleted") };
+                if(notificationList.isEmpty()){
                     notificationMsg.visibility= View.VISIBLE;
                 }
             }
@@ -64,10 +66,10 @@ class NotificationFragment : Fragment() {
         notificationViewModel.notifications.observe(viewLifecycleOwner
         ) {
             if(it.size>0){
-
+                notificationList = it
                 notificationMsg.visibility= View.GONE;
-                mutableListOfPrayerNotification = it
-                notificationAdapter =NotificationAdapter(mutableListOfPrayerNotification)
+                //mutableListOfPrayerNotification = it
+                notificationAdapter =NotificationAdapter(notificationList as ArrayList<PrayerNotification>)
 
                 recyclerView.apply {
                     addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))

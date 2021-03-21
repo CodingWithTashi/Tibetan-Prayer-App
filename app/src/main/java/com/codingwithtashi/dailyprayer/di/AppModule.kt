@@ -7,6 +7,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.dao.NotificationDao
 import com.codingwithtashi.dailyprayer.dao.PrayerDatabase
 import dagger.Module
 import dagger.Provides
@@ -44,6 +45,9 @@ class AppModule {
 
     @Provides
     fun provideTaskDao(db: PrayerDatabase) = db.prayerDao()
+
+    @Provides
+    fun provideNotificationDao(db: PrayerDatabase) = db.notificationDao()
 
     @ApplicationScope
     @Provides

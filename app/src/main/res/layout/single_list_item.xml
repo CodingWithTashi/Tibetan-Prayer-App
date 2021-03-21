@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="9"
                 android:ellipsize="end"
-                android:maxLines="2"
+                android:maxLines="1"
                 android:text="རྒྱུན་ཆགས་གསུམ་པ།"
                 android:textSize="24sp" />
         </LinearLayout>

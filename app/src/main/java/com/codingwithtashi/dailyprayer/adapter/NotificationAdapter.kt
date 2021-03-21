@@ -1,13 +1,16 @@
 package com.codingwithtashi.dailyprayer.adapter
 
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.model.PrayerNotification
 
-class NotificationAdapter(private val items: MutableList<PrayerNotification>) : RecyclerView.Adapter<NotificationAdapter.VH>() {
+class NotificationAdapter(private val items: ArrayList<PrayerNotification>) : RecyclerView.Adapter<NotificationAdapter.VH>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         return VH(parent)
@@ -19,10 +22,6 @@ class NotificationAdapter(private val items: MutableList<PrayerNotification>) : 
 
     override fun getItemCount(): Int = items.size
 
-    fun addItem(prayerNotification: PrayerNotification) {
-        items.add(prayerNotification)
-        notifyItemInserted(items.size)
-    }
 
     fun removeAt(position: Int) {
         items.removeAt(position)
@@ -35,9 +34,17 @@ class NotificationAdapter(private val items: MutableList<PrayerNotification>) : 
             val txtTitle = itemView.findViewById<TextView>(R.id.txtTitle)
             val desc = itemView.findViewById<TextView>(R.id.description)
             val time = itemView.findViewById<TextView>(R.id.notification_time)
+            val moreText = itemView.findViewById<TextView>(R.id.more_text)
             txtTitle.text = prayerNotification.title
             desc.text = prayerNotification.content
             time.text = prayerNotification.time
+            if(!prayerNotification.link.isNullOrEmpty()){
+                moreText.visibility = View.VISIBLE
+                moreText.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(prayerNotification.link))
+                    context.startActivity(intent)
+                }
+            }
         }
     }
 }
