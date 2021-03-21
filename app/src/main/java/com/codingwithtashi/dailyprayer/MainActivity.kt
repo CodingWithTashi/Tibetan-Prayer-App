@@ -1,5 +1,6 @@
 package com.codingwithtashi.dailyprayer
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
@@ -90,7 +91,29 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this,AlarmActivity::class.java));
             }
             R.id.rate_us->{
-                startActivity(Intent(this,AlarmActivity::class.java));
+                try {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
+                } catch (e: ActivityNotFoundException) {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$packageName")))
+                }
+            }
+            R.id.share_app->{
+                try {
+                    val shareIntent = Intent(Intent.ACTION_SEND)
+                    shareIntent.type = "text/plain"
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
+                    var shareMessage = "\nCheck out this prayer application.\n\n"
+                    shareMessage =
+                        """
+                        ${shareMessage}https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}
+                        
+                        
+                        """.trimIndent()
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
+                    startActivity(Intent.createChooser(shareIntent, "choose one"))
+                } catch (e: Exception) {
+                    //e.toString();
+                }
             }
             R.id.contact_us->{
                 val intent = Intent(Intent.ACTION_SENDTO)

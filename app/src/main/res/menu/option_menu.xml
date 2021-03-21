@@ -11,6 +11,8 @@
         android:id="@+id/contact_us"/>
     <item android:title="Rate Us"
         android:id="@+id/rate_us"/>
+    <item android:title="Share"
+        android:id="@+id/share_app"/>
     <item android:title="Follow TechTibet"
         android:id="@+id/more"/>
 
