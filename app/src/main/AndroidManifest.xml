@@ -17,11 +17,7 @@
         android:theme="@style/Theme.DailyPrayer">
 
         <receiver
-            android:name=".AlarmReceiver"
-            android:enabled="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-            </intent-filter>
+            android:name=".AlarmReceiver">
         </receiver>
         <service
             android:name=".MessagingService"
