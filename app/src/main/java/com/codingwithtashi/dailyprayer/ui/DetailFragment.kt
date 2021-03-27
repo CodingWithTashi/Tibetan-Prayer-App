@@ -1,8 +1,10 @@
 package com.codingwithtashi.dailyprayer.ui
 
 import android.animation.Animator
+import android.app.ActionBar
 import android.app.Dialog
 import android.content.SharedPreferences
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -11,7 +13,7 @@ import android.view.View.VISIBLE
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.SeekBar
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
@@ -25,6 +27,10 @@ import com.bumptech.glide.RequestManager
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.model.Prayer
 import com.codingwithtashi.dailyprayer.utils.CommonUtils
+import com.codingwithtashi.dailyprayer.utils.Constant.Companion.COMPLETED
+import com.codingwithtashi.dailyprayer.utils.Constant.Companion.DOWNLOADING
+import com.codingwithtashi.dailyprayer.utils.Constant.Companion.TRY_AGAIN
+import com.codingwithtashi.dailyprayer.utils.STATUS
 import com.codingwithtashi.dailyprayer.viewmodel.NotificationViewModel
 import com.codingwithtashi.dailyprayer.viewmodel.PrayerViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -33,13 +39,18 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textview.MaterialTextView
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
 import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
+class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener,
+    MediaPlayer.OnPreparedListener {
     lateinit var title: MaterialTextView;
     lateinit var content: MaterialTextView;
     lateinit var counter: MaterialTextView;
@@ -63,6 +74,9 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     lateinit var currentPrayer: Prayer;
     lateinit var googleSignInClient: GoogleSignInClient;
     val RC_SIGN_IN = 0
+    lateinit var storage: FirebaseStorage;
+    lateinit var storageReference: StorageReference;
+    lateinit var mediaPlayer: MediaPlayer;
 
 
     @Inject
@@ -89,7 +103,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     private fun setPreference() {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val fontSize = prefs.getInt("prayer_font", 0);
-        content.textSize = fontSize.toFloat()+22
+        content.textSize = fontSize.toFloat() + 22
     }
 
 
@@ -117,7 +131,8 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
         toolbar.inflateMenu(R.menu.detail_menu)
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
         currentPrayer = Prayer();
-
+        storage = FirebaseStorage.getInstance();
+        mediaPlayer = MediaPlayer()
 
     }
 
@@ -144,6 +159,26 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
 
                     true
                 }
+                R.id.download_icon -> {
+                    showDownloadDialog();
+                    true;
+                }
+                R.id.play_icon -> {
+                    mediaPlayer.start()
+                    menuItem.findItem(R.id.play_icon).isVisible = false
+                    menuItem.findItem(R.id.pause_icon).isVisible = true
+
+                    true
+                }
+                R.id.pause_icon -> {
+                    if(mediaPlayer.isPlaying){
+                        mediaPlayer.pause()
+                        menuItem.findItem(R.id.pause_icon).isVisible = false
+                        menuItem.findItem(R.id.play_icon).isVisible = true
+                    }
+
+                    true
+                }
                 else ->
                     true
             }
@@ -162,22 +197,39 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
 
         fabBGLayout.setOnClickListener { closeFABMenu() }
 
-        incrementBtn.setOnClickListener{
-            currentPrayer.count = counter.text.toString().toInt()+1
+        incrementBtn.setOnClickListener {
+            currentPrayer.count = counter.text.toString().toInt() + 1
             prayerViewModel.updateCurrentPrayer(currentPrayer)
         }
-        resetBtn.setOnClickListener{
+        resetBtn.setOnClickListener {
             currentPrayer.count = 0;
             prayerViewModel.updateCurrentPrayer(currentPrayer)
         }
 
 
         prayerViewModel.selected.observe(viewLifecycleOwner, Observer {
+
             currentPrayer = it
+
+            menuItem = toolbar.menu;
+            if (currentPrayer.isDownloaded!!) {
+                //if(File(currentPrayer.audioPath).exists())
+                menuItem.findItem(R.id.download_icon).isVisible = false;
+                menuItem.findItem(R.id.play_icon).isVisible = true
+            }
+
+           if(!mediaPlayer.isPlaying){
+               mediaPlayer.setDataSource(currentPrayer.audioPath)
+               mediaPlayer.prepare();
+           }
+            if(mediaPlayer.isPlaying){
+                menuItem.findItem(R.id.play_icon).isVisible = false
+            }
+
             title.text = it.title
             content.text = it.content
             collapsingToolbarLayout.title = it.title
-            counter.text=it.count.toString()
+            counter.text = it.count.toString()
             glide.load(it.imageUrl).into(coverImage)
             favIcon = menuItem.findItem(R.id.favourite);
             if (it.isFavourite!!) {
@@ -198,29 +250,38 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
             }
         })
 
+
+
+
         content.viewTreeObserver.addOnGlobalLayoutListener(OnGlobalLayoutListener {
             val height: Int = content.getMeasuredHeight()
 
         })
-        fab1.setOnClickListener{
+        fab1.setOnClickListener {
             appBarLayout.setExpanded(false, true)
             val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seekBarVal = prefs.getInt("seekbar_example", 3);
-            val seekBarData = 15-seekBarVal
-            Log.e(TAG, "initListener: HEIGHT"+scrollView.getChildAt(0).height, )
-            val speed = scrollView.getChildAt(0).height*seekBarData
+            val seekBarData = 15 - seekBarVal
+            Log.e(TAG, "initListener: HEIGHT" + scrollView.getChildAt(0).height,)
+            val speed = scrollView.getChildAt(0).height * seekBarData
             scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, speed) }
         }
-        fab2.setOnClickListener{
-            context?.let { it1 -> CommonUtils.displayShortMessage(it1,getString(R.string.feature_not_available_now)) }
+        fab2.setOnClickListener {
+            context?.let { it1 ->
+                CommonUtils.displayShortMessage(
+                    it1,
+                    getString(R.string.feature_not_available_now)
+                )
+            }
         }
 
         scrollView.viewTreeObserver.addOnScrollChangedListener {
-            val bottom = scrollView.getChildAt(scrollView.childCount - 1).height - scrollView.height - scrollView.scrollY
+            val bottom =
+                scrollView.getChildAt(scrollView.childCount - 1).height - scrollView.height - scrollView.scrollY
             if (bottom == 0) {
                 appBarLayout.setExpanded(true, true)
                 scrollView.fullScroll(View.FOCUS_UP)
-                scrollView.smoothScrollTo(0,0,1000)
+                scrollView.smoothScrollTo(0, 0, 1000)
             }
         }
     }
@@ -263,48 +324,70 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener {
     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
         offSetValue = verticalOffset;
         favIcon?.isVisible = verticalOffset == 0
-        if(verticalOffset==0)
-            counterLayout.visibility= VISIBLE
+        if (verticalOffset == 0)
+            counterLayout.visibility = VISIBLE
         else
-            counterLayout.visibility=GONE
+            counterLayout.visibility = GONE
 
     }
-    private fun showDialog() {
-        var count = 0;
+
+    private fun showDownloadDialog() {
         val dialog = activity?.let { Dialog(it) }
         dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog?.setCancelable(false)
-        dialog?.setContentView(R.layout.seek_bar_dialog)
-        val selectBtn = dialog?.findViewById(R.id.select_btn) as MaterialButton
-        val cancelBtn = dialog?.findViewById(R.id.cancel_btn) as MaterialButton
-        val seekBar = dialog.findViewById(R.id.your_dialog_seekbar) as SeekBar
-        selectBtn.setOnClickListener {
-            dialog.dismiss()
-            var speed = count*10000;
-            Log.e("TAG", "showDialog: SPPED"+speed, )
-            appBarLayout.setExpanded(false, true)
-            scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, (speed)) }
+        dialog?.setContentView(R.layout.download_progress_dialog)
+        val window: Window? = dialog?.window
+        window?.setLayout(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT)
+        val downlodBtn = dialog?.findViewById(R.id.download_dialog_btn) as MaterialButton
+        val cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn) as MaterialButton
+        val progressBar = dialog.findViewById(R.id.download_progress_bar) as LinearProgressIndicator
+        val currentPosition = dialog.findViewById(R.id.current_position) as TextView
+        val prayerName = dialog.findViewById(R.id.prayer_name) as TextView
+        val linearLayout = dialog.findViewById(R.id.download_progress_layout) as LinearLayout
+
+
+        downlodBtn.setOnClickListener {
+            prayerName.text = "Downloading Prayer: ${currentPrayer.title}"
+            linearLayout.visibility = VISIBLE;
+            prayerViewModel.downloadPrayer("https://firebasestorage.googleapis.com/v0/b/daily-prayer-81677.appspot.com/o/Tara%2021%20prayer%20dolma%20prayer%20%23Dolma%2021%20prayer%20%E0%BD%A6%E0%BD%A3%E0%BD%98%E0%BD%89%E0%BD%A2%E0%BD%85%E0%BD%82%E0%BD%82%E0%BD%96%E0%BD%A6%E0%BD%91%E0%BD%94%20%23tara%20%23greentara%20%23dolmatara.mp3?alt=media&token=248cf734-86dd-41ba-9b34-285220e679fb");
+            prayerViewModel.downloadListener.observe(viewLifecycleOwner, Observer {
+                if (it.status == STATUS.DOWNLOADING) {
+                    progressBar.progress = it.progress
+                    currentPosition.text = "${it.progress}%"
+                    downlodBtn.text = DOWNLOADING
+                    downlodBtn.isEnabled = false;
+                    Log.e(TAG, "initListener: Downloading....",)
+                }
+                if (it.status == STATUS.ERROR) {
+                    downlodBtn.text = TRY_AGAIN
+                    downlodBtn.isEnabled = true;
+                    context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
+                    Log.e(TAG, "initListener: Downloading...." + it.error,)
+                }
+                if (it.status == STATUS.SUCCESS) {
+                    Log.e(TAG, "initListener: Downloaded...." + it.error,)
+                    downlodBtn.text = COMPLETED
+                    downlodBtn.isEnabled = false;
+                    currentPrayer.isDownloaded = true;
+                    currentPrayer.audioPath = it.data
+                    prayerViewModel.updateCurrentPrayer(currentPrayer)
+                }
+            })
         }
+
         cancelBtn.setOnClickListener { dialog.dismiss() }
         dialog.show()
-        val yourSeekBarListener: SeekBar.OnSeekBarChangeListener = object :
-            SeekBar.OnSeekBarChangeListener {
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                //add code here
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {
-                //add code here
-            }
-
-            override fun onProgressChanged(seekBark: SeekBar, progress: Int, fromUser: Boolean) {
-                count = progress;
-                Log.e("TAG", "onProgressChanged: "+progress, )
-            }
-        }
-        seekBar.setOnSeekBarChangeListener(yourSeekBarListener);
 
 
+    }
+
+    override fun onPrepared(mp: MediaPlayer?) {
+        mp?.start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaPlayer.release()
     }
 
 }

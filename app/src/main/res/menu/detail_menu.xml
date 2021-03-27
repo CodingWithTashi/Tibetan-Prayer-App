@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
+    <item android:id="@+id/download_icon"
+        android:title="Download"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_cloud_download_24"/>
+    <item android:id="@+id/play_icon"
+        android:title="Play"
+        app:showAsAction="always"
+       android:visible="false"
+        android:icon="@drawable/ic_baseline_play_circle_filled_24"/>
+    <item android:id="@+id/pause_icon"
+        android:title="Pause"
+        app:showAsAction="always"
+        android:visible="false"
+        android:icon="@drawable/ic_baseline_pause_circle_filled_24"/>
     <item android:title="@string/favourite"
         android:id="@+id/favourite"
         android:icon="@drawable/ic_baseline_favorite_24"
         app:showAsAction="always"/>
+
 </menu>

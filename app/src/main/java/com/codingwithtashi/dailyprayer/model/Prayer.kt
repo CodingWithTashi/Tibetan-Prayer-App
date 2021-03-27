@@ -18,6 +18,8 @@ data class Prayer(
     var content:String? = null,
     var imageUrl: String? = null,
     var isFavourite: Boolean? = false,
-    var count: Int? = null
+    var count: Int? = null,
+        var isDownloaded:Boolean? = false,
+        var audioPath: String = ""
 ): Parcelable{
 }

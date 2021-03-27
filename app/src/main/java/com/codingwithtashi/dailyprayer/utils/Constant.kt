@@ -8,6 +8,9 @@ class Constant {
         const val  PRAYER_COLLECTION : String = "Prayers";
         const val  FAV_PRAYER_COLLECTION : String = "Favourites";
         const val  USERS_COLLECTION : String = "Users";
+        const val  COMPLETED : String = "Completed";
+        const val  TRY_AGAIN : String = "Try Again";
+        const val  DOWNLOADING : String = "Try Again";
 
     }
 

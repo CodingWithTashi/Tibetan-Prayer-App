@@ -164,7 +164,7 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
             minute = c[Calendar.MINUTE]
         }
 
-        TimePickerDialog(this, this, hour, minute, false).show()
+        var dialog = TimePickerDialog(this,R.style.TimePickerTheme, this, hour, minute, false).show()
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         onBackPressed()
