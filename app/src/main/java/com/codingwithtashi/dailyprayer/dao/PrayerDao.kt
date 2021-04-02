@@ -16,4 +16,6 @@ interface PrayerDao {
     suspend fun insert(prayer : Prayer)
     @Update
     suspend fun update(prayer: Prayer)
+    @Query("SELECT * FROM PRAYER_TABLE  WHERE title=:title LIMIT 1")
+    fun getPrayerByName(title: String?): Flow<Prayer>
 }

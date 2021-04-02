@@ -1,4 +1,4 @@
-package com.codingwithtashi.dailyprayer
+package com.codingwithtashi.dailyprayer.ui.activity
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.preference.PreferenceManager
+import com.codingwithtashi.dailyprayer.BuildConfig
+import com.codingwithtashi.dailyprayer.R
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
@@ -84,20 +86,22 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
-            R.id.settings->{
-                startActivity(Intent(this,SettingsActivity::class.java));
+            R.id.settings ->{
+                startActivity(Intent(this,
+                    SettingsActivity::class.java));
             }
-            R.id.routine->{
-                startActivity(Intent(this,AlarmActivity::class.java));
+            R.id.routine ->{
+                startActivity(Intent(this,
+                    AlarmActivity::class.java));
             }
-            R.id.rate_us->{
+            R.id.rate_us ->{
                 try {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
                 } catch (e: ActivityNotFoundException) {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$packageName")))
                 }
             }
-            R.id.share_app->{
+            R.id.share_app ->{
                 try {
                     val shareIntent = Intent(Intent.ACTION_SEND)
                     shareIntent.type = "text/plain"
@@ -115,7 +119,7 @@ class MainActivity : AppCompatActivity() {
                     //e.toString();
                 }
             }
-            R.id.contact_us->{
+            R.id.contact_us ->{
                 val intent = Intent(Intent.ACTION_SENDTO)
                 intent.type = "text/plain";
                 intent.data = Uri.parse("mailto:developer.kharag@gmail.com");
@@ -123,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Prayer Request")
                 startActivity(Intent.createChooser(intent, "Send Email"))
             }
-            R.id.more->{
+            R.id.more ->{
                 val browserIntent =
                     Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/techtibet"))
                 startActivity(browserIntent)

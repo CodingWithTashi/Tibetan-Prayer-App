@@ -1,4 +1,4 @@
-package com.codingwithtashi.dailyprayer
+package com.codingwithtashi.dailyprayer.ui.activity
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -12,6 +12,8 @@ import android.view.MenuItem
 import android.widget.TimePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import com.codingwithtashi.dailyprayer.AlarmReceiver
+import com.codingwithtashi.dailyprayer.R
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
@@ -30,6 +32,37 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
     companion object{
         var NOTIFICATION_CHANNEL_ID = "10001"
         val ALARM1_ID = 10000
+        fun scheduleNotification(context: Context, time: String, checked: Boolean) {
+
+            val calendar = Calendar.getInstance()
+            var sdf =  SimpleDateFormat("HH:mm");
+            var date  = sdf.parse(time);
+
+
+            calendar[Calendar.HOUR_OF_DAY] = date.hours
+            calendar[Calendar.MINUTE] = date.minutes
+            calendar[Calendar.SECOND] = 0
+            calendar[Calendar.MILLISECOND] = 0
+
+            if (calendar.time.compareTo(Date()) < 0) calendar.add(Calendar.DAY_OF_MONTH, 1)
+
+            val intent = Intent(context.applicationContext, AlarmReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context.applicationContext,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            val alarmManager =
+                context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            Log.e("TAG", "scheduleNotification: 0"+calendar.timeInMillis, )
+            alarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                //AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )
+        }
     }
     private val default_notification_channel_id = "default"
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +119,7 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
         alarmSwitch.isChecked=true
         val prefs: SharedPreferences.Editor? = PreferenceManager.getDefaultSharedPreferences(this).edit()
         prefs?.putString("alarm_time", displayTime);
+        prefs?.putString("alarm_time_in_hhmm", time);
         prefs?.putBoolean("is_alarm_on", alarmSwitch.isChecked);
         prefs?.apply()
         triggerAlarm(time, alarmSwitch.isChecked)
@@ -93,43 +127,14 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
 
     private fun triggerAlarm(time: String?, checked: Boolean) {
         if(time!=null){
-            scheduleNotification(time, checked)
+            scheduleNotification(
+                this,
+                time,
+                checked
+            )
         }
 
     }
-
-    private fun scheduleNotification(time: String, checked: Boolean) {
-
-        val calendar = Calendar.getInstance()
-        var sdf =  SimpleDateFormat("HH:mm");
-        var date  = sdf.parse(time);
-
-
-        calendar[Calendar.HOUR_OF_DAY] = date.hours
-        calendar[Calendar.MINUTE] = date.minutes
-        calendar[Calendar.SECOND] = 0
-        calendar[Calendar.MILLISECOND] = 0
-
-        if (calendar.time.compareTo(Date()) < 0) calendar.add(Calendar.DAY_OF_MONTH, 1)
-
-        val intent = Intent(applicationContext, AlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            applicationContext,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-        val alarmManager =
-            getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        Log.e("TAG", "scheduleNotification: 0"+calendar.timeInMillis, )
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
-    }
-
 
 
     private fun getTimeFromString(time: String): String? {
@@ -164,7 +169,8 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
             minute = c[Calendar.MINUTE]
         }
 
-        var dialog = TimePickerDialog(this,R.style.TimePickerTheme, this, hour, minute, false).show()
+        var dialog = TimePickerDialog(this,
+            R.style.TimePickerTheme, this, hour, minute, false).show()
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         onBackPressed()

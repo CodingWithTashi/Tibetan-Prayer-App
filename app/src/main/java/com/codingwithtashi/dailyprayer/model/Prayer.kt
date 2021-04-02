@@ -20,6 +20,7 @@ data class Prayer(
     var isFavourite: Boolean? = false,
     var count: Int? = null,
         var isDownloaded:Boolean? = false,
-        var audioPath: String = ""
+        var audioPath: String? = "",
+        var downloadUrl: String = ""
 ): Parcelable{
 }

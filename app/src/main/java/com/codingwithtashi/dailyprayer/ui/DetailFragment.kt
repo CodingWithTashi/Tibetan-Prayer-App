@@ -49,8 +49,7 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener,
-    MediaPlayer.OnPreparedListener {
+class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
     lateinit var title: MaterialTextView;
     lateinit var content: MaterialTextView;
     lateinit var counter: MaterialTextView;
@@ -72,6 +71,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener,
     val TAG = DetailFragment::class.simpleName
     var favIcon: MenuItem? = null
     lateinit var currentPrayer: Prayer;
+    var isMediaSourceInit = false;
     lateinit var googleSignInClient: GoogleSignInClient;
     val RC_SIGN_IN = 0
     lateinit var storage: FirebaseStorage;
@@ -167,7 +167,11 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener,
                     mediaPlayer.start()
                     menuItem.findItem(R.id.play_icon).isVisible = false
                     menuItem.findItem(R.id.pause_icon).isVisible = true
-
+                    mediaPlayer.setOnCompletionListener(MediaPlayer.OnCompletionListener { mp ->
+                        mp.stop();
+                        menuItem.findItem(R.id.play_icon).isVisible = true
+                        menuItem.findItem(R.id.pause_icon).isVisible = false
+                    })
                     true
                 }
                 R.id.pause_icon -> {
@@ -212,13 +216,20 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener,
             currentPrayer = it
 
             menuItem = toolbar.menu;
-            if (currentPrayer.isDownloaded!!) {
+
+            if(currentPrayer.downloadUrl.isEmpty()){
+                menuItem.findItem(R.id.download_icon).isVisible = false
+            }
+            else if(currentPrayer.isDownloaded!!) {
                 //if(File(currentPrayer.audioPath).exists())
                 menuItem.findItem(R.id.download_icon).isVisible = false;
                 menuItem.findItem(R.id.play_icon).isVisible = true
+            }else{
+                menuItem.findItem(R.id.download_icon).isVisible = true
             }
 
-           if(!mediaPlayer.isPlaying){
+           if(File(currentPrayer.audioPath).exists() && !mediaPlayer.isPlaying && !isMediaSourceInit){
+               isMediaSourceInit = true
                mediaPlayer.setDataSource(currentPrayer.audioPath)
                mediaPlayer.prepare();
            }
@@ -349,7 +360,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener,
         downlodBtn.setOnClickListener {
             prayerName.text = "Downloading Prayer: ${currentPrayer.title}"
             linearLayout.visibility = VISIBLE;
-            prayerViewModel.downloadPrayer("https://firebasestorage.googleapis.com/v0/b/daily-prayer-81677.appspot.com/o/Tara%2021%20prayer%20dolma%20prayer%20%23Dolma%2021%20prayer%20%E0%BD%A6%E0%BD%A3%E0%BD%98%E0%BD%89%E0%BD%A2%E0%BD%85%E0%BD%82%E0%BD%82%E0%BD%96%E0%BD%A6%E0%BD%91%E0%BD%94%20%23tara%20%23greentara%20%23dolmatara.mp3?alt=media&token=248cf734-86dd-41ba-9b34-285220e679fb");
+            prayerViewModel.downloadPrayer(currentPrayer.downloadUrl);
             prayerViewModel.downloadListener.observe(viewLifecycleOwner, Observer {
                 if (it.status == STATUS.DOWNLOADING) {
                     progressBar.progress = it.progress
@@ -381,13 +392,15 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener,
 
     }
 
-    override fun onPrepared(mp: MediaPlayer?) {
-        mp?.start()
-    }
+
 
     override fun onDestroy() {
-        super.onDestroy()
+        if(mediaPlayer.isPlaying){
+            mediaPlayer.stop()
+        }
         mediaPlayer.release()
+        super.onDestroy()
+
     }
 
 }

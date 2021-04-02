@@ -1,10 +1,11 @@
-package com.codingwithtashi.dailyprayer
+package com.codingwithtashi.dailyprayer.ui.activity
 
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
+import com.codingwithtashi.dailyprayer.R
 import com.google.android.material.appbar.MaterialToolbar
 
 class SettingsActivity : AppCompatActivity() {
@@ -18,7 +19,10 @@ class SettingsActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             supportFragmentManager
                     .beginTransaction()
-                    .replace(R.id.settings, SettingsFragment())
+                    .replace(
+                        R.id.settings,
+                        SettingsFragment()
+                    )
                     .commit()
         }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

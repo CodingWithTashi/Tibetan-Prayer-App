@@ -1,4 +1,4 @@
-package com.codingwithtashi.dailyprayer
+package com.codingwithtashi.dailyprayer.viewmodel
 
 import androidx.lifecycle.ViewModel
 

@@ -14,6 +14,7 @@ import com.codingwithtashi.dailyprayer.dao.NotificationDao
 import com.codingwithtashi.dailyprayer.dao.PrayerDao
 import com.codingwithtashi.dailyprayer.model.Prayer
 import com.codingwithtashi.dailyprayer.model.PrayerNotification
+import com.codingwithtashi.dailyprayer.ui.activity.MainActivity
 import com.codingwithtashi.dailyprayer.utils.CommonUtils
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -41,7 +42,7 @@ class MessagingService : FirebaseMessagingService() {
         //log data
         Log.e("TAG", "onMessageReceived: "+rm.data["title"]+rm.data["prayer_title"]+rm.data["prayer_body"], )
         var link: String = rm.data["link"].toString();
-        showNotification(rm.data["title"],rm.data["prayer_title"],rm.data["prayer_body"],link)
+        showNotification(rm.data["title"],rm.data["prayer_title"],rm.data["prayer_body"],rm.data["download_link"],link)
 
 
         super.onMessageReceived(rm);
@@ -51,17 +52,24 @@ class MessagingService : FirebaseMessagingService() {
         title: String?,
         prayer_title: String?,
         prayer_body: String?,
-        link: String
+         download_link: String?,
+        adLink: String
     ) {
         if(title!=null && prayer_title!=null && prayer_body!=null){
             val prayerNotification = PrayerNotification(null,title,prayer_title,
-                CommonUtils.formatDateFromDate(Date()),link)
+                CommonUtils.formatDateFromDate(Date()),adLink)
 
-            val prayer = Prayer(null,prayer_title,prayer_body,"url",false,0)
+            val prayer = download_link?.let {
+                Prayer(null,prayer_title,prayer_body,"url",
+                    false,0,false,"", it
+                )
+            }
 
             CoroutineScope(Dispatchers.Default).launch {
-                if(link.isEmpty()){
-                    prayerDao.insert(prayer);
+                if(adLink.isEmpty()){
+                    if (prayer != null) {
+                        prayerDao.insert(prayer)
+                    };
                 }
                 notificationDao.insert(prayerNotification)
                 Log.e("TAG", "onMessageReceived: new notification added", )

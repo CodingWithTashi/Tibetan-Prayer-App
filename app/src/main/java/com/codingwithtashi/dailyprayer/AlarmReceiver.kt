@@ -12,9 +12,11 @@ import android.graphics.Color
 import android.os.Build
 import android.util.Log
 import androidx.preference.PreferenceManager
-import com.codingwithtashi.dailyprayer.AlarmActivity.Companion.NOTIFICATION_CHANNEL_ID
+import com.codingwithtashi.dailyprayer.ui.activity.AlarmActivity.Companion.NOTIFICATION_CHANNEL_ID
 import com.codingwithtashi.dailyprayer.dao.NotificationDao
 import com.codingwithtashi.dailyprayer.model.PrayerNotification
+import com.codingwithtashi.dailyprayer.ui.activity.AlarmActivity
+import com.codingwithtashi.dailyprayer.ui.activity.MainActivity
 import com.codingwithtashi.dailyprayer.utils.CommonUtils
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -48,6 +50,9 @@ import javax.inject.Inject
             }
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         var name = prefs.getString("signature", "");
+        val time = prefs.getString("alarm_time_in_hhmm", "");
+        var isAlarmOn = prefs.getBoolean("is_alarm_on", false);
+
 
         val prayerNotification = PrayerNotification(null,"Prayer Time","Hey $name, It is Prayer time now",
             CommonUtils.formatDateFromDate(Date()),"")
@@ -91,6 +96,10 @@ import javax.inject.Inject
         }
         assert(mNotificationManager != null)
         mNotificationManager.notify(0 /* Request Code */, mBuilder.build())
+        if(time?.isNotEmpty()!! && isAlarmOn)
+            AlarmActivity.scheduleNotification(context,time,isAlarmOn);
+
+
     }
 
 }

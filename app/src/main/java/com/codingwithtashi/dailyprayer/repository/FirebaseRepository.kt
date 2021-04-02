@@ -11,6 +11,7 @@ import com.google.android.gms.tasks.OnFailureListener
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.File
+import java.util.*
 
 /**
  * Created by kunchok on 10/03/2021
@@ -46,7 +47,8 @@ class FirebaseRepository(var context: Context) {
                 directory.mkdir()
             }
         } //
-        val localFile = File(directory, "audio.mp3")
+        val songName = UUID.randomUUID().toString()+".mp3"
+        val localFile = File(directory, songName)
         //val localFile = File(rootPath, "${url}.mp3")
         var  storageTask = storageReference.getFile(localFile).addOnSuccessListener {
             downloadListener.postValue(DownloadResponse(STATUS.SUCCESS,100,"",localFile.absolutePath));

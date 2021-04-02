@@ -4,6 +4,7 @@
     <item android:id="@+id/download_icon"
         android:title="Download"
         app:showAsAction="always"
+        android:visible="false"
         android:icon="@drawable/ic_baseline_cloud_download_24"/>
     <item android:id="@+id/play_icon"
         android:title="Play"
@@ -12,10 +13,12 @@
         android:icon="@drawable/ic_baseline_play_circle_filled_24"/>
     <item android:id="@+id/pause_icon"
         android:title="Pause"
+        android:animateLayoutChanges="true"
         app:showAsAction="always"
         android:visible="false"
         android:icon="@drawable/ic_baseline_pause_circle_filled_24"/>
     <item android:title="@string/favourite"
+        android:animateLayoutChanges="true"
         android:id="@+id/favourite"
         android:icon="@drawable/ic_baseline_favorite_24"
         app:showAsAction="always"/>
