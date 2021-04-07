@@ -3,7 +3,11 @@ package com.codingwithtashi.dailyprayer.ui.activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -19,6 +23,7 @@ import com.codingwithtashi.dailyprayer.R
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -32,7 +37,37 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var data = getIntent().getExtras();
+        //shortcuts
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
+            val shortcutManager =  getSystemService<ShortcutManager>(ShortcutManager::class.java)
+
+            val sourcecode = ShortcutInfo.Builder(applicationContext, "id1")
+                .setShortLabel("Code")
+                .setLongLabel("Code")
+                .setIcon(Icon.createWithResource(applicationContext, R.drawable.prayer))
+                .setIntent(
+                    Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://github.com/CodingWithTashi/Tibetan-Prayer-App"))
+                )
+                .build()
+
+            val shortcut = ShortcutInfo.Builder(applicationContext, "id2")
+                .setShortLabel("About")
+                .setLongLabel("About")
+                .setIcon(Icon.createWithResource(applicationContext, R.drawable.prayer))
+                .setIntent(
+                    Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://www.facebook.com/techtibet"))
+                )
+                .build()
+
+
+            shortcutManager!!.dynamicShortcuts = listOf(shortcut,sourcecode)
+        }
+
+
+
+        var data = intent.extras;
         Log.e(TAG, "onCreate: $data", )
         if(data!=null){
             Log.e(TAG, "onCreate: "+data.getString("title"), )
