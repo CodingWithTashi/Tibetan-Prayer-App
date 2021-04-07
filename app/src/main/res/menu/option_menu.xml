@@ -13,7 +13,7 @@
         android:id="@+id/rate_us"/>
     <item android:title="Share"
         android:id="@+id/share_app"/>
-    <item android:title="Follow TechTibet"
+    <item android:title="About us"
         android:id="@+id/more"/>
 
 </menu>

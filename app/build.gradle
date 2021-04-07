@@ -16,8 +16,8 @@ android {
         applicationId "com.codingwithtashi.dailyprayer"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 4
-        versionName "1.4"
+        versionCode 6
+        versionName "1.6"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -159,7 +159,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
                     true
                 }
-                R.id.download_icon -> {
+               /* R.id.download_icon -> {
                     showDownloadDialog();
                     true;
                 }
@@ -182,7 +182,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                     }
 
                     true
-                }
+                }*/
                 else ->
                     true
             }
@@ -217,7 +217,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
             menuItem = toolbar.menu;
 
-            if(currentPrayer.downloadUrl.isEmpty()){
+         /*   if(currentPrayer.downloadUrl.isEmpty()){
                 menuItem.findItem(R.id.download_icon).isVisible = false
             }
             else if(currentPrayer.isDownloaded!!) {
@@ -226,7 +226,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                 menuItem.findItem(R.id.play_icon).isVisible = true
             }else{
                 menuItem.findItem(R.id.download_icon).isVisible = true
-            }
+            }*/
 
            if(File(currentPrayer.audioPath).exists() && !mediaPlayer.isPlaying && !isMediaSourceInit){
                isMediaSourceInit = true
@@ -273,7 +273,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
             val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
             val seekBarVal = prefs.getInt("seekbar_example", 3);
             val seekBarData = 15 - seekBarVal
-            Log.e(TAG, "initListener: HEIGHT" + scrollView.getChildAt(0).height,)
+            Log.e(TAG, "initListener: HEIGHT" + scrollView.getChildAt(0).height)
             val speed = scrollView.getChildAt(0).height * seekBarData
             scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, speed) }
         }
@@ -367,16 +367,16 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                     currentPosition.text = "${it.progress}%"
                     downlodBtn.text = DOWNLOADING
                     downlodBtn.isEnabled = false;
-                    Log.e(TAG, "initListener: Downloading....",)
+                    Log.e(TAG, "initListener: Downloading....")
                 }
                 if (it.status == STATUS.ERROR) {
                     downlodBtn.text = TRY_AGAIN
                     downlodBtn.isEnabled = true;
                     context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
-                    Log.e(TAG, "initListener: Downloading...." + it.error,)
+                    Log.e(TAG, "initListener: Downloading...." + it.error)
                 }
                 if (it.status == STATUS.SUCCESS) {
-                    Log.e(TAG, "initListener: Downloaded...." + it.error,)
+                    Log.e(TAG, "initListener: Downloaded...." + it.error)
                     downlodBtn.text = COMPLETED
                     downlodBtn.isEnabled = false;
                     currentPrayer.isDownloaded = true;
