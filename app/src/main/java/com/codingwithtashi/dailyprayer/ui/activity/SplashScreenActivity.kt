@@ -39,7 +39,7 @@ class SplashScreenActivity : AppCompatActivity() {
 
         image.animation =topAnimation
         textView.animation = bottomAnimation
-        progressBar.animation = bottomAnimation
+        //progressBar.animation = bottomAnimation
 
         Handler(Looper.getMainLooper()).postDelayed({
             startActivity(Intent(this, MainActivity::class.java))

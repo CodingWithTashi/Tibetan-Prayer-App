@@ -159,7 +159,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
                     true
                 }
-               /* R.id.download_icon -> {
+                R.id.download_icon -> {
                     showDownloadDialog();
                     true;
                 }
@@ -167,11 +167,14 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                     mediaPlayer.start()
                     menuItem.findItem(R.id.play_icon).isVisible = false
                     menuItem.findItem(R.id.pause_icon).isVisible = true
-                    mediaPlayer.setOnCompletionListener(MediaPlayer.OnCompletionListener { mp ->
-                        mp.stop();
+                    menuItem.findItem(R.id.stop_icon).isVisible = true
+                    mediaPlayer.setOnCompletionListener { mp ->
+                        mp.stop()
+                        mp.prepare()
                         menuItem.findItem(R.id.play_icon).isVisible = true
                         menuItem.findItem(R.id.pause_icon).isVisible = false
-                    })
+                        menuItem.findItem(R.id.stop_icon).isVisible = false
+                    }
                     true
                 }
                 R.id.pause_icon -> {
@@ -179,10 +182,20 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                         mediaPlayer.pause()
                         menuItem.findItem(R.id.pause_icon).isVisible = false
                         menuItem.findItem(R.id.play_icon).isVisible = true
+                        menuItem.findItem(R.id.stop_icon).isVisible = true
                     }
 
                     true
-                }*/
+                }
+                R.id.stop_icon->{
+                    mediaPlayer.stop()
+                    mediaPlayer.prepare()
+                    menuItem.findItem(R.id.play_icon).isVisible = true
+                    menuItem.findItem(R.id.stop_icon).isVisible = false
+                    menuItem.findItem(R.id.pause_icon).isVisible = false
+
+                    true;
+                }
                 else ->
                     true
             }
@@ -217,22 +230,25 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
             menuItem = toolbar.menu;
 
-         /*   if(currentPrayer.downloadUrl.isEmpty()){
-                menuItem.findItem(R.id.download_icon).isVisible = false
+            when {
+                currentPrayer.downloadUrl.isEmpty() -> {
+                    menuItem.findItem(R.id.download_icon).isVisible = false
+                }
+                currentPrayer.isDownloaded!! -> {
+                    //if(File(currentPrayer.audioPath).exists())
+                    menuItem.findItem(R.id.download_icon).isVisible = false;
+                    if(File(currentPrayer.audioPath).exists() && !mediaPlayer.isPlaying && !isMediaSourceInit){
+                        isMediaSourceInit = true
+                        mediaPlayer.setDataSource(currentPrayer.audioPath)
+                        mediaPlayer.prepare();
+                    }
+                    menuItem.findItem(R.id.play_icon).isVisible = true
+                }
+                else -> {
+                    menuItem.findItem(R.id.download_icon).isVisible = true
+                }
             }
-            else if(currentPrayer.isDownloaded!!) {
-                //if(File(currentPrayer.audioPath).exists())
-                menuItem.findItem(R.id.download_icon).isVisible = false;
-                menuItem.findItem(R.id.play_icon).isVisible = true
-            }else{
-                menuItem.findItem(R.id.download_icon).isVisible = true
-            }*/
 
-           if(File(currentPrayer.audioPath).exists() && !mediaPlayer.isPlaying && !isMediaSourceInit){
-               isMediaSourceInit = true
-               mediaPlayer.setDataSource(currentPrayer.audioPath)
-               mediaPlayer.prepare();
-           }
             if(mediaPlayer.isPlaying){
                 menuItem.findItem(R.id.play_icon).isVisible = false
             }
@@ -241,7 +257,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
             content.text = it.content
             collapsingToolbarLayout.title = it.title
             counter.text = it.count.toString()
-            glide.load(it.imageUrl).into(coverImage)
+            glide.load(R.drawable.bhudha).into(coverImage)
             favIcon = menuItem.findItem(R.id.favourite);
             if (it.isFavourite!!) {
                 favIcon?.icon = context?.let { it1 ->
@@ -334,7 +350,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
         offSetValue = verticalOffset;
-        favIcon?.isVisible = verticalOffset == 0
+        //favIcon?.isVisible = verticalOffset == 0
         if (verticalOffset == 0)
             counterLayout.visibility = VISIBLE
         else
@@ -343,51 +359,65 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
     }
 
     private fun showDownloadDialog() {
-        val dialog = activity?.let { Dialog(it) }
-        dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog?.setCancelable(false)
-        dialog?.setContentView(R.layout.download_progress_dialog)
-        val window: Window? = dialog?.window
-        window?.setLayout(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT)
-        val downlodBtn = dialog?.findViewById(R.id.download_dialog_btn) as MaterialButton
-        val cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn) as MaterialButton
-        val progressBar = dialog.findViewById(R.id.download_progress_bar) as LinearProgressIndicator
-        val currentPosition = dialog.findViewById(R.id.current_position) as TextView
-        val prayerName = dialog.findViewById(R.id.prayer_name) as TextView
-        val linearLayout = dialog.findViewById(R.id.download_progress_layout) as LinearLayout
+        if(activity!=null){
+            val dialog = activity?.let { Dialog(it) }
+            dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+            dialog?.setCancelable(false)
+            dialog?.setContentView(R.layout.download_progress_dialog)
+            val window: Window? = dialog?.window
+            window?.setLayout(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.WRAP_CONTENT)
+            val downlodBtn = dialog?.findViewById(R.id.download_dialog_btn) as MaterialButton
+            val cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn) as MaterialButton
+            val progressBar = dialog.findViewById(R.id.download_progress_bar) as LinearProgressIndicator
+            val currentPosition = dialog.findViewById(R.id.current_position) as TextView
+            val prayerName = dialog.findViewById(R.id.prayer_name) as TextView
+            val linearLayout = dialog.findViewById(R.id.download_progress_layout) as LinearLayout
+            if(!dialog.isShowing){
+                dialog.show();
+            }
+            cancelBtn.setOnClickListener { dialog.dismiss() }
 
+            downlodBtn.setOnClickListener {
+                prayerName.text = "Downloading Prayer: ${currentPrayer.title}"
+                linearLayout.visibility = VISIBLE;
+                prayerViewModel.downloadPrayer(currentPrayer.downloadUrl);
+                prayerViewModel.downloadListener.observe(viewLifecycleOwner, Observer {
+                    if (it.status == STATUS.DOWNLOADING) {
+                        progressBar.progress = 100
+                        currentPosition.text = "100%"
+                        downlodBtn.text = DOWNLOADING
+                        downlodBtn.isEnabled = false;
+                        Log.e(TAG, "initListener: Downloading....")
+                    }
+                    if (it.status == STATUS.ERROR) {
+                        downlodBtn.text = TRY_AGAIN
+                        downlodBtn.isEnabled = true;
+                        context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
+                        Log.e(TAG, "initListener: Downloading...." + it.error)
+                    }
+                    if (it.status == STATUS.SUCCESS) {
+                        Log.e(TAG, "initListener: Downloaded...." + it.error)
+                        progressBar.progress = it.progress
+                        currentPosition.text = "${it.progress}%"
+                        downlodBtn.text = COMPLETED
+                        downlodBtn.isEnabled = false;
+                        currentPrayer.isDownloaded = true;
 
-        downlodBtn.setOnClickListener {
-            prayerName.text = "Downloading Prayer: ${currentPrayer.title}"
-            linearLayout.visibility = VISIBLE;
-            prayerViewModel.downloadPrayer(currentPrayer.downloadUrl);
-            prayerViewModel.downloadListener.observe(viewLifecycleOwner, Observer {
-                if (it.status == STATUS.DOWNLOADING) {
-                    progressBar.progress = it.progress
-                    currentPosition.text = "${it.progress}%"
-                    downlodBtn.text = DOWNLOADING
-                    downlodBtn.isEnabled = false;
-                    Log.e(TAG, "initListener: Downloading....")
-                }
-                if (it.status == STATUS.ERROR) {
-                    downlodBtn.text = TRY_AGAIN
-                    downlodBtn.isEnabled = true;
-                    context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
-                    Log.e(TAG, "initListener: Downloading...." + it.error)
-                }
-                if (it.status == STATUS.SUCCESS) {
-                    Log.e(TAG, "initListener: Downloaded...." + it.error)
-                    downlodBtn.text = COMPLETED
-                    downlodBtn.isEnabled = false;
-                    currentPrayer.isDownloaded = true;
-                    currentPrayer.audioPath = it.data
-                    prayerViewModel.updateCurrentPrayer(currentPrayer)
-                }
-            })
+                        currentPrayer.audioPath = it.data
+                        prayerViewModel.updateCurrentPrayer(currentPrayer)
+
+                        //prepare audio
+                        if(!mediaPlayer.isPlaying){
+                            isMediaSourceInit = true
+                            mediaPlayer.reset();
+                            mediaPlayer.setDataSource(currentPrayer.audioPath)
+                            mediaPlayer.prepare();
+                        }
+
+                    }
+                })
+            }
         }
-
-        cancelBtn.setOnClickListener { dialog.dismiss() }
-        dialog.show()
 
 
     }
@@ -395,10 +425,13 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
 
     override fun onDestroy() {
+        Log.d(TAG, "onDestroy: Media stopped");
         if(mediaPlayer.isPlaying){
             mediaPlayer.stop()
         }
         mediaPlayer.release()
+        isMediaSourceInit = false;
+
         super.onDestroy()
 
     }

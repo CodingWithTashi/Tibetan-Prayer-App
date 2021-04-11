@@ -36,7 +36,6 @@ class FirebaseRepository(var context: Context) {
             if (!directory.exists()) {
                 directory.mkdir()
             }
-
             // if phone DOES have sd card
         } else if (Environment.getExternalStorageState() != null) {
             directory = File(

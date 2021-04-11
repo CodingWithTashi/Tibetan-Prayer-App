@@ -3,7 +3,6 @@ package com.codingwithtashi.dailyprayer.model
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.firebase.firestore.DocumentId
 import kotlinx.android.parcel.Parcelize
 
 /**
