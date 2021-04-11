@@ -46,7 +46,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_weight="0.1"
+                android:layout_weight="0.2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content">
 
@@ -63,12 +63,11 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_gravity="center_vertical"
-                android:layout_weight="0.8"
+                android:layout_weight="0.6"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content">
                 <com.google.android.material.progressindicator.LinearProgressIndicator
                     android:id="@+id/download_progress_bar"
-                    android:max="100"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:theme="@style/Theme.DailyPrayer"
@@ -80,7 +79,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_weight="0.1"
+                android:layout_weight="0.2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content">
 

@@ -1,6 +1,9 @@
 package com.codingwithtashi.dailyprayer.utils
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.view.View
 import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
@@ -9,6 +12,13 @@ import java.util.*
 
 class CommonUtils {
    companion object {
+
+       var INSTAGRAM_URL = "https://www.instagram.com/kontashi35/";
+       var FACEBOOK_URL = "https://www.facebook.com/techtibet";
+       var GITHUB_URL = "https://github.com/CodingWithTashi/Tibetan-Prayer-App";
+       var PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.codingwithtashi.dailyprayer";
+       var PAYPAL_URL = "https://www.paypal.com/paypalme/kontashi35"
+
        fun displaySnackBar(view: View, msg:String){
            Snackbar.make(view,msg,Snackbar.LENGTH_SHORT).show();
        }
@@ -19,6 +29,27 @@ class CommonUtils {
            val format = SimpleDateFormat("hh:mm:a")
            return format.format(date)
        }
+       fun isNetworkConnected(context: Context?): Boolean {
+           if(context!=null){
+               val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                   val n = cm.activeNetwork
+                   if (n != null) {
+                       val nc = cm.getNetworkCapabilities(n)
+                       //It will check for both wifi and cellular network
+                       return nc!!.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || nc.hasTransport(
+                           NetworkCapabilities.TRANSPORT_WIFI)
+                   }
+                   return false
+               } else {
+                   val netInfo = cm.activeNetworkInfo
+                   return netInfo != null && netInfo.isConnectedOrConnecting
+               }
+           }
+        return  false;
+       }
    }
+
 
 }

@@ -58,8 +58,6 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
     lateinit var floatingActionButton: ExtendedFloatingActionButton;
     lateinit var fabLayout1: LinearLayout;
     lateinit var fab1: FloatingActionButton;
-    lateinit var fab2: FloatingActionButton;
-    lateinit var fabLayout2: LinearLayout;
     lateinit var fabBGLayout: View;
     lateinit var appBarLayout: AppBarLayout;
     lateinit var scrollView: NestedScrollView;
@@ -114,8 +112,6 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
         floatingActionButton = view.findViewById(R.id.floating_action_button);
         fabLayout1 = view.findViewById(R.id.fabLayout1);
         fab1 = view.findViewById(R.id.fab1);
-        fab2 = view.findViewById(R.id.fab2);
-        fabLayout2 = view.findViewById(R.id.fabLayout2);
         fabBGLayout = view.findViewById(R.id.fabBGLayout);
         appBarLayout = view.findViewById(R.id.appbar_layout);
         coverImage = view.findViewById(R.id.cover_img);
@@ -293,14 +289,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
             val speed = scrollView.getChildAt(0).height * seekBarData
             scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, speed) }
         }
-        fab2.setOnClickListener {
-            context?.let { it1 ->
-                CommonUtils.displayShortMessage(
-                    it1,
-                    getString(R.string.feature_not_available_now)
-                )
-            }
-        }
+
 
         scrollView.viewTreeObserver.addOnScrollChangedListener {
             val bottom =
@@ -318,16 +307,13 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
         fabBGLayout.visibility = View.GONE
         //floatingActionButton.animate().rotation(0F)
         fabLayout1.animate().translationY(0f)
-        fabLayout2.animate().translationY(0f)
             .setListener(object : Animator.AnimatorListener {
                 override fun onAnimationStart(animator: Animator) {}
                 override fun onAnimationEnd(animator: Animator) {
                     if (View.GONE == fabBGLayout.visibility) {
                         fabLayout1.visibility = View.GONE
-                        fabLayout2.visibility = View.GONE
                     }
                 }
-
                 override fun onAnimationCancel(animator: Animator) {}
                 override fun onAnimationRepeat(animator: Animator) {}
             })
@@ -335,15 +321,12 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
     private fun showFABMenu() {
         fabLayout1.visibility = VISIBLE
-        fabLayout2.visibility = VISIBLE
         fabBGLayout.visibility = VISIBLE
         //floatingActionButton.animate().rotationBy(180F)
         if (offSetValue != 0) {
             fabLayout1.animate().translationY(resources.getDimension(R.dimen.standard_75))
-            fabLayout2.animate().translationY(resources.getDimension(R.dimen.standard_120))
         } else {
             fabLayout1.animate().translationY(-resources.getDimension(R.dimen.standard_75))
-            fabLayout2.animate().translationY(-resources.getDimension(R.dimen.standard_120))
         }
 
     }
@@ -378,44 +361,50 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
             cancelBtn.setOnClickListener { dialog.dismiss() }
 
             downlodBtn.setOnClickListener {
-                prayerName.text = "Downloading Prayer: ${currentPrayer.title}"
-                linearLayout.visibility = VISIBLE;
-                prayerViewModel.downloadPrayer(currentPrayer.downloadUrl);
-                prayerViewModel.downloadListener.observe(viewLifecycleOwner, Observer {
-                    if (it.status == STATUS.DOWNLOADING) {
-                        progressBar.progress = 100
-                        currentPosition.text = "100%"
-                        downlodBtn.text = DOWNLOADING
-                        downlodBtn.isEnabled = false;
-                        Log.e(TAG, "initListener: Downloading....")
-                    }
-                    if (it.status == STATUS.ERROR) {
-                        downlodBtn.text = TRY_AGAIN
-                        downlodBtn.isEnabled = true;
-                        context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
-                        Log.e(TAG, "initListener: Downloading...." + it.error)
-                    }
-                    if (it.status == STATUS.SUCCESS) {
-                        Log.e(TAG, "initListener: Downloaded...." + it.error)
-                        progressBar.progress = it.progress
-                        currentPosition.text = "${it.progress}%"
-                        downlodBtn.text = COMPLETED
-                        downlodBtn.isEnabled = false;
-                        currentPrayer.isDownloaded = true;
+                if(CommonUtils.isNetworkConnected(context)){
+                    prayerName.text = "Downloading Prayer: ${currentPrayer.title}"
+                    linearLayout.visibility = VISIBLE;
+                    prayerViewModel.downloadPrayer(currentPrayer.downloadUrl);
+                    prayerViewModel.downloadListener.observe(viewLifecycleOwner, Observer {
+                        if (it.status == STATUS.DOWNLOADING) {
+                            progressBar.progress = it.progress
+                            currentPosition.text = "${it.progress}%"
+                            downlodBtn.text = DOWNLOADING
+                            downlodBtn.isEnabled = false;
+                            Log.e(TAG, "initListener: Downloading....")
+                        }else
+                            if (it.status == STATUS.ERROR) {
+                                downlodBtn.text = TRY_AGAIN
+                                downlodBtn.isEnabled = true;
+                                context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
+                                Log.e(TAG, "initListener: Downloading...." + it.error)
+                            }else
+                                if (it.status == STATUS.SUCCESS) {
+                                    Log.e(TAG, "initListener: Downloaded...." + it.error)
+                                    progressBar.progress = 100;
+                                    currentPosition.text = "100%"
+                                    downlodBtn.text = COMPLETED
+                                    downlodBtn.isEnabled = false;
+                                    currentPrayer.isDownloaded = true;
 
-                        currentPrayer.audioPath = it.data
-                        prayerViewModel.updateCurrentPrayer(currentPrayer)
+                                    currentPrayer.audioPath = it.data
+                                    prayerViewModel.updateCurrentPrayer(currentPrayer)
 
-                        //prepare audio
-                        if(!mediaPlayer.isPlaying){
-                            isMediaSourceInit = true
-                            mediaPlayer.reset();
-                            mediaPlayer.setDataSource(currentPrayer.audioPath)
-                            mediaPlayer.prepare();
-                        }
+                                    //prepare audio
+                                    if(!mediaPlayer.isPlaying){
+                                        isMediaSourceInit = true
+                                        mediaPlayer.reset();
+                                        mediaPlayer.setDataSource(currentPrayer.audioPath)
+                                        mediaPlayer.prepare();
+                                    }
 
-                    }
-                })
+                                }
+                    })
+                }else{
+                    downlodBtn.text = TRY_AGAIN
+                    context?.let { it1 -> CommonUtils.displayShortMessage(it1, "Error occur,Please check your internet connection") }
+                }
+
             }
         }
 

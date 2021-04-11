@@ -177,36 +177,6 @@
             app:srcCompat="@drawable/scroll_wh" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/fabLayout2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:baselineAlignBottom="false"
-        app:fabSize="normal"
-        app:layout_anchor="@id/appbar_layout"
-        app:layout_anchorGravity="bottom|right"
-        app:rippleColor="#E4D6D6"
-        android:clipToPadding="false"
-        android:padding="@dimen/standard_12"
-        android:visibility="gone">
-
-        <TextView
-            android:textColor="@android:color/white"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/record_prayer" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:backgroundTint="@color/brown_700"
-            android:id="@+id/fab2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_baseline_mic_24"
-            app:tint="@android:color/white"/>
-    </LinearLayout>
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:layout_margin="5dp"
         android:backgroundTint="@color/brown_700"

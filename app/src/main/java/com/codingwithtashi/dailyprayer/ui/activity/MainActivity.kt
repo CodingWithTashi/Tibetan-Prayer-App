@@ -66,7 +66,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
         var data = intent.extras;
         Log.e(TAG, "onCreate: $data", )
         if(data!=null){
@@ -129,46 +128,14 @@ class MainActivity : AppCompatActivity() {
                 startActivity(Intent(this,
                     AlarmActivity::class.java));
             }
-            R.id.rate_us ->{
-                try {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
-                } catch (e: ActivityNotFoundException) {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$packageName")))
-                }
+
+            R.id.about_us ->{
+                startActivity(Intent(this,AboutUsActivity::class.java));
             }
-            R.id.share_app ->{
-                try {
-                    val shareIntent = Intent(Intent.ACTION_SEND)
-                    shareIntent.type = "text/plain"
-                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
-                    var shareMessage = "\nCheck out this prayer application.\n\n"
-                    shareMessage =
-                        """
-                        ${shareMessage}https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}
-                        
-                        
-                        """.trimIndent()
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
-                    startActivity(Intent.createChooser(shareIntent, "choose one"))
-                } catch (e: Exception) {
-                    //e.toString();
-                }
-            }
-            R.id.contact_us ->{
-                val intent = Intent(Intent.ACTION_SENDTO)
-                intent.type = "text/plain";
-                intent.data = Uri.parse("mailto:developer.kharag@gmail.com");
-                //intent.putExtra(Intent.EXTRA_EMAIL, "developer.kharag@gmail.com")
-                intent.putExtra(Intent.EXTRA_SUBJECT, "Prayer Request")
-                startActivity(Intent.createChooser(intent, "Send Email"))
-            }
-            R.id.more ->{
-                val browserIntent =
-                    Intent(Intent.ACTION_VIEW, Uri.parse("https://www.facebook.com/techtibet"))
-                startActivity(browserIntent)
+            R.id.exit ->{
+                finishAffinity()
             }
         }
         return super.onOptionsItemSelected(item)
     }
-
 }

@@ -7,13 +7,9 @@
     <item android:title="Set routine"
         android:visible="true"
         android:id="@+id/routine"/>
-    <item android:title="Prayer request"
-        android:id="@+id/contact_us"/>
-    <item android:title="Rate Us"
-        android:id="@+id/rate_us"/>
-    <item android:title="Share"
-        android:id="@+id/share_app"/>
     <item android:title="About us"
-        android:id="@+id/more"/>
+        android:id="@+id/about_us"/>
+    <item android:title="Exit"
+        android:id="@+id/exit"/>
 
 </menu>

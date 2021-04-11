@@ -4,7 +4,7 @@
     <item android:id="@+id/download_icon"
         android:title="Download"
         app:showAsAction="always"
-        android:visible="true"
+        android:visible="false"
         android:icon="@drawable/ic_baseline_cloud_download_24"/>
     <item android:id="@+id/stop_icon"
         android:title="Stop"
