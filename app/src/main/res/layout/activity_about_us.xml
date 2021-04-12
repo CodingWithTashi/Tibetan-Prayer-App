@@ -70,11 +70,12 @@
                             android:textColor="@color/brown_700" />
 
                         <com.google.android.material.textview.MaterialTextView
+                            android:paddingHorizontal="10dp"
                             android:id="@+id/alarm_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="Thanks for choosing Daily Prayer(Tibetan).1.Application is ads free and will be free for anyone to use.\n2. Simple and user friendly UX/UI.\n3.Non Profit and open source project\n4.Donation are welcome"
+                            android:text="Thanks for choosing Daily Prayer(Tibetan).\n1.Ads free application and free for anyone to use.\n2. Simple and user friendly UX/UI.\n3.Non Profit and open source project\n4.Sponsoring our project are welcome"
                             android:textAppearance="?attr/textAppearanceBody2"
                             android:textColor="?android:attr/textColorSecondary" />
                     </LinearLayout>
@@ -152,15 +153,16 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="About Support/contribution:"
+                            android:text="Support/contribution:"
                             android:textAppearance="?attr/textAppearanceHeadline6"
                             android:textColor="@color/brown_700" />
 
                         <com.google.android.material.textview.MaterialTextView
+                            android:paddingHorizontal="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:text="This application is developed with help of following resource. Thanks to tenzinprogrammer@gmail.com for prayer audio assets.\n Feel free to reach us for feedback and feature request"
+                            android:text="This application is developed with help of following resource. Thanks to tenzinprogrammer@gmail.com for prayer audio assets.\nFeel free to reach us for feedback and feature request"
                             android:textAppearance="?attr/textAppearanceBody2"
                             android:textColor="?android:attr/textColorSecondary" />
 
@@ -235,6 +237,7 @@
                             android:textColor="@color/brown_700" />
 
                         <com.google.android.material.textview.MaterialTextView
+                            android:paddingHorizontal="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -273,6 +276,43 @@
                     </LinearLayout>
 
                 </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/footer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                    <LinearLayout
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="5dp"
+                        android:paddingLeft="16dp"
+                        android:paddingTop="16dp"
+                        android:paddingRight="16dp">
+                        <!-- Title, secondary and supporting text -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Made with "
+                            android:textSize="16sp"
+                            android:textAppearance="?attr/textAppearanceHeadline6"
+                            android:textColor="@color/brown_700" />
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_favorite_24_red"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" by TechTibet"
+                            android:textSize="16sp"
+                            android:textAppearance="?attr/textAppearanceHeadline6"
+                            android:textColor="@color/brown_700" />
+                    </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
 

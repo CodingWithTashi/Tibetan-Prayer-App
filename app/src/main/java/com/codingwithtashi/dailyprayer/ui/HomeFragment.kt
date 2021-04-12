@@ -1,6 +1,4 @@
 package com.codingwithtashi.dailyprayer.ui
-
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
@@ -8,7 +6,6 @@ import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.observe
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.codingwithtashi.dailyprayer.R
@@ -38,21 +35,22 @@ class HomeFragment : Fragment(),ItemClickListener {
     ): View? {
         // Inflate the layout for this fragment
         val view =  inflater.inflate(R.layout.fragment_home, container, false)
-        var itemClickListener = this;
 
         initViews(view);
-
         circularProgressBar.visibility = VISIBLE
 
         prayerRecyclerView.apply {
             layoutManager = LinearLayoutManager(requireContext());
             adapter = prayerAdapter
             setHasFixedSize(true)
-
         }
+        addListener();
+        return view;
+    }
+
+    private fun addListener() {
         prayerViewModel.prayers.observe(viewLifecycleOwner
         ) {
-
             if(it.isEmpty()){
                 noPrayerFoundText.visibility = VISIBLE
                 noPrayerFoundText.visibility = GONE
@@ -60,20 +58,8 @@ class HomeFragment : Fragment(),ItemClickListener {
                 circularProgressBar.visibility = GONE
                 noPrayerFoundText.visibility = GONE
                 prayerAdapter.submitList(it)
-
             }
         }
-        return view;
-    }
-
-    private fun setPreferences() {
-        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val name = prefs.getString("signature", null);
-        if(name==null){
-           activity?.setTitle(R.string.app_name)
-        }else
-            activity?.title = "Hi $name"
-
     }
 
     private fun initViews(view: View) {
@@ -98,7 +84,7 @@ class HomeFragment : Fragment(),ItemClickListener {
                 MaterialAlertDialogBuilder(it)
                     .setTitle("Welcome Folks")
                     .setMessage("Thanks for choosing Daily Prayer. With this Prayer App \n1. You can add routine\n2. You can count each prayer\n3.You can send prayer request\nTeam Daily Prayer")
-                    .setPositiveButton("Okay") { dialog, which ->
+                    .setPositiveButton("Okay") { dialog, _ ->
                         dialog.dismiss()
                     }
                     .show()

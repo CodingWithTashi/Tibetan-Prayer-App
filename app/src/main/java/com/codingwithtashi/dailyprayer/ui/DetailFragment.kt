@@ -365,7 +365,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                     prayerName.text = "Downloading Prayer: ${currentPrayer.title}"
                     linearLayout.visibility = VISIBLE;
                     prayerViewModel.downloadPrayer(currentPrayer.downloadUrl);
-                    prayerViewModel.downloadListener.observe(viewLifecycleOwner, Observer {
+                    prayerViewModel.downloadListener.observe(viewLifecycleOwner, {
                         if (it.status == STATUS.DOWNLOADING) {
                             progressBar.progress = it.progress
                             currentPosition.text = "${it.progress}%"
@@ -410,8 +410,6 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
 
     }
-
-
 
     override fun onDestroy() {
         Log.d(TAG, "onDestroy: Media stopped");

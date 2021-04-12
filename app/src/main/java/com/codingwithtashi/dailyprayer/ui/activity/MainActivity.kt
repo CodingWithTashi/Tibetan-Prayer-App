@@ -20,6 +20,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.preference.PreferenceManager
 import com.codingwithtashi.dailyprayer.BuildConfig
 import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.utils.CommonUtils
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import dagger.hilt.android.AndroidEntryPoint
@@ -36,8 +37,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //add shortcuts for long press app
+        addShortcuts();
+        initViews();
+        setUpNavigation();
+        bottomNavListener();
+    }
 
-        //shortcuts
+    private fun addShortcuts() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             val shortcutManager =  getSystemService<ShortcutManager>(ShortcutManager::class.java)
 
@@ -47,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                 .setIcon(Icon.createWithResource(applicationContext, R.drawable.prayer))
                 .setIntent(
                     Intent(Intent.ACTION_VIEW,
-                        Uri.parse("https://github.com/CodingWithTashi/Tibetan-Prayer-App"))
+                        Uri.parse(CommonUtils.GITHUB_URL))
                 )
                 .build()
 
@@ -57,43 +64,19 @@ class MainActivity : AppCompatActivity() {
                 .setIcon(Icon.createWithResource(applicationContext, R.drawable.prayer))
                 .setIntent(
                     Intent(Intent.ACTION_VIEW,
-                        Uri.parse("https://www.facebook.com/techtibet"))
+                        Uri.parse(CommonUtils.FACEBOOK_URL))
                 )
                 .build()
 
-
             shortcutManager!!.dynamicShortcuts = listOf(shortcut,sourcecode)
         }
-
-
-        var data = intent.extras;
-        Log.e(TAG, "onCreate: $data", )
-        if(data!=null){
-            Log.e(TAG, "onCreate: "+data.getString("title"), )
-            Log.e(TAG, "onCreate: "+data.getString("body"), )
-        }
-
-        initViews();
-        setUpNavigation();
-        bottomNavListener();
     }
 
     private fun initViews() {
         commonToolbar = findViewById(R.id.common_toolbar);
         bottomNavigationView =findViewById(R.id.bottom_nav);
         setSupportActionBar(commonToolbar)
-
     }
-    private fun setPreference() {
-        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val name = prefs.getString("signature", null);
-        if(name==null){
-            commonToolbar.setTitle(R.string.app_name)
-        }else
-            commonToolbar.title = "Hi $name"
-
-    }
-
     private fun setUpNavigation() {
         navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         NavigationUI.setupWithNavController(bottomNavigationView, navHostFragment.navController)
@@ -109,7 +92,6 @@ class MainActivity : AppCompatActivity() {
                 bottomNavigationView.visibility = VISIBLE
                 commonToolbar.visibility = VISIBLE
             }
-
         }
     }
 
