@@ -17,7 +17,6 @@
         android:roundIcon="@drawable/prayer"
         android:supportsRtl="true"
         android:theme="@style/Theme.DailyPrayer">
-        <activity android:name=".ui.activity.AboutUsActivity"></activity>
         <activity android:name=".ui.activity.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

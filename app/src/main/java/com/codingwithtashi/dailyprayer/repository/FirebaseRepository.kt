@@ -60,9 +60,6 @@ class FirebaseRepository(var context: Context) {
             val progress = 100.0 * it.bytesTransferred / it.totalByteCount
             downloadListener.postValue(DownloadResponse(STATUS.DOWNLOADING,progress.toInt(),""));
 
-
-            //displaying percentage in progress dialog
-            //yourProgressDialog.setMessage("Uploaded " + progress.toInt() + "%...")
         }
         return downloadListener
     }
