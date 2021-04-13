@@ -90,8 +90,6 @@
                     style="?attr/borderlessButtonStyle"
                     />
                 <com.google.android.material.switchmaterial.SwitchMaterial
-                    app:thumbTint="@color/brown_700"
-                    app:trackTint="@color/purple_700"
                     android:id="@+id/switch_alarm"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

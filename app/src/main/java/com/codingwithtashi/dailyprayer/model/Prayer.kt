@@ -3,7 +3,7 @@ package com.codingwithtashi.dailyprayer.model
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 
 /**
  * Created by kunchok on 10/03/2021
