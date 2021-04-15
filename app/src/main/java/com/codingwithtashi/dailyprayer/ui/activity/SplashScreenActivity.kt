@@ -22,7 +22,7 @@ class SplashScreenActivity : AppCompatActivity() {
     lateinit var image: ImageView;
     lateinit var textView: TextView;
     lateinit var progressBar: ProgressBar;
-    var  SECOND : Long = 3000;
+    var  SECOND : Long = 2500;
     @Inject
     lateinit var db: PrayerDatabase;
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +40,6 @@ class SplashScreenActivity : AppCompatActivity() {
         image.animation =topAnimation
         textView.animation = bottomAnimation
         //progressBar.animation = bottomAnimation
-
         Handler(Looper.getMainLooper()).postDelayed({
             startActivity(Intent(this, MainActivity::class.java))
             finish()

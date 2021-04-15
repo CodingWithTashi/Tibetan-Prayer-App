@@ -17,7 +17,6 @@ import com.google.android.material.textview.MaterialTextView
  */
 class PrayerListAdapter(var listener: ItemClickListener,var type: String) : ListAdapter<Prayer,PrayerListAdapter.ViewHolder>(DiffCallback()) {
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.single_list_item,parent,false);
         return ViewHolder(view);
@@ -28,7 +27,6 @@ class PrayerListAdapter(var listener: ItemClickListener,var type: String) : List
         holder.bind(currentItem,listener,type);
     }
 
-
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var title: MaterialTextView = itemView.findViewById(R.id.sno);
         var content: MaterialTextView = itemView.findViewById(R.id.content);
@@ -38,7 +36,6 @@ class PrayerListAdapter(var listener: ItemClickListener,var type: String) : List
             listener: ItemClickListener,
             type: String
         ) {
-            val sno = position+1;
             title.text ="༄༅། ";
             content.text = prayer?.title;
             itemView.setOnClickListener {

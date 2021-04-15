@@ -15,10 +15,11 @@
         android:layout_height="?attr/actionBarSize">
 
         <ImageView
+            android:padding="10dp"
             android:id="@+id/back_icon"
             android:src="@drawable/ic_baseline_arrow_back_24"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent"/>
         <TextView
             android:textColor="@color/white"
             android:paddingStart="10dp"
@@ -98,7 +99,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="Thanks for choosing Daily Prayer(Tibetan).\n1.Ads free application and free for anyone to use.\n2. Simple and user friendly UX/UI.\n3.Non Profit and open source project\n4.Sponsoring our project are welcome"
+                                        android:text="Thanks for choosing Daily Prayer(Tibetan).\nThis application is\n1.Ads free application and free for anyone to use.\n2. Simple and user friendly UX/UI.\n3.Non Profit and open source project\n4.Sponsoring our project are welcome"
                                         android:textAppearance="?attr/textAppearanceBody2"
                                         android:textColor="?android:attr/textColorSecondary" />
                                 </LinearLayout>
@@ -185,7 +186,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="This application is developed with help of following resource. Thanks to tenzinprogrammer@gmail.com for prayer audio assets.\nFeel free to reach us for feedback and feature request"
+                                        android:text="This application is developed with help of following resource.\n1.Thanks to tenzinprogrammer@gmail.com for prayer audio assets.\n2. Prayer has been taken from TCV Prayer book.\nFeel free to reach us for feedback and feature request"
                                         android:textAppearance="?attr/textAppearanceBody2"
                                         android:textColor="?android:attr/textColorSecondary" />
 
@@ -264,7 +265,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="Myself Kunchok Tashi(CodingWithTashi), I am a self taught developer and I code as a hobby as well as job. Please feel free to reach us out."
+                                        android:text="Myself Kunchok Tashi(CodingWithTashi), I am a self taught developer and I code for living. Please feel free to reach us out."
                                         android:textAppearance="?attr/textAppearanceBody2"
                                         android:textColor="?android:attr/textColorSecondary" />
 

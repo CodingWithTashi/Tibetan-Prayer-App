@@ -18,14 +18,10 @@ import java.util.*
  */
 class FirebaseRepository(var context: Context) {
 
-    var prayerListMutableLiveData = MutableLiveData<List<Prayer>>()
-    lateinit var storage: FirebaseStorage;
+     var storage: FirebaseStorage = FirebaseStorage.getInstance();
     lateinit var storageReference: StorageReference;
     var downloadListener = MutableLiveData<DownloadResponse>();
 
-    init {
-        storage = FirebaseStorage.getInstance();
-    }
     fun downloadPrayerAudio(url: String): MutableLiveData<DownloadResponse> {
         storageReference = storage.getReferenceFromUrl(url)
         var  directory : File? = null;

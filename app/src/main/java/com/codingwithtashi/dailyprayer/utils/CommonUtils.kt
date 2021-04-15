@@ -12,7 +12,6 @@ import java.util.*
 
 class CommonUtils {
    companion object {
-
        var INSTAGRAM_URL = "https://www.instagram.com/kontashi35/";
        var FACEBOOK_URL = "https://www.facebook.com/techtibet";
        var GITHUB_URL = "https://github.com/CodingWithTashi/Tibetan-Prayer-App";
@@ -50,6 +49,4 @@ class CommonUtils {
         return  false;
        }
    }
-
-
 }

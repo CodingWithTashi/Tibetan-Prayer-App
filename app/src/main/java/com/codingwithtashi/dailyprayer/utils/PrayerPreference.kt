@@ -16,7 +16,6 @@ class PrayerPreference {
            context=con
        }
    }
-
 }
 class PreferenceConst{
     companion object{

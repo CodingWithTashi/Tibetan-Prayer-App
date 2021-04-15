@@ -49,9 +49,9 @@ import javax.inject.Inject
                 Notification.Builder(context)
             }
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        var name = prefs.getString("signature", "");
+        val name = prefs.getString("signature", "");
         val time = prefs.getString("alarm_time_in_hhmm", "");
-        var isAlarmOn = prefs.getBoolean("is_alarm_on", false);
+        val isAlarmOn = prefs.getBoolean("is_alarm_on", false);
 
 
         val prayerNotification = PrayerNotification(null,"Prayer Time","Hey $name, It is Prayer time now",

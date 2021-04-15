@@ -5,7 +5,9 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import android.util.Log
+import com.codingwithtashi.dailyprayer.utils.Constant
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.Constants
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.ktx.messaging
 import dagger.hilt.android.HiltAndroidApp
@@ -19,7 +21,7 @@ class PrayerApp : Application() {
 
         Log.e("TAG", "onCreate: CREATED", )
 
-        FirebaseMessaging.getInstance().subscribeToTopic("all")
+        FirebaseMessaging.getInstance().subscribeToTopic(Constant.ALL)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.e("TAG", "onCreate: subscribeToTopic", )

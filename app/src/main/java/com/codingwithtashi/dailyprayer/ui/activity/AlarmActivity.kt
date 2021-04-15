@@ -112,8 +112,8 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
 
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
         Log.e("TAG", "onTimeSet: " + hourOfDay)
-        var time = "$hourOfDay:$minute"
-        var displayTime = getTimeFromString(time);
+        val time = "$hourOfDay:$minute"
+        val displayTime = getTimeFromString(time);
         alarmTitle.text = displayTime;
         alarmDesc.text = "Alarm set at $displayTime"
         alarmSwitch.isChecked=true
@@ -154,13 +154,13 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
 
     private fun showTimePickerDialog() {
         val   c = Calendar.getInstance()
-        var hour:Int;
-        var minute:Int
+        val hour:Int;
+        val minute:Int
         val prefs: SharedPreferences? = PreferenceManager.getDefaultSharedPreferences(this)
-        var alarm_time = prefs?.getString("alarm_time", null);
-        if(alarm_time!=null){
+        val alarmTime = prefs?.getString("alarm_time", null);
+        if(alarmTime!=null){
             val sdf = SimpleDateFormat("hh:mm a")
-            var date = sdf.parse(alarm_time)
+            val date = sdf.parse(alarmTime)
             c.time = date
             hour = c[Calendar.HOUR_OF_DAY]
             minute = c[Calendar.MINUTE]
@@ -168,18 +168,15 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
             hour = c[Calendar.HOUR_OF_DAY]
             minute = c[Calendar.MINUTE]
         }
-
-        var dialog = TimePickerDialog(this,
+            TimePickerDialog(this,
             R.style.TimePickerTheme, this, hour, minute, false).show()
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         onBackPressed()
         return super.onOptionsItemSelected(item)
-
     }
     override fun onBackPressed() {
         super.onBackPressed()
         finish()
     }
-
 }

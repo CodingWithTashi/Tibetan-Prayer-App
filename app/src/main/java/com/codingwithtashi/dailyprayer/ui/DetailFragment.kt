@@ -372,14 +372,8 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                             downlodBtn.text = DOWNLOADING
                             downlodBtn.isEnabled = false;
                             Log.e(TAG, "initListener: Downloading....")
-                        }else
-                            if (it.status == STATUS.ERROR) {
-                                downlodBtn.text = TRY_AGAIN
-                                downlodBtn.isEnabled = true;
-                                context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
-                                Log.e(TAG, "initListener: Downloading...." + it.error)
-                            }else
-                                if (it.status == STATUS.SUCCESS) {
+                        }
+                        else if (it.status == STATUS.SUCCESS) {
                                     Log.e(TAG, "initListener: Downloaded...." + it.error)
                                     progressBar.progress = 100;
                                     currentPosition.text = "100%"
@@ -398,10 +392,17 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                                         mediaPlayer.prepare();
                                     }
 
-                                }
+                                }else if (it.status == STATUS.ERROR) {
+                                Log.e(TAG, "initListener: Error....")
+                                downlodBtn.text = TRY_AGAIN
+                                downlodBtn.isEnabled = true;
+                                context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
+                                Log.e(TAG, "initListener: Downloading...." + it.error)
+                            }
                     })
                 }else{
                     downlodBtn.text = TRY_AGAIN
+                    Log.e(TAG, "initListener: Error....Outside")
                     context?.let { it1 -> CommonUtils.displayShortMessage(it1, "Error occur,Please check your internet connection") }
                 }
 

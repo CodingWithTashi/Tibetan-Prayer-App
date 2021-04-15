@@ -10,7 +10,9 @@ class Constant {
         const val  USERS_COLLECTION : String = "Users";
         const val  COMPLETED : String = "Completed";
         const val  TRY_AGAIN : String = "Try Again";
-        const val  DOWNLOADING : String = "Try Again";
+        const val  DOWNLOADING : String = "Downloading";
+        const val  ALL : String = "all";
+        const val  TEST : String = "test";
 
     }
 

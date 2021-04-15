@@ -47,5 +47,4 @@ class PrayerViewModel @Inject constructor(private var prayerDao: PrayerDao,var c
         downloadListener = firebaseRepository.downloadPrayerAudio(url);
     }
 
-
 }

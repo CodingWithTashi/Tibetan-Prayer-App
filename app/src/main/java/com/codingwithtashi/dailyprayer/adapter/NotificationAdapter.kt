@@ -15,13 +15,11 @@ class NotificationAdapter(private val items: ArrayList<PrayerNotification>) : Re
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         return VH(parent)
     }
-
     override fun onBindViewHolder(holder: VH, position: Int) {
         holder.bind(items[position])
     }
 
     override fun getItemCount(): Int = items.size
-
 
     fun removeAt(position: Int) {
         items.removeAt(position)

@@ -171,7 +171,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     private fun openView(url: String) {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }

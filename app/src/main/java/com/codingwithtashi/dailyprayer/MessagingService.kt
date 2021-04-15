@@ -34,16 +34,15 @@ class MessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(rm: RemoteMessage) {
         // create notification channel
         if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.O){
-            var channel = NotificationChannel("MyNotification","MyNotification",
+            val channel = NotificationChannel("MyNotification","MyNotification",
                 NotificationManager.IMPORTANCE_DEFAULT)
-            var manager = getSystemService(NotificationManager::class.java) as NotificationManager;
+            val manager = getSystemService(NotificationManager::class.java) as NotificationManager;
             manager.createNotificationChannel(channel)
         }
         //log data
         Log.e("TAG", "onMessageReceived: "+rm.data["title"]+rm.data["prayer_title"]+rm.data["prayer_body"], )
-        var link: String = rm.data["link"].toString();
+        val link: String = rm.data["link"].toString();
         showNotification(rm.data["title"],rm.data["prayer_title"],rm.data["prayer_body"],rm.data["download_link"],link)
-
 
         super.onMessageReceived(rm);
     }
