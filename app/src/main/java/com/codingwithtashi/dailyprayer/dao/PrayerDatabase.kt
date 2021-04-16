@@ -17,7 +17,7 @@ import java.util.*
 import javax.inject.Inject
 import javax.inject.Provider
 
-@Database(entities = [Prayer::class,PrayerNotification::class],version = 1,exportSchema = false)
+@Database(entities = [Prayer::class,PrayerNotification::class],version = 2,exportSchema = false)
 abstract class PrayerDatabase : RoomDatabase() {
     abstract fun prayerDao(): PrayerDao;
     abstract fun notificationDao(): NotificationDao;
