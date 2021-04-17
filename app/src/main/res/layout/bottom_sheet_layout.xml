@@ -117,7 +117,6 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
-                                        android:onClick="openPage"
                                         android:text="Share "
                                         app:icon="@drawable/ic_baseline_share_24" />
 
@@ -127,7 +126,6 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
-                                        android:onClick="openPage"
                                         android:text="Rate "
                                         app:icon="@drawable/ic_baseline_star_rate_24" />
 
@@ -137,7 +135,6 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
-                                        android:onClick="openPage"
                                         android:text="PayPal"
                                         app:icon="@drawable/paypal" />
                                 </LinearLayout>
@@ -205,7 +202,6 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
-                                        android:onClick="openPage"
                                         android:text="Gmail"
                                         app:icon="@drawable/ic_baseline_email_24" />
 
@@ -215,7 +211,6 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
-                                        android:onClick="openPage"
                                         android:text="GitHub"
                                         app:icon="@drawable/github" />
                                 </LinearLayout>
@@ -284,7 +279,6 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
-                                        android:onClick="openPage"
                                         android:text="Instagram"
                                         app:icon="@drawable/instagram" />
 
@@ -294,7 +288,6 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
-                                        android:onClick="openPage"
                                         android:text="Facebook"
                                         app:icon="@drawable/facebook" />
                                 </LinearLayout>

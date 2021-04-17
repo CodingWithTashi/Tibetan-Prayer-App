@@ -18,6 +18,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
+import com.google.firebase.crashlytics.internal.common.CommonUtils
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,35 +34,37 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
         var NOTIFICATION_CHANNEL_ID = "10001"
         val ALARM1_ID = 10000
         fun scheduleNotification(context: Context, time: String, checked: Boolean) {
+            if(checked){
+                val calendar = Calendar.getInstance()
+                var sdf =  SimpleDateFormat("HH:mm");
+                var date  = sdf.parse(time);
 
-            val calendar = Calendar.getInstance()
-            var sdf =  SimpleDateFormat("HH:mm");
-            var date  = sdf.parse(time);
 
+                calendar[Calendar.HOUR_OF_DAY] = date.hours
+                calendar[Calendar.MINUTE] = date.minutes
+                calendar[Calendar.SECOND] = 0
+                calendar[Calendar.MILLISECOND] = 0
 
-            calendar[Calendar.HOUR_OF_DAY] = date.hours
-            calendar[Calendar.MINUTE] = date.minutes
-            calendar[Calendar.SECOND] = 0
-            calendar[Calendar.MILLISECOND] = 0
+                if (calendar.time.compareTo(Date()) < 0) calendar.add(Calendar.DAY_OF_MONTH, 1)
 
-            if (calendar.time.compareTo(Date()) < 0) calendar.add(Calendar.DAY_OF_MONTH, 1)
-
-            val intent = Intent(context.applicationContext, AlarmReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(
-                context.applicationContext,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
-            val alarmManager =
-                context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            Log.e("TAG", "scheduleNotification: 0"+calendar.timeInMillis, )
-            alarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                //AlarmManager.INTERVAL_DAY,
-                pendingIntent
-            )
+                val intent = Intent(context.applicationContext, AlarmReceiver::class.java)
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context.applicationContext,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+                val alarmManager =
+                    context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                Log.e("TAG", "scheduleNotification: 0"+calendar.timeInMillis, )
+                alarmManager.setExact(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    //AlarmManager.INTERVAL_DAY,
+                    pendingIntent
+                )
+                com.codingwithtashi.dailyprayer.utils.CommonUtils.displayShortMessage(context,"Notification set");
+            }
         }
     }
     private val default_notification_channel_id = "default"
@@ -90,8 +93,12 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
                 prefs?.putBoolean("is_alarm_on", false);
             }
             prefs?.apply()
-            Log.e("TAG", "onCreate: CALLED SWITCH CHANGE", )
-            //triggerAlarm(null, isChecked);
+            Log.e("TAG", "onCreate: ${ prefs?.putBoolean("is_alarm_on", false)}")
+            val getPrefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+            val time = getPrefs.getString("alarm_time_in_hhmm", "");
+            if(!time.isNullOrEmpty()){
+                triggerAlarm(time, isChecked);
+            }
         }
     }
 
@@ -102,7 +109,7 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
         var is_alarm_on = prefs?.getBoolean("is_alarm_on", false);
         if(alarm_time!=null){
             alarmTitle.text = alarm_time
-            alarmDesc.text = "Alarm set at $alarm_time"
+            alarmDesc.text = "Notification set on $alarm_time"
         }
         if (is_alarm_on != null) {
             alarmSwitch.isChecked = is_alarm_on
@@ -115,7 +122,7 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
         val time = "$hourOfDay:$minute"
         val displayTime = getTimeFromString(time);
         alarmTitle.text = displayTime;
-        alarmDesc.text = "Alarm set at $displayTime"
+        alarmDesc.text = "Notification set on $displayTime"
         alarmSwitch.isChecked=true
         val prefs: SharedPreferences.Editor? = PreferenceManager.getDefaultSharedPreferences(this).edit()
         prefs?.putString("alarm_time", displayTime);
