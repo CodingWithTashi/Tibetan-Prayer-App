@@ -7,11 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
-import com.codingwithtashi.dailyprayer.BuildConfig
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.utils.CommonUtils
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
 
@@ -20,7 +17,6 @@ class BottomSheetDialog : BottomSheetDialogFragment(),View.OnClickListener {
     lateinit var backIcon: ImageView;
     lateinit var shareBtn: MaterialButton;
     lateinit var rateBtn: MaterialButton;
-    lateinit var payPalBtn: MaterialButton;
     lateinit var gmailBtn: MaterialButton;
     lateinit var gitHubBtn: MaterialButton;
     lateinit var instaBtn: MaterialButton;
@@ -38,7 +34,6 @@ class BottomSheetDialog : BottomSheetDialogFragment(),View.OnClickListener {
         backIcon = view.findViewById(R.id.back_icon)
         shareBtn = view.findViewById(R.id.share)
         rateBtn = view.findViewById(R.id.rate)
-        payPalBtn = view.findViewById(R.id.paypal)
         gmailBtn = view.findViewById(R.id.gmail)
         gitHubBtn = view.findViewById(R.id.github)
         instaBtn = view.findViewById(R.id.instagram)
@@ -47,7 +42,6 @@ class BottomSheetDialog : BottomSheetDialogFragment(),View.OnClickListener {
         backIcon.setOnClickListener(this);
         shareBtn.setOnClickListener(this);
         rateBtn.setOnClickListener(this);
-        payPalBtn.setOnClickListener(this);
         gmailBtn.setOnClickListener(this);
         gitHubBtn.setOnClickListener(this);
         instaBtn.setOnClickListener(this);
@@ -67,7 +61,7 @@ class BottomSheetDialog : BottomSheetDialogFragment(),View.OnClickListener {
                     var shareMessage = "\nCheck out this prayer application.\n\n"
                     shareMessage =
                         """
-                        ${shareMessage}https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}
+                        ${shareMessage}https://play.google.com/store/apps/details?id=com.codingwithtashi.dailyprayer
                         """.trimIndent()
                     shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
                     startActivity(Intent.createChooser(shareIntent, "choose one"))
@@ -77,9 +71,6 @@ class BottomSheetDialog : BottomSheetDialogFragment(),View.OnClickListener {
             }
             R.id.rate->{
                 openView(CommonUtils.PLAY_STORE_URL)
-            }
-            R.id.paypal->{
-                openView(CommonUtils.PAYPAL_URL)
             }
             R.id.gmail->{
                 val intent = Intent(Intent.ACTION_SENDTO)

@@ -10,6 +10,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.preference.PreferenceManager
@@ -81,7 +83,8 @@ import javax.inject.Inject
                 notificationChannel.enableLights(true)
                 notificationChannel.lightColor = Color.RED
                 notificationChannel.enableVibration(true)
-                notificationChannel.vibrationPattern = longArrayOf(
+                notificationChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),null)
+                        notificationChannel.vibrationPattern = longArrayOf(
                     100,
                     200,
                     300,

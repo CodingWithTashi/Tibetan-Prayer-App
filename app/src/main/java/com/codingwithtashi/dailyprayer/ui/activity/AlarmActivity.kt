@@ -1,5 +1,4 @@
 package com.codingwithtashi.dailyprayer.ui.activity
-
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
@@ -18,7 +17,6 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.android.material.textview.MaterialTextView
-import com.google.firebase.crashlytics.internal.common.CommonUtils
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -63,7 +61,6 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
                     //AlarmManager.INTERVAL_DAY,
                     pendingIntent
                 )
-                com.codingwithtashi.dailyprayer.utils.CommonUtils.displayShortMessage(context,"Notification set");
             }
         }
     }

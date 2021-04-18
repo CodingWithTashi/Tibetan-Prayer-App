@@ -99,7 +99,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginTop="8dp"
-                                        android:text="Thanks for choosing Daily Prayer(Tibetan).\nThis application is\n1.Ads free application and free for anyone to use.\n2. Simple and user friendly UX/UI.\n3.Non Profit and open source project\n4.Sponsoring our project are welcome"
+                                        android:text="Thanks for choosing Daily Prayer(Tibetan).\nThis application is\n1.Ads free application and free for anyone to use.\n2. Simple and user friendly UX/UI.\n3.Non Profit and open source project"
                                         android:textAppearance="?attr/textAppearanceBody2"
                                         android:textColor="?android:attr/textColorSecondary" />
                                 </LinearLayout>
@@ -128,15 +128,6 @@
                                         android:layout_marginEnd="8dp"
                                         android:text="Rate "
                                         app:icon="@drawable/ic_baseline_star_rate_24" />
-
-                                    <com.google.android.material.button.MaterialButton
-                                        android:id="@+id/paypal"
-                                        style="?attr/borderlessButtonStyle"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginEnd="8dp"
-                                        android:text="PayPal"
-                                        app:icon="@drawable/paypal" />
                                 </LinearLayout>
 
                             </LinearLayout>
