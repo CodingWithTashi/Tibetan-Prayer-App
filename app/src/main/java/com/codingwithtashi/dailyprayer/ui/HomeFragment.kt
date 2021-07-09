@@ -83,7 +83,7 @@ class HomeFragment : Fragment(),ItemClickListener {
             context?.let {
                 MaterialAlertDialogBuilder(it)
                     .setTitle("Welcome Folks")
-                    .setMessage("Thanks for choosing Daily Prayer. With this Prayer App \n1. You can add routine\n2. You can count each prayer\n3.You can send prayer request\nTeam Daily Prayer")
+                    .setMessage("Thanks for choosing Tibetan Prayer. With this Prayer App \n1. You can add routine\n2. You can count each prayer\n3.You can send prayer request\nTeam Tibetan Prayer")
                     .setPositiveButton("Okay") { dialog, _ ->
                         dialog.dismiss()
                     }

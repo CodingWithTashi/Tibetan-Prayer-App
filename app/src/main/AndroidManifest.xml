@@ -12,9 +12,9 @@
     <application
         android:name=".PrayerApp"
         android:allowBackup="true"
-        android:icon="@drawable/prayer"
+        android:icon="@drawable/prayer_icon"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/prayer"
+        android:roundIcon="@drawable/prayer_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.DailyPrayer">
         <activity android:name=".ui.activity.SplashScreenActivity">

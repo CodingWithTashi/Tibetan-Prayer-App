@@ -94,7 +94,7 @@ class NotificationFragment : Fragment() {
             context?.let {
                 MaterialAlertDialogBuilder(it)
                     .setTitle("Notification Page")
-                    .setMessage("We will send notification here. such as \n1.If new prayer is added \n2.New Feature released \n3.Any Update \nTeam Daily Prayer")
+                    .setMessage("We will send notification here. such as \n1.If new prayer is added \n2.New Feature released \n3.Any Update \nTeam Tibetan Prayer")
                     .setPositiveButton("Okay") { dialog, which ->
                         dialog.dismiss()
                     }

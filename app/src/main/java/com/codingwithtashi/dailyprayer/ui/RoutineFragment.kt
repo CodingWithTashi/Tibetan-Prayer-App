@@ -85,7 +85,7 @@ class RoutineFragment : Fragment(), ItemClickListener {
             context?.let {
                 MaterialAlertDialogBuilder(it)
                     .setTitle("Routine Page")
-                    .setMessage("These is where your favourite or added routine prayer will display.\n1. Go to detail prayer and click on favourite icon on top to see change\nTeam Daily Prayer")
+                    .setMessage("These is where your favourite or added routine prayer will display.\n1. Go to detail prayer and click on favourite icon on top to see change\nTeam Tibetan Prayer")
                     .setPositiveButton("Okay") { dialog, which ->
                         dialog.dismiss()
                     }

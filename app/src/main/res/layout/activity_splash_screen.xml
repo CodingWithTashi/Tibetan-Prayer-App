@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Daily Prayer (Tibetan)"
+        android:text="Tibetan Prayer"
         android:textAlignment="center"
         android:textColor="@android:color/white"
         android:textSize="22sp"

@@ -65,7 +65,7 @@ abstract class PrayerDatabase : RoomDatabase() {
                 val pref = PrayerPreference.getPreference().getBoolean(PreferenceConst.IS_FIRST_NOTIFICATION_DISPLAYED,false);
                 if(!pref){
                     PrayerPreference.getPreference().edit().putBoolean(PreferenceConst.IS_FIRST_NOTIFICATION_DISPLAYED,true).apply()
-                    val prayerNotification = PrayerNotification(null,"Hello There","Welcome to Daily Prayer,Thanks for using our app. Swipe left to delete notification.",
+                    val prayerNotification = PrayerNotification(null,"Hello There","Welcome to Tibetan Prayer,Thanks for using our app. Swipe left to delete notification.",
                         CommonUtils.formatDateFromDate(Date()),"")
                     notificationDao.insert(prayerNotification)
                 }

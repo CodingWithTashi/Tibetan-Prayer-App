@@ -23,6 +23,13 @@
             app:title="Prayer Font Size"
             app:defaultValue="0"/>
 
+        <SeekBarPreference
+            app:icon="@drawable/ic_baseline_brightness_4_24"
+            android:max="5"
+            app:key="prayer_brightness"
+            app:title="Prayer background brightness"
+            app:defaultValue="0"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
