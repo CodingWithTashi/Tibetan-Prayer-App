@@ -133,7 +133,110 @@
                             </LinearLayout>
 
                         </com.google.android.material.card.MaterialCardView>
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/more_app_card"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="8dp">
 
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical"
+                                    android:padding="10dp">
+
+                                    <!-- Title, secondary and supporting text -->
+                                    <com.google.android.material.textview.MaterialTextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="More from KharagEdition:"
+                                        android:textColor="@color/brown_700"
+                                        android:textAppearance="?attr/textAppearanceHeadline6"
+                                        />
+                                    <View
+                                        android:layout_marginTop="5dp"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="1dp"
+                                        android:background="@android:color/darker_gray"/>
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:weightSum="2"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
+                                    <LinearLayout
+                                        android:layout_weight="1"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+                                        <ImageView
+                                            android:layout_width="75dp"
+                                            android:layout_height="75dp"
+                                            android:elevation="4dp"
+                                            app:srcCompat="@drawable/dictionary"/>
+                                        <TextView
+                                            android:textSize="16sp"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Tibetan Dictionary "
+                                            android:textAppearance="?attr/textAppearanceHeadline6"
+                                            android:textColor="@color/brown_700" />
+
+                                        <com.google.android.material.button.MaterialButton
+                                            android:id="@+id/download_dictionary"
+                                            style="?attr/borderlessButtonStyle"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/download"
+                                            app:icon="@drawable/ic_baseline_download_24" />
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_weight="1"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:gravity="center"
+                                        android:orientation="vertical">
+                                        <ImageView
+                                            android:layout_width="75dp"
+                                            android:layout_height="75dp"
+                                            android:elevation="4dp"
+                                            android:scaleType="centerCrop"
+                                            app:srcCompat="@drawable/calendar"/>
+
+                                        <TextView
+                                            android:textSize="16sp"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="Tibetan Calendar"
+                                            android:textAppearance="?attr/textAppearanceHeadline6"
+                                            android:textColor="@color/brown_700" />
+
+                                        <com.google.android.material.button.MaterialButton
+                                            android:id="@+id/download_calendar"
+                                            style="?attr/borderlessButtonStyle"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:text="@string/download"
+                                            app:icon="@drawable/ic_baseline_download_24" />
+                                    </LinearLayout>
+
+
+                                </LinearLayout>
+
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/application_contribution"
                             android:layout_width="match_parent"
