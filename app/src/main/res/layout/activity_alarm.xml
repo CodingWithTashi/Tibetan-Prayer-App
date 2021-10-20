@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_700"
+    android:background="?android:colorAccent"
     tools:context=".ui.activity.AlarmActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
@@ -48,7 +48,7 @@
 
                 <!-- Title, secondary and supporting text -->
                 <TextView
-                    android:textColor="@color/brown_700"
+                    android:textColor="?android:attr/textColorSecondary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Set your routine"
@@ -87,6 +87,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:text="Set Notification"
+                    android:textColor="?android:attr/textColorSecondary"
                     style="?attr/borderlessButtonStyle"
                     />
                 <com.google.android.material.switchmaterial.SwitchMaterial
@@ -95,6 +96,7 @@
                     android:layout_height="wrap_content"
                     android:text="Turn On/Off"
                     style="?attr/borderlessButtonStyle"
+                    android:textColor="?android:attr/textColorSecondary"
                     />
             </LinearLayout>
 

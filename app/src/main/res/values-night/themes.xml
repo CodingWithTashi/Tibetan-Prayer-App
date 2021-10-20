@@ -2,13 +2,19 @@
     <!-- Base application theme. -->
     <style name="Theme.DailyPrayer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimary">@color/black_900</item>
+        <item name="colorPrimaryVariant">@color/black_900</item>
+        <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/black_800</item>
+        <item name="colorSecondaryVariant">@color/black_800</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!--Text Color-->
+        <item name="android:textColorSecondary">@color/white</item>
+        <!--Preference seekbar-->
+        <item name="android:thumbTint">@color/white</item>
+        <item name="android:thumbTintMode">@color/white</item>
+        <item name="android:progressTint">@color/black</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->

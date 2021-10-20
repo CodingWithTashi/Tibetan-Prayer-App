@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/purple_700"
+    android:background="?android:colorAccent"
     android:orientation="vertical">
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/settings_toolbar"

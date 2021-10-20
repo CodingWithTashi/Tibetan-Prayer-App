@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/purple_700">
+    android:background="?android:colorAccent">
     <com.google.android.material.appbar.MaterialToolbar
         app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/bottom_about_toolbar"
@@ -40,7 +40,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/purple_700"
+                android:background="?android:colorAccent"
                 tools:context=".ui.activity.AboutUsActivity">
 
                 <ScrollView
@@ -91,7 +91,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="About App:"
                                         android:textAppearance="?attr/textAppearanceHeadline6"
-                                        android:textColor="@color/brown_700" />
+                                        android:textColor="@color/white" />
 
                                     <com.google.android.material.textview.MaterialTextView
                                         android:paddingHorizontal="10dp"
@@ -118,6 +118,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
                                         android:text="Share "
+                                        android:textColor="?android:attr/textColorSecondary"
                                         app:icon="@drawable/ic_baseline_share_24" />
 
                                     <com.google.android.material.button.MaterialButton
@@ -126,6 +127,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
+                                        android:textColor="?android:attr/textColorSecondary"
                                         android:text="Rate "
                                         app:icon="@drawable/ic_baseline_star_rate_24" />
                                 </LinearLayout>
@@ -156,7 +158,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="More from KharagEdition:"
-                                        android:textColor="@color/brown_700"
+                                        android:textColor="@color/white"
                                         android:textAppearance="?attr/textAppearanceHeadline6"
                                         />
                                     <View
@@ -189,14 +191,16 @@
                                             android:layout_height="wrap_content"
                                             android:text="Tibetan Dictionary "
                                             android:textAppearance="?attr/textAppearanceHeadline6"
-                                            android:textColor="@color/brown_700" />
+                                            android:textColor="?android:attr/textColorSecondary"/>
 
                                         <com.google.android.material.button.MaterialButton
+                                            android:textSize="14sp"
                                             android:id="@+id/download_dictionary"
                                             style="?attr/borderlessButtonStyle"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
                                             android:text="@string/download"
+                                            android:textColor="?android:attr/textColorSecondary"
                                             app:icon="@drawable/ic_baseline_download_24" />
                                     </LinearLayout>
 
@@ -219,13 +223,15 @@
                                             android:layout_height="wrap_content"
                                             android:text="Tibetan Calendar"
                                             android:textAppearance="?attr/textAppearanceHeadline6"
-                                            android:textColor="@color/brown_700" />
+                                            android:textColor="?android:attr/textColorSecondary" />
 
                                         <com.google.android.material.button.MaterialButton
+                                            android:textSize="14sp"
                                             android:id="@+id/download_calendar"
                                             style="?attr/borderlessButtonStyle"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
+                                            android:textColor="?android:attr/textColorSecondary"
                                             android:text="@string/download"
                                             app:icon="@drawable/ic_baseline_download_24" />
                                     </LinearLayout>
@@ -270,7 +276,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="Support/contribution:"
                                         android:textAppearance="?attr/textAppearanceHeadline6"
-                                        android:textColor="@color/brown_700" />
+                                        android:textColor="@color/white" />
 
                                     <com.google.android.material.textview.MaterialTextView
                                         android:paddingHorizontal="10dp"
@@ -297,6 +303,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
                                         android:text="Gmail"
+                                        android:textColor="?android:attr/textColorSecondary"
                                         app:icon="@drawable/ic_baseline_email_24" />
 
                                     <com.google.android.material.button.MaterialButton
@@ -305,6 +312,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
+                                        android:textColor="?android:attr/textColorSecondary"
                                         android:text="GitHub"
                                         app:icon="@drawable/github" />
                                 </LinearLayout>
@@ -328,7 +336,7 @@
                                 <ImageView
                                     android:layout_width="match_parent"
                                     android:layout_height="160dp"
-                                    android:background="@color/brown_500"
+                                    android:background="?android:colorPrimary"
                                     android:scaleType="centerInside"
                                     app:srcCompat="@drawable/avator" />
 
@@ -347,7 +355,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="About me:"
                                         android:textAppearance="?attr/textAppearanceHeadline6"
-                                        android:textColor="@color/brown_700" />
+                                        android:textColor="@color/white" />
 
                                     <com.google.android.material.textview.MaterialTextView
                                         android:paddingHorizontal="10dp"
@@ -374,6 +382,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
                                         android:text="Instagram"
+                                        android:textColor="?android:attr/textColorSecondary"
                                         app:icon="@drawable/instagram" />
 
                                     <com.google.android.material.button.MaterialButton
@@ -383,6 +392,7 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginEnd="8dp"
                                         android:text="Facebook"
+                                        android:textColor="?android:attr/textColorSecondary"
                                         app:icon="@drawable/facebook" />
                                 </LinearLayout>
 
@@ -406,23 +416,24 @@
                                 android:paddingRight="16dp">
                                 <!-- Title, secondary and supporting text -->
                                 <TextView
+                                    android:textColor="?android:attr/textColorSecondary"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Made with "
                                     android:textSize="16sp"
                                     android:textAppearance="?attr/textAppearanceHeadline6"
-                                    android:textColor="@color/brown_700" />
+                                     />
                                 <ImageView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:src="@drawable/ic_baseline_favorite_24_red"/>
                                 <TextView
+                                    android:textColor="?android:attr/textColorSecondary"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" by TechTibet"
+                                    android:text=" by KharagEdition"
                                     android:textSize="16sp"
-                                    android:textAppearance="?attr/textAppearanceHeadline6"
-                                    android:textColor="@color/brown_700" />
+                                    android:textAppearance="?attr/textAppearanceHeadline6"/>
                             </LinearLayout>
 
                         </com.google.android.material.card.MaterialCardView>

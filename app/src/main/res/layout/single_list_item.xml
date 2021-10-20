@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <com.google.android.material.card.MaterialCardView
-        android:background="@color/purple_700"
+        android:background="?android:colorAccent"
         app:strokeColor="@color/stroke_color"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +15,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:background="@color/purple_700"
+            android:background="?android:colorAccent"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:layout_width="match_parent"

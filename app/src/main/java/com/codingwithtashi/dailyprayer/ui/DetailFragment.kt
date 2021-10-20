@@ -55,9 +55,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
     lateinit var counter: MaterialTextView;
     lateinit var incrementBtn: MaterialButton;
     lateinit var resetBtn: MaterialButton;
-    lateinit var floatingActionButton: ExtendedFloatingActionButton;
     lateinit var fabLayout1: LinearLayout;
-    lateinit var fab1: FloatingActionButton;
     lateinit var fabBGLayout: View;
     lateinit var appBarLayout: AppBarLayout;
     lateinit var scrollView: NestedScrollView;
@@ -109,9 +107,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
         title = view.findViewById(R.id.title_detail);
         counter = view.findViewById(R.id.counter);
         content = view.findViewById(R.id.content_detail);
-        floatingActionButton = view.findViewById(R.id.floating_action_button);
         fabLayout1 = view.findViewById(R.id.fabLayout1);
-        fab1 = view.findViewById(R.id.fab1);
         fabBGLayout = view.findViewById(R.id.fabBGLayout);
         appBarLayout = view.findViewById(R.id.appbar_layout);
         coverImage = view.findViewById(R.id.cover_img);
@@ -199,14 +195,6 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
         appBarLayout.addOnOffsetChangedListener(this);
 
-        floatingActionButton.setOnClickListener(View.OnClickListener {
-
-            if (GONE == fabBGLayout.visibility) {
-                showFABMenu()
-            } else {
-                closeFABMenu()
-            }
-        })
 
         fabBGLayout.setOnClickListener { closeFABMenu() }
 
@@ -274,21 +262,6 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
         })
 
 
-
-
-        content.viewTreeObserver.addOnGlobalLayoutListener(OnGlobalLayoutListener {
-            val height: Int = content.getMeasuredHeight()
-
-        })
-        fab1.setOnClickListener {
-            appBarLayout.setExpanded(false, true)
-            val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-            val seekBarVal = prefs.getInt("seekbar_example", 3);
-            val seekBarData = 15 - seekBarVal
-            Log.e(TAG, "initListener: HEIGHT" + scrollView.getChildAt(0).height)
-            val speed = scrollView.getChildAt(0).height * seekBarData
-            scrollView.post { scrollView.smoothScrollTo(0, scrollView.getChildAt(0).height, speed) }
-        }
 
 
         scrollView.viewTreeObserver.addOnScrollChangedListener {

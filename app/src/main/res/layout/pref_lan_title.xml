@@ -5,7 +5,7 @@
         android:textStyle="bold"
         android:padding="10dp"
         android:id="@android:id/title"
-        android:textColor="@color/brown_700"
+        android:textColor="?android:colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="18sp"/>
