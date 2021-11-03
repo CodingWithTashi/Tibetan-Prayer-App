@@ -49,5 +49,45 @@ class CommonUtils {
            }
         return  false;
        }
+
+       fun getNumberInTibetan(count: Int?): String {
+           var countIntTib="";
+           if(count!=null){
+               var countInEng = count.toString();
+               countInEng.forEach {
+                   countIntTib += tibetanCharacter(it)
+               }
+               return countIntTib;
+           }
+           return "";
+
+       }
+
+       private fun tibetanCharacter(it: Char): String {
+            when(it){
+                '0'->
+                    return "༠";
+                '1'->
+                    return "༡";
+                '2'->
+                    return "༢";
+                '3'->
+                    return "༣";
+                '4'->
+                    return "༤";
+                '5'->
+                    return "༥";
+                '6'->
+                    return "༦";
+                '7'->
+                    return "༧"
+                '8'->
+                    return "༨";
+                '9'->
+                    return "༩";
+                else ->
+                    return  "";
+            }
+       }
    }
 }

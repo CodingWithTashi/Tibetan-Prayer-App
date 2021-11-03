@@ -91,7 +91,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="About App:"
                                         android:textAppearance="?attr/textAppearanceHeadline6"
-                                        android:textColor="@color/white" />
+                                        android:textColor="?android:attr/textColorSecondary" />
 
                                     <com.google.android.material.textview.MaterialTextView
                                         android:paddingHorizontal="10dp"
@@ -158,7 +158,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="More from KharagEdition:"
-                                        android:textColor="@color/white"
+                                        android:textColor="?android:attr/textColorSecondary"
                                         android:textAppearance="?attr/textAppearanceHeadline6"
                                         />
                                     <View
@@ -276,7 +276,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="Support/contribution:"
                                         android:textAppearance="?attr/textAppearanceHeadline6"
-                                        android:textColor="@color/white" />
+                                        android:textColor="?android:attr/textColorSecondary" />
 
                                     <com.google.android.material.textview.MaterialTextView
                                         android:paddingHorizontal="10dp"
@@ -355,7 +355,7 @@
                                         android:layout_height="wrap_content"
                                         android:text="About me:"
                                         android:textAppearance="?attr/textAppearanceHeadline6"
-                                        android:textColor="@color/white" />
+                                        android:textColor="?android:attr/textColorSecondary" />
 
                                     <com.google.android.material.textview.MaterialTextView
                                         android:paddingHorizontal="10dp"

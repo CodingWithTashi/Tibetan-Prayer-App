@@ -90,11 +90,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
                         <com.google.android.material.button.MaterialButton
+                            app:icon="@drawable/ic_baseline_add_24"
                             android:id="@+id/increment_btn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/increment"/>
                         <com.google.android.material.button.MaterialButton
+                            app:icon="@drawable/ic_baseline_clear_24"
                             android:id="@+id/reset_btn"
                             android:layout_marginLeft="15dp"
                             android:layout_width="wrap_content"
@@ -128,7 +130,6 @@
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/content_detail"
-                        android:textIsSelectable="true"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/content_place_holder"
@@ -166,7 +167,16 @@
             android:layout_height="wrap_content"
             android:text="@string/auto_scroll" />
     </LinearLayout>
-
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:visibility="gone"
+        android:id="@+id/scroll_icon"
+        android:elevation="10dp"
+        android:layout_margin="15dp"
+        android:layout_gravity="bottom|end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_arrow_upward_24"
+        android:contentDescription="@string/scroll_icon" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

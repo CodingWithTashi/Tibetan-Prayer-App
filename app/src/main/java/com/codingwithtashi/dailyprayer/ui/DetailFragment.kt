@@ -73,6 +73,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
     lateinit var storage: FirebaseStorage;
     lateinit var storageReference: StorageReference;
     lateinit var mediaPlayer: MediaPlayer;
+    lateinit var scrollButton: FloatingActionButton;
 
 
     @Inject
@@ -119,6 +120,7 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
         incrementBtn = view.findViewById(R.id.increment_btn);
         resetBtn = view.findViewById(R.id.reset_btn);
         counterLayout = view.findViewById(R.id.counter_layout);
+        scrollButton = view.findViewById(R.id.scroll_icon);
 
         toolbar.inflateMenu(R.menu.detail_menu)
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
@@ -206,6 +208,9 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
             currentPrayer.count = 0;
             prayerViewModel.updateCurrentPrayer(currentPrayer)
         }
+        scrollButton.setOnClickListener {
+            scrollView.smoothScrollTo(0, 0, 200)
+        }
 
 
         prayerViewModel.selected.observe(viewLifecycleOwner, Observer {
@@ -239,8 +244,8 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
 
             title.text = it.title
             content.text = it.content
-            collapsingToolbarLayout.title = it.title
-            counter.text = it.count.toString()
+            collapsingToolbarLayout.title = it.title+"("+CommonUtils.getNumberInTibetan(it.count)+")"
+            counter.text = CommonUtils.getNumberInTibetan(it.count)
             glide.load(R.drawable.bhudha).into(coverImage)
             favIcon = menuItem.findItem(R.id.favourite);
             if (it.isFavourite!!) {
@@ -292,25 +297,13 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
             })
     }
 
-    private fun showFABMenu() {
-        fabLayout1.visibility = VISIBLE
-        fabBGLayout.visibility = VISIBLE
-        //floatingActionButton.animate().rotationBy(180F)
-        if (offSetValue != 0) {
-            fabLayout1.animate().translationY(resources.getDimension(R.dimen.standard_75))
-        } else {
-            fabLayout1.animate().translationY(-resources.getDimension(R.dimen.standard_75))
-        }
-
-    }
-
+    /// hide button when start scrolling
     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
         offSetValue = verticalOffset;
-        //favIcon?.isVisible = verticalOffset == 0
         if (verticalOffset == 0)
-            counterLayout.visibility = VISIBLE
+            scrollButton.visibility = GONE
         else
-            counterLayout.visibility = GONE
+            scrollButton.visibility = VISIBLE
 
     }
 

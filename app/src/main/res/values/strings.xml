@@ -37,4 +37,6 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="feature_not_available_now">Feature not available now</string>
     <string name="download">Download</string>
+    <string name="scroll_icon">Scroll Icon</string>
+    <string name="author_name">by Kharag Edition</string>
 </resources>

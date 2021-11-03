@@ -22,9 +22,10 @@ class SplashScreenActivity : AppCompatActivity() {
     lateinit var bottomAnimation: Animation;
     lateinit var image: ImageView;
     lateinit var version: TextView;
-    lateinit var textView: TextView;
+    lateinit var splashText: TextView;
+    lateinit var authorText: TextView;
     lateinit var progressBar: ProgressBar;
-    var  SECOND : Long = 2500;
+    var  SECOND : Long = 1500;
     @Inject
     lateinit var db: PrayerDatabase;
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,12 +37,13 @@ class SplashScreenActivity : AppCompatActivity() {
         topAnimation = AnimationUtils.loadAnimation(this,R.anim.top_animation)
         bottomAnimation = AnimationUtils.loadAnimation(this,R.anim.bottom_animation)
         image = findViewById(R.id.splash_image);
-        textView = findViewById(R.id.splash_text);
+        splashText = findViewById(R.id.splash_text);
         version = findViewById(R.id.version);
         progressBar = findViewById(R.id.splash_progress);
-
+        authorText = findViewById(R.id.author_text);
         image.animation =topAnimation
-        textView.animation = bottomAnimation
+        splashText.animation = bottomAnimation
+        authorText.animation = bottomAnimation
         //progressBar.animation = bottomAnimation
         setVersion();
         Handler(Looper.getMainLooper()).postDelayed({
