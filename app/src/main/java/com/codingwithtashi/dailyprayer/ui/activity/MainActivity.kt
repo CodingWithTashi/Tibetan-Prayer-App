@@ -16,6 +16,7 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.preference.PreferenceManager
@@ -25,6 +26,7 @@ import com.codingwithtashi.dailyprayer.ui.BottomSheetDialog
 import com.codingwithtashi.dailyprayer.utils.CommonUtils
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.switchmaterial.SwitchMaterial
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -36,10 +38,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView : BottomNavigationView;
     lateinit var navHostFragment: NavHostFragment;
     lateinit var commonToolbar: MaterialToolbar;
+    lateinit var prefs: SharedPreferences;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //add shortcuts for long press app
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         addShortcuts();
         initViews();
         setUpNavigation();
@@ -99,6 +103,21 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.option_menu,menu)
+        val themeLayout = menu!!.findItem(R.id.theme_menu).actionView
+        val switch = themeLayout.findViewById<SwitchMaterial>(R.id.theme_switch)
+        switch.isChecked = prefs.getBoolean("themeDark",false)
+        switch.setOnCheckedChangeListener { _, b ->
+            val editor = prefs.edit();
+            if(b){
+                editor.putBoolean("themeDark", true);
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            }else{
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                editor.putBoolean("themeDark", false);
+            }
+            editor.apply();
+
+        }
         return true
     }
 

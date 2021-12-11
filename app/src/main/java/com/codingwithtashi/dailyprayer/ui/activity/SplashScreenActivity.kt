@@ -1,6 +1,8 @@
 package com.codingwithtashi.dailyprayer.ui.activity
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,8 +13,11 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.PreferenceManager
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.dao.PrayerDatabase
+import com.codingwithtashi.dailyprayer.utils.PrayerPreference
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -26,11 +31,14 @@ class SplashScreenActivity : AppCompatActivity() {
     lateinit var authorText: TextView;
     lateinit var progressBar: ProgressBar;
     var  SECOND : Long = 1500;
+    lateinit var prefs: SharedPreferences;
+
     @Inject
     lateinit var db: PrayerDatabase;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash_screen)
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         db.prayerDao();
         db.notificationDao();
@@ -60,6 +68,14 @@ class SplashScreenActivity : AppCompatActivity() {
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
         }
+    }
+
+    override fun onStart() {
+        if(prefs.getBoolean("themeDark",false)){
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+
+        super.onStart()
     }
 
 }

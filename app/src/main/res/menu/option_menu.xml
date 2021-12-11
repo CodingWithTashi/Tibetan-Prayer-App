@@ -11,5 +11,11 @@
         android:id="@+id/about_us"/>
     <item android:title="Exit"
         android:id="@+id/exit"/>
+    <item
+        android:id="@+id/theme_menu"
+        android:title=""
+        app:showAsAction="always"
+        app:actionLayout="@layout/switch_layout"
+        />
 
 </menu>

@@ -8,10 +8,10 @@
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/drawable/ic_baseline_brightness_4_24.xml" value="0.1984375" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/drawable/ic_baseline_font_download_24.xml" value="0.15185185185185185" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/drawable/ic_baseline_share_24.xml" value="0.12135416666666667" />
-        <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/activity_alarm.xml" value="0.1" />
+        <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/activity_alarm.xml" value="0.144" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/activity_main.xml" value="0.11680121089808275" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/activity_splash_screen.xml" value="0.10923309788092836" />
-        <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/bottom_sheet_layout.xml" value="0.1" />
+        <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/bottom_sheet_layout.xml" value="0.16" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/custom_seek_bar.xml" value="0.1" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/fragment_home.xml" value="0.1" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/notification_single_item.xml" value="0.1" />
@@ -19,8 +19,9 @@
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/pref_lan_title.xml" value="0.1" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/preference_seekbar.xml" value="0.1" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/settings_activity.xml" value="0.1" />
+        <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/layout/switch_layout.xml" value="0.2" />
         <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/menu/option_menu.xml" value="0.1638888888888889" />
-        <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/xml/root_preferences.xml" value="0.1" />
+        <entry key="..\:/Development/Android/DailyPrayer/app/src/main/res/xml/root_preferences.xml" value="0.264" />
       </map>
     </option>
   </component>
