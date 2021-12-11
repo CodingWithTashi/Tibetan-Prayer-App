@@ -59,7 +59,7 @@ abstract class PrayerDatabase : RoomDatabase() {
                 dao.insert(Prayer(null,DataSourceTitle.DHENTSIG_MONLAM_TITLE,DataSourceContent.DHENTSIG_MONLAM_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.DHENTSIG_MONLAM_DONWLOAD_URL))
                 dao.insert(Prayer(null,DataSourceTitle.NGOWA_MONLAM_TWO_TITLE,DataSourceContent.NGOWA_MONLAM_TWO_CONTENT,"url",false,0,false))
 
-                dao.insert(Prayer(null,DataSourceTitle.PHAKTOT_TITLE,"",DataSourceContent.PHAKTOT_CONTENT,false,0,false,"",DataSourceDownloadUrl.PHAKTOT_DONWLOAD_URL));
+                dao.insert(Prayer(null,DataSourceTitle.PHAKTOT_TITLE,DataSourceContent.PHAKTOT_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.PHAKTOT_DONWLOAD_URL));
                 dao.insert(Prayer(null,DataSourceTitle.KYABDO_TITLE,DataSourceContent.KYABDO_CONTENT,"",false,0,false,"",DataSourceDownloadUrl.KYABDO_DONWLOAD_URL));
                 dao.insert(Prayer(null,DataSourceTitle.BARCHAT_LAMSEL_TITLE,DataSourceContent.BARCHAT_LAMSEL_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.BARCHAT_LAMSEL_DONWLOAD_URL))
                 dao.insert(Prayer(null,DataSourceTitle.SAMPA_LUNDUP_TITLE,DataSourceContent.SAMPA_LUNDUP_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.SAMPA_LUNDUP_DONWLOAD_URL))
