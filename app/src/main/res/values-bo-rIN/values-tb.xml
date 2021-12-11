@@ -40,4 +40,6 @@
     <string name="download">Download</string>
     <string name="scroll_icon">Scroll Icon</string>
     <string name="author_name">by Kharag Edition</string>
+    <string name="cancel">Cancel</string>
+
 </resources>
