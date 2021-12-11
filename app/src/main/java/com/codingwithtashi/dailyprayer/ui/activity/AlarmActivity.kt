@@ -20,6 +20,12 @@ import com.google.android.material.textview.MaterialTextView
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import android.content.ActivityNotFoundException
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatCheckBox
 
 
 class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
@@ -99,6 +105,48 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
         }
     }
 
+    private fun showDialogToEnableBackGroundNotification() {
+        val settings = getSharedPreferences("ProtectedApps", Context.MODE_PRIVATE)
+        val skipMessage = settings.getBoolean("skipProtectedAppCheck", false)
+
+        if (!skipMessage) {
+            val editor = settings.edit()
+            var foundCorrectIntent = false
+
+            foundCorrectIntent = true
+            val dontShowAgain = AppCompatCheckBox(this)
+            dontShowAgain.text = "Do not show again"
+            dontShowAgain.setOnCheckedChangeListener { buttonView, isChecked ->
+                editor.putBoolean("skipProtectedAppCheck", isChecked)
+                editor.apply()
+            }
+            AlertDialog.Builder(this)
+                .setTitle(Build.MANUFACTURER + " Notification")
+                .setMessage(
+                    this.getString(R.string.app_name)+" require 'Allow Background Activity' from setting to send notification in background"
+
+                )
+                .setView(dontShowAgain)
+                .setPositiveButton("Go to settings"
+                ) { _, _ ->
+                    try {
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        intent.data = Uri.parse("package:$packageName")
+                        startActivity(intent)
+                    } catch (e: ActivityNotFoundException) {
+                        val intent = Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)
+                        startActivity(intent)
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            if (!foundCorrectIntent) {
+                editor.putBoolean("skipProtectedAppCheck", true)
+                editor.apply()
+            }
+        }
+    }
+
     private fun getDefaultPreference() {
 
         val prefs: SharedPreferences? = PreferenceManager.getDefaultSharedPreferences(this)
@@ -126,7 +174,8 @@ class AlarmActivity : AppCompatActivity(),TimePickerDialog.OnTimeSetListener {
         prefs?.putString("alarm_time_in_hhmm", time);
         prefs?.putBoolean("is_alarm_on", alarmSwitch.isChecked);
         prefs?.apply()
-        triggerAlarm(time, alarmSwitch.isChecked)
+        triggerAlarm(time, alarmSwitch.isChecked);
+        showDialogToEnableBackGroundNotification();
     }
 
     private fun triggerAlarm(time: String?, checked: Boolean) {
