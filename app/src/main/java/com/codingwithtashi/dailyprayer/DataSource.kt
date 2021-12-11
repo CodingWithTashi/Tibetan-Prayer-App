@@ -7,7 +7,7 @@ class DataSourceTitle {
     companion object{
         var GOM_GYAB_DOT_TANG_TITLE: String = "སྒོམ་རྒྱག་པའི་སྐབས་སྡོད་སྟངས།";
         var KULONG_JAY_TANG_TITLE: String = "ཀུན་སློང་བཅའ་སྟངས།";
-        var GYUN_CHAK_SUM_TITLE: String = "ྒྱུན་ཆགས་གསུམ་པ།";
+        var GYUN_CHAK_SUM_TITLE: String = "རྒྱུན་ཆགས་གསུམ་པ།";
         var KYAB_DO_SAM_KAY_TITLE: String = "སྐྱབས་འགྲོ་སེམས་བསྐྱེད།།";
         var YANLAK_DUNPA_TITLE: String = "ཡན་ལག་བདུན་པ། ";
         var KAP_SUMPA_TITLE: String = "སྐབས་གསུམ་པ། ";
