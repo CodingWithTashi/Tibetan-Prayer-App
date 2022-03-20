@@ -12,7 +12,7 @@ import java.util.*
 
 class CommonUtils {
    companion object {
-       var INSTAGRAM_URL = "https://www.instagram.com/kontashi35/";
+       var INSTAGRAM_URL = "https://www.instagram.com/kharagkunchok/";
        var FACEBOOK_URL = "https://www.facebook.com/KharagEdition";
        var GITHUB_URL = "https://github.com/CodingWithTashi/Tibetan-Prayer-App";
        var PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.codingwithtashi.dailyprayer";

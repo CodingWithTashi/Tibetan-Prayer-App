@@ -142,9 +142,9 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                 R.id.favourite -> {
                     if (currentPrayer.isFavourite!!) {
                         currentPrayer.isFavourite = false
-                        CommonUtils.displaySnackBar(coordinatorLayout, "Favourite Removed")
+                        CommonUtils.displaySnackBar(coordinatorLayout, "Removed from routine")
                     } else {
-                        CommonUtils.displaySnackBar(coordinatorLayout, "Favourite Added")
+                        CommonUtils.displaySnackBar(coordinatorLayout, "Added to routine")
                         currentPrayer.isFavourite = true
                     }
 

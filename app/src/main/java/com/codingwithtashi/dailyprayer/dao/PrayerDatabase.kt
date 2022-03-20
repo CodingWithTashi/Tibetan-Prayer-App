@@ -63,6 +63,7 @@ abstract class PrayerDatabase : RoomDatabase() {
                 dao.insert(Prayer(null,DataSourceTitle.KYABDO_TITLE,DataSourceContent.KYABDO_CONTENT,"",false,0,false,"",DataSourceDownloadUrl.KYABDO_DONWLOAD_URL));
                 dao.insert(Prayer(null,DataSourceTitle.BARCHAT_LAMSEL_TITLE,DataSourceContent.BARCHAT_LAMSEL_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.BARCHAT_LAMSEL_DONWLOAD_URL))
                 dao.insert(Prayer(null,DataSourceTitle.SAMPA_LUNDUP_TITLE,DataSourceContent.SAMPA_LUNDUP_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.SAMPA_LUNDUP_DONWLOAD_URL))
+                dao.insert(Prayer(null,DataSourceTitle.DUG_SHER_SENG_SUM_TITLE,DataSourceContent.DUG_SHER_SENG_SUM_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.DUG_SHER_SENG_SUM_DOWNLOAD_URL))
                 val pref = PrayerPreference.getPreference().getBoolean(PreferenceConst.IS_FIRST_NOTIFICATION_DISPLAYED,false);
                 if(!pref){
                     PrayerPreference.getPreference().edit().putBoolean(PreferenceConst.IS_FIRST_NOTIFICATION_DISPLAYED,true).apply()
