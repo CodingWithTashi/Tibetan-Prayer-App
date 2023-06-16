@@ -17,7 +17,8 @@
         android:roundIcon="@drawable/prayer"
         android:supportsRtl="true"
         android:theme="@style/Theme.DailyPrayer">
-        <activity android:name=".ui.activity.SplashScreenActivity">
+        <activity android:name=".ui.activity.SplashScreenActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,7 +26,8 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".AlarmReceiver">
+        <receiver android:name=".AlarmReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

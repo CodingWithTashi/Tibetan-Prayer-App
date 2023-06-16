@@ -331,41 +331,40 @@ class DetailFragment : Fragment(), AppBarLayout.OnOffsetChangedListener{
                     prayerName.text = "Downloading Prayer: ${currentPrayer.title}"
                     linearLayout.visibility = VISIBLE;
                     prayerViewModel.downloadPrayer(currentPrayer.downloadUrl);
-                    prayerViewModel.downloadListener.observe(viewLifecycleOwner, {
+                    prayerViewModel.downloadListener.observe(viewLifecycleOwner) {
                         if (it.status == STATUS.DOWNLOADING) {
                             progressBar.progress = it.progress
                             currentPosition.text = "${it.progress}%"
                             downlodBtn.text = DOWNLOADING
                             downlodBtn.isEnabled = false;
                             Log.e(TAG, "initListener: Downloading....")
-                        }
-                        else if (it.status == STATUS.SUCCESS) {
-                                    Log.e(TAG, "initListener: Downloaded...." + it.error)
-                                    progressBar.progress = 100;
-                                    currentPosition.text = "100%"
-                                    downlodBtn.text = COMPLETED
-                                    downlodBtn.isEnabled = false;
-                                    currentPrayer.isDownloaded = true;
+                        } else if (it.status == STATUS.SUCCESS) {
+                            Log.e(TAG, "initListener: Downloaded...." + it.error)
+                            progressBar.progress = 100;
+                            currentPosition.text = "100%"
+                            downlodBtn.text = COMPLETED
+                            downlodBtn.isEnabled = false;
+                            currentPrayer.isDownloaded = true;
 
-                                    currentPrayer.audioPath = it.data
-                                    prayerViewModel.updateCurrentPrayer(currentPrayer)
+                            currentPrayer.audioPath = it.data
+                            prayerViewModel.updateCurrentPrayer(currentPrayer)
 
-                                    //prepare audio
-                                    if(!mediaPlayer.isPlaying){
-                                        isMediaSourceInit = true
-                                        mediaPlayer.reset();
-                                        mediaPlayer.setDataSource(currentPrayer.audioPath)
-                                        mediaPlayer.prepare();
-                                    }
-
-                                }else if (it.status == STATUS.ERROR) {
-                                Log.e(TAG, "initListener: Error....")
-                                downlodBtn.text = TRY_AGAIN
-                                downlodBtn.isEnabled = true;
-                                context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
-                                Log.e(TAG, "initListener: Downloading...." + it.error)
+                            //prepare audio
+                            if (!mediaPlayer.isPlaying) {
+                                isMediaSourceInit = true
+                                mediaPlayer.reset();
+                                mediaPlayer.setDataSource(currentPrayer.audioPath)
+                                mediaPlayer.prepare();
                             }
-                    })
+
+                        } else if (it.status == STATUS.ERROR) {
+                            Log.e(TAG, "initListener: Error....")
+                            downlodBtn.text = TRY_AGAIN
+                            downlodBtn.isEnabled = true;
+                            context?.let { it1 -> CommonUtils.displayShortMessage(it1, it.error) }
+                            Log.e(TAG, "initListener: Downloading...." + it.error)
+                        }
+                    }
                 }else{
                     downlodBtn.text = TRY_AGAIN
                     Log.e(TAG, "initListener: Error....Outside")

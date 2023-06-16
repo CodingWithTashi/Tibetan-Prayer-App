@@ -104,19 +104,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.option_menu,menu)
         val themeLayout = menu!!.findItem(R.id.theme_menu).actionView
-        val switch = themeLayout.findViewById<SwitchMaterial>(R.id.theme_switch)
-        switch.isChecked = prefs.getBoolean("themeDark",false)
-        switch.setOnCheckedChangeListener { _, b ->
-            val editor = prefs.edit();
-            if(b){
-                editor.putBoolean("themeDark", true);
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            }else{
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                editor.putBoolean("themeDark", false);
-            }
-            editor.apply();
+        val switch = themeLayout?.findViewById<SwitchMaterial>(R.id.theme_switch)
+        if (switch != null) {
+            switch.isChecked = prefs.getBoolean("themeDark",false)
+        }
+        if (switch != null) {
+            switch.setOnCheckedChangeListener { _, b ->
+                val editor = prefs.edit();
+                if(b){
+                    editor.putBoolean("themeDark", true);
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                }else{
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                    editor.putBoolean("themeDark", false);
+                }
+                editor.apply();
 
+            }
         }
         return true
     }
