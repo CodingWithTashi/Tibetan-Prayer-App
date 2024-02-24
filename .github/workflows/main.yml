@@ -1,0 +1,40 @@
+name: Android CI
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '11'
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v2
+      with:
+        sdk-version: '33'
+    - name: Grant execute permissions to gradlew
+      run: chmod +x ./gradlew
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Run tests
+      run: ./gradlew test
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-release
+        path: app/build/outputs/apk/release/*.apk
