@@ -1,45 +1,56 @@
-name: Build APK
+name: Android Build and Deployment Pipeline
 
 on:
   push:
     branches:
-      - master
+      - 'release_*'
+      - 'master'
+
+  workflow_dispatch:
+    inputs:
+      app_id:
+        description: 'The application Id of the current build'
+        required: true
+      branch:
+        description: 'The branch from which we have to build'
+        required: true
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    name: Setup Environment and build
+    runs-on: self-hosted
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout the code to specific branch
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.branch }}
+            
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+                
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+              
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
-    - name: Set up JDK 1.8
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'adopt'
-        java-version: '1.8'
-
-    - name: Set up Android SDK
-      uses: actions/setup-android@v2
-      with:
-        sdk-platform: 'android-33'
-        ndk-version: '21.4.7075529'
-
-    - name: Cache Gradle dependencies
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - name: Build with Gradle
-      run: ./gradlew clean assembleRelease
-
-    - name: Upload APK artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: app-release
-        path: app/build/outputs/apk/release/
+      - name: Generate app bundle
+        run: ./gradlew app:bundleRelease --stacktrace
+        
+      - name: Sign app bundle
+        run: |
+          jarsigner -keystore app/*.jks \
+          -storepass ${{ secrets.KEY_STORE_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} \
+          app/build/outputs/bundle/release/app-release.aab ${{ secrets.ALIAS }}
