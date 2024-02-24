@@ -24,6 +24,8 @@ jobs:
       uses: android-actions/setup-android@v2
       with:
         sdk-version: '33'
+    - name: Grant execute permissions to gradlew
+      run: chmod +x ./gradlew
 
     - name: Build with Gradle
       run: ./gradlew build
