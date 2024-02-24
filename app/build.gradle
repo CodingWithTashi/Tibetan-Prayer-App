@@ -28,10 +28,31 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    flavorDimensions "flaver"
+    productFlavors {
+
+        production {
+            applicationId "com.codingwithtashi.dailyprayer"
+            versionCode 3
+            versionName "0.0.3.beta"
+//            resValue "String", "app_name", "Luminous ConnectX"
+        }
+
+        stage {
+            applicationId "com.codingwithtashi.dailyprayer.stage"
+            versionCode 3
+            versionName "0.0.3.beta"
+        }
     }
     kotlinOptions {
         jvmTarget = '1.8'
