@@ -7,16 +7,15 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
 }
-
 android {
-    compileSdkVersion 33
+    compileSdkVersion 34
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.codingwithtashi.dailyprayer"
-        minSdkVersion 21
-        targetSdkVersion 33
-        versionCode 16
+        minSdkVersion 23
+        targetSdkVersion 34
+        versionCode 19
         versionName "2.0.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -33,85 +32,103 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            force "androidx.lifecycle:lifecycle-viewmodel:2.6.1"
+            force "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
+            force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+            force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+            // Exclude conflicting Play Services Measurement API
+            exclude group: 'com.google.android.gms', module: 'play-services-measurement-api'
+        }
+    }
+
+    testOptions {
+        unitTests.all {
+            manifestPackageName = "com.codingwithtashi.dailyprayer"
+            manifest.srcFile "src/androidTest/AndroidManifest.xml"
+            manifestPlaceholders = [usesCleartextTraffic: "false"]
+            useAndroidResources = true
+        }
     }
 
     flavorDimensions "flaver"
     productFlavors {
-
         production {
             applicationId "com.codingwithtashi.dailyprayer"
-            versionCode 3
+            versionCode 17
             versionName "0.0.3.beta"
-//            resValue "String", "app_name", "Luminous ConnectX"
         }
 
         stage {
             applicationId "com.codingwithtashi.dailyprayer.stage"
-            versionCode 3
+            versionCode 17
             versionName "0.0.3.beta"
         }
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
     }
 }
 
 dependencies {
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.firebase:firebase-auth:20.0.3'
-    implementation 'com.google.android.gms:play-services-auth:19.0.0'
-    implementation 'androidx.preference:preference-ktx:1.1.1'
-    implementation 'com.google.firebase:firebase-messaging-ktx:21.0.1'
-    implementation 'com.google.firebase:firebase-messaging:21.0.1'
-    implementation platform('com.google.firebase:firebase-bom:26.7.0')
-    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    // Use the Firebase BOM
+    implementation platform('com.google.firebase:firebase-bom:32.1.1')
+
+    // Firebase dependencies (no version needed due to BOM)
     implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.google.firebase:firebase-storage:19.2.2'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-messaging-ktx'
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
 
-    //version
-    def nav_version = "2.3.4"
-    def roomVersion = "2.2.6"
-    def lifecycleVersion = "2.3.1"
-    def coroutinesVersion = "1.4.1"
-    def preference_version = "1.1.1"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'com.google.firebase:firebase-analytics:18.0.2'
-    testImplementation 'junit:junit:4.+'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    // AndroidX and other Google dependencies
+    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
 
-    // Lifecycle + ViewModel & LiveData
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
-
-    //Jetpack Navigation
+    // Navigation
+    def nav_version = "2.6.0"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
-    //Dagger-Hilt
-    implementation 'com.google.dagger:hilt-android:2.33-beta'
-    kapt 'com.google.dagger:hilt-compiler:2.33-beta'
+    // Lifecycle
+    def lifecycle_version = "2.6.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 
-    //Glide
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-    kapt 'com.github.bumptech.glide:compiler:4.12.0'
+    // Room
+    def room_version = "2.5.1"
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 
     // Coroutines
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    // Room
-    implementation "androidx.room:room-runtime:$roomVersion"
-    kapt "androidx.room:room-compiler:$roomVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
+    def coroutines_version = "1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
-    // Kotlin
-    implementation "androidx.preference:preference-ktx:$preference_version"
+    // Dagger Hilt
+    implementation 'com.google.dagger:hilt-android:2.46.1'
+    kapt 'com.google.dagger:hilt-compiler:2.46.1'
 
+    // Glide
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    kapt 'com.github.bumptech.glide:compiler:4.15.1'
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }

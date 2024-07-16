@@ -38,6 +38,7 @@ import javax.inject.Inject
     lateinit var notificationDao: NotificationDao
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.e("TAG", "onReceive: ::::::::::", )
+    if(context!=null){
 
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val name = prefs.getString("signature", "");
@@ -84,7 +85,7 @@ import javax.inject.Inject
                 notificationChannel.lightColor = Color.RED
                 notificationChannel.enableVibration(true)
                 notificationChannel.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),null)
-                        notificationChannel.vibrationPattern = longArrayOf(
+                notificationChannel.vibrationPattern = longArrayOf(
                     100,
                     200,
                     300,
@@ -105,6 +106,7 @@ import javax.inject.Inject
                 AlarmActivity.scheduleNotification(context,time,isAlarmOn);
         }
 
+    }
     }
 
 }
