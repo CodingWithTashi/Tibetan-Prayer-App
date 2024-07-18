@@ -48,10 +48,12 @@ import javax.inject.Inject
         if(isAlarmOn){
             val intent = Intent(context, MainActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+
             val resultPendingIntent = PendingIntent.getActivity(
                 context,
                 0 /* Request code */, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                flags
             )
             val mBuilder: Notification.Builder =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
