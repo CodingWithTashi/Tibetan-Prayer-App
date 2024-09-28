@@ -20,7 +20,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.preference.PreferenceManager
-import com.codingwithtashi.dailyprayer.BuildConfig
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.ui.BottomSheetDialog
 import com.codingwithtashi.dailyprayer.utils.CommonUtils

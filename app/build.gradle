@@ -2,21 +2,20 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'com.google.gms.google-services'
-    id 'com.google.firebase.crashlytics'
     id 'dagger.hilt.android.plugin'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
 }
 android {
-    compileSdkVersion 34
-    buildToolsVersion "30.0.3"
-
+    buildToolsVersion ="30.1.5"
+    namespace = "com.codingwithtashi.dailyprayer"
+    compileSdk 35
     defaultConfig {
         applicationId "com.codingwithtashi.dailyprayer"
         minSdkVersion 23
-        targetSdkVersion 34
-        versionCode 19
-        versionName "2.0.5"
+        targetSdkVersion 35
+        versionCode 21
+        versionName "2.0.7"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,15 +33,15 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '11'
+        jvmTarget = '17'
     }
 
-    configurations.all {
+    configurations.configureEach {
         resolutionStrategy {
             force "androidx.lifecycle:lifecycle-viewmodel:2.6.1"
             force "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
@@ -81,41 +80,40 @@ android {
 
 dependencies {
     // Use the Firebase BOM
-    implementation platform('com.google.firebase:firebase-bom:32.1.1')
+    implementation platform('com.google.firebase:firebase-bom:33.3.0')
 
     // Firebase dependencies (no version needed due to BOM)
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
-    implementation 'com.google.firebase:firebase-crashlytics-ktx'
     implementation 'com.google.firebase:firebase-storage-ktx'
 
     // AndroidX and other Google dependencies
-    implementation 'androidx.core:core-ktx:1.10.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
 
     // Navigation
-    def nav_version = "2.7.5"
+    def nav_version = "2.8.1"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
     // Lifecycle
-    def lifecycle_version = "2.6.1"
+    def lifecycle_version = "2.8.6"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 
     // Room
-    def room_version = "2.5.1"
+    def room_version = "2.6.1"
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
     // Coroutines
-    def coroutines_version = "1.6.4"
+    def coroutines_version = "1.7.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
@@ -129,6 +127,6 @@ dependencies {
 
     // Testing
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 }
