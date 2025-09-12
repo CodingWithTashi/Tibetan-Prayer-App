@@ -9,13 +9,13 @@ plugins {
 android {
     buildToolsVersion ="30.1.5"
     namespace = "com.codingwithtashi.dailyprayer"
-    compileSdk 35
+    compileSdk 36
     defaultConfig {
         applicationId "com.codingwithtashi.dailyprayer"
         minSdkVersion 23
-        targetSdkVersion 35
-        versionCode 21
-        versionName "2.0.7"
+        targetSdkVersion 36
+        versionCode 27
+        versionName "2.3.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -66,14 +66,14 @@ android {
     productFlavors {
         production {
             applicationId "com.codingwithtashi.dailyprayer"
-            versionCode 19
-            versionName "0.0.5"
+            versionCode 23
+            versionName "0.0.9"
         }
 
         stage {
             applicationId "com.codingwithtashi.dailyprayer.stage"
-            versionCode 17
-            versionName "0.0.3.beta"
+            versionCode 18
+            versionName "0.0.5.beta"
         }
     }
 }
@@ -129,4 +129,5 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+    implementation 'com.revenuecat.purchases:purchases:9.1.0'
 }

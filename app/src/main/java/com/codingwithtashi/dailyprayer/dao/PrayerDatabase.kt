@@ -36,12 +36,12 @@ abstract class PrayerDatabase : RoomDatabase() {
                     it.readText()
                 }*/
                 Log.e("TAG", "onCreate: INSERTED" )
-                dao.insert(Prayer(null,DataSourceTitle.GOM_GYAB_DOT_TANG_TITLE,DataSourceContent.GOM_GYAB_DOT_TANG_CONTENT,"url",false,0))
+                  dao.insert(Prayer(null,DataSourceTitle.GOM_GYAB_DOT_TANG_TITLE,DataSourceContent.GOM_GYAB_DOT_TANG_CONTENT,"url",false,0))
                 dao.insert(Prayer(null,DataSourceTitle.KULONG_JAY_TANG_TITLE,DataSourceContent.KULONG_JAY_TANG_CONTENT,"url",false,0,false))
 
                 dao.insert(Prayer(null,DataSourceTitle.GYUN_CHAK_SUM_TITLE,DataSourceContent.GYUN_CHAK_SUM_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.GYUN_CHAK_SUM_DONWLOAD_URL))
                 dao.insert(Prayer(null,DataSourceTitle.KYAB_DO_SAM_KAY_TITLE,DataSourceContent.KYAB_DO_SAM_KAY_CONTENT,"url",false,0,false))
-               // dao.insert(Prayer(null,DataSourceTitle,"","url",false,0))
+                // dao.insert(Prayer(null,DataSourceTitle,"","url",false,0))
                 dao.insert(Prayer(null,DataSourceTitle.YANLAK_DUNPA_TITLE,DataSourceContent.YANLAK_DUNPA_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.YANLAK_DUNPA_DONWLOAD_URL))
                 dao.insert(Prayer(null,DataSourceTitle.KAP_SUMPA_TITLE,DataSourceContent.KAP_SUMPA_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.KAP_SUMPA_DONWLOAD_URL))
                 dao.insert(Prayer(null,DataSourceTitle.KHA_NYAM_MA_TITLE,DataSourceContent.KHA_NYAM_MA_CONTENT,"url",false,0,false,"",DataSourceDownloadUrl.KHA_NYAM_MA_DONWLOAD_URL))

@@ -4,8 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:colorAccent"
-    tools:context=".ui.activity.AlarmActivity">
+    android:background="?attr/colorPrimary"
+    tools:context=".ui.activity.AlarmActivity"
+    android:fitsSystemWindows="true"
+    >
 
     <com.google.android.material.appbar.MaterialToolbar
         app:title="Set Routine"
@@ -19,6 +21,12 @@
         android:theme="@style/ThemeOverlay.MaterialComponents.Dark"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="-2dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="?android:colorAccent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar3"
+        app:layout_constraintBottom_toBottomOf="parent">
 
     <com.google.android.material.card.MaterialCardView
         app:layout_constraintTop_toBottomOf="@id/toolbar3"
@@ -103,4 +111,5 @@
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
+</LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
