@@ -1,5 +1,6 @@
 package com.codingwithtashi.dailyprayer.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.codingwithtashi.dailyprayer.model.Prayer
 import kotlinx.coroutines.flow.Flow
@@ -18,4 +19,10 @@ interface PrayerDao {
     suspend fun update(prayer: Prayer)
     @Query("SELECT * FROM PRAYER_TABLE  WHERE title=:title LIMIT 1")
     fun getPrayerByName(title: String?): Flow<Prayer>
+
+    @Query("SELECT * FROM PRAYER_TABLE")
+    fun getPrayersWithAudio(): LiveData<List<Prayer>>
+    @Query("SELECT * FROM PRAYER_TABLE WHERE downloadUrl IS NOT NULL AND downloadUrl != '' ORDER BY id")
+    suspend fun getPrayersWithAudioSync(): List<Prayer>
+
 }

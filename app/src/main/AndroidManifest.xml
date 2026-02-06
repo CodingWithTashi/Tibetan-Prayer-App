@@ -9,6 +9,9 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
 
     <application
         android:name=".PrayerApp"
@@ -20,11 +23,11 @@
         android:theme="@style/Theme.DailyPrayer"
         android:exported="false"
         tools:replace="android:exported">
+
         <activity android:name=".ui.activity.SplashScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -35,6 +38,22 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!-- Audio Player Service -->
+        <service
+            android:name=".AudioPlayerService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback">
+            <intent-filter>
+                <action android:name="com.codingwithtashi.dailyprayer.ACTION_PLAY" />
+                <action android:name="com.codingwithtashi.dailyprayer.ACTION_PAUSE" />
+                <action android:name="com.codingwithtashi.dailyprayer.ACTION_NEXT" />
+                <action android:name="com.codingwithtashi.dailyprayer.ACTION_PREVIOUS" />
+                <action android:name="com.codingwithtashi.dailyprayer.ACTION_STOP" />
+                <action android:name="com.codingwithtashi.dailyprayer.ACTION_REPEAT" />
+            </intent-filter>
+        </service>
 
         <service
             android:name=".MessagingService"
