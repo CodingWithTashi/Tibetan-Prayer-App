@@ -5,6 +5,7 @@ on:
     branches: [master]
   push:
     branches: [master]
+  workflow_call: # release.yml runs these checks before shipping.
 
 jobs:
   build:

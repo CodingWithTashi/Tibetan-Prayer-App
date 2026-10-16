@@ -10,6 +10,10 @@ plugins {
     alias(libs.plugins.crashlytics)
 }
 
+// Play upload key: RELEASE_* environment variables (CI, set by fastlane) or Gradle properties (local).
+fun releaseSigning(name: String): String? =
+    providers.environmentVariable(name).orElse(providers.gradleProperty(name)).orNull
+
 android {
     namespace = "com.codingwithtashi.dailyprayer"
     compileSdk = 36
@@ -25,17 +29,29 @@ android {
         resourceConfigurations += listOf("en", "bo")
     }
 
+    signingConfigs {
+        releaseSigning("RELEASE_STORE_FILE")?.let { storePath ->
+            create("release") {
+                storeFile = file(storePath)
+                storePassword = releaseSigning("RELEASE_STORE_PASSWORD")
+                keyAlias = releaseSigning("RELEASE_KEY_ALIAS")
+                keyPassword = releaseSigning("RELEASE_KEY_PASSWORD")
+            }
+        }
+    }
+
     flavorDimensions += "env"
     productFlavors {
         create("production") {
             dimension = "env"
+            // Signed with the upload key when RELEASE_* is set (fastlane); otherwise unsigned, for Studio's wizard.
+            signingConfigs.findByName("release")?.let { signingConfig = it }
         }
         create("stage") {
             dimension = "env"
             applicationIdSuffix = ".stage"
             versionNameSuffix = "-stage"
             // Lets assembleStageRelease produce an installable R8-minified APK for verification.
-            // Production is deliberately left unsigned: the owner signs via Play.
             signingConfig = signingConfigs.getByName("debug")
         }
     }

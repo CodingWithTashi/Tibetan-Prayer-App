@@ -17,3 +17,12 @@ local.properties
 /.idea/
 /docx/
 .kotlin/
+
+# Upload keystores stay out of git; CI decodes one from a secret.
+*.jks
+*.keystore
+
+# fastlane run output (fastlane/Fastfile).
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/test_output
