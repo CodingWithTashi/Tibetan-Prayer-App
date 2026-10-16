@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#F6C970</color>
-    <color name="brown_500">#795C22</color>
-    <color name="purple_700">#F6C970</color>
-    <color name="brown_700">#FF704C04</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    <color name="colorTransBg">#26000000</color>
-
-
-    <color name="black_900">#212121</color>
-    <color name="black_800">#424242</color>
-
+    <color name="splash_background">#F5EFE3</color>
+    <color name="window_background">#F5EFE3</color>
+    <color name="transparent">#00000000</color>
+    <color name="launcher_background">#7D5B19</color>
 </resources>

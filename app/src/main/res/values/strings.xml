@@ -1,43 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Tibetan Prayer</string>
-    <string name="notification">Notification</string>
-    <string name="home">Home</string>
-    <string name="routine">Routine</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="title_place_holder">This is dummy Title</string>
-    <string name="content_place_holder">This is content to be load</string>
-    <string name="sno_place_holder">1. </string>
-    <string name="prayer_name">Prayer Name</string>
-    <string name="option">Option</string>
-    <string name="auto_scroll">Auto Scroll</string>
-    <string name="record_prayer">Record Prayer</string>
-    <string name="no_prayer_found">No Prayer Found</string>
-    <string name="no_prayer_added">No Routine Prayer Found</string>
-    <string name="no_notification">No Notification</string>
-    <string name="favourite">Favourite</string>
-    <string name="clear_counter">Clear Counter</string>
-    <string name="increment">Increment</string>
-    <string name="reset">Reset</string>
-    <string name="title_activity_settings">SettingsActivity</string>
-
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
-    <string name="feature_not_available_now">Feature not available now</string>
-    <string name="download">Download</string>
-    <string name="scroll_icon">Scroll Icon</string>
-    <string name="author_name">by Kharag Edition</string>
+    <string name="app_name">Daily Prayer</string>
+    <string name="tab_today">Today</string>
+    <string name="tab_library">Library</string>
+    <string name="tab_saved">Saved</string>
+    <string name="tab_listen">Listen</string>
+    <string name="greet">Tashi delek</string>
+    <string name="greet_name">Tashi delek, %1$s</string>
+    <string name="todays_practice">Today\'s practice</string>
+    <string name="see_all">See all</string>
+    <string name="all">All</string>
+    <string name="settings">Settings</string>
+    <string name="search_hint">Search in Tibetan or English</string>
+    <string name="add_routine">Add a routine</string>
+    <string name="continue_reading">Continue reading</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="downloaded_count">Downloaded · %1$s</string>
+    <string name="edit">Edit</string>
+    <string name="done">Done</string>
+    <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="saved_empty">Tap the heart on any prayer to keep it here.</string>
+    <string name="browse_library">Browse the library</string>
+    <string name="no_routines">No routine yet. A short daily routine is the easiest way to keep praying every day.</string>
+    <string name="all_done">All done for today</string>
+    <string name="start_routine">Start · %1$s</string>
+    <string name="day_streak">day streak</string>
+    <string name="continue_">Continue</string>
+    <string name="skip">Skip</string>
+    <string name="ob_intro">24 Tibetan prayers to read, recite and listen to, with a daily routine that keeps you coming back.</string>
+    <string name="app_language">App language</string>
+    <string name="lang_english" translatable="false">English</string>
+    <string name="lang_tibetan" translatable="false">བོད་ཡིག</string>
+    <string name="ob_name_q">What should we call you?</string>
+    <string name="ob_name_sub">Used only for your greeting, on this device.</string>
+    <string name="name_ph">Your name</string>
+    <string name="ob_routine_q">Start a morning practice</string>
+    <string name="ob_routine_sub">Choose a few prayers. We will remind you at the same time each day.</string>
+    <string name="remind_at">Remind me at</string>
+    <string name="ob_start">Start praying</string>
+    <string name="ob_later">I will set this up later</string>
+    <string name="name">Name</string>
+    <string name="routine_ph">e.g. Morning practice</string>
+    <string name="time">Time</string>
+    <string name="reminder">Reminder</string>
+    <string name="reminder_sub">A gentle notification at this time</string>
+    <string name="reminder_on">Reminder on</string>
+    <string name="add_prayers">Add prayers</string>
+    <string name="prayers_count">Prayers · %1$s</string>
+    <string name="delete_routine">Delete routine</string>
+    <string name="new_routine">New routine</string>
+    <string name="edit_routine">Edit routine</string>
+    <string name="reading">Reading</string>
+    <string name="text_size_n">Text size %1$s</string>
+    <string name="appearance">Appearance</string>
+    <string name="system_default">System</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="recitation_goal">Recitation goal</string>
+    <string name="reset_q">Reset count to 0?</string>
+    <string name="reset">Reset</string>
+    <string name="undo">Undo</string>
+    <string name="playing_from">Playing from</string>
+    <string name="queue">Queue</string>
+    <string name="your_name">Your name</string>
+    <string name="language">Language</string>
+    <string name="our_apps">Our other apps</string>
+    <string name="no_results">No prayers match your search.</string>
+    <string name="no_downloads">Nothing downloaded yet. Tap the arrow next to a prayer to keep it offline.</string>
+    <string name="rename_hint">Rename a shortcut to anything that helps you. The original prayer is unchanged.</string>
+    <string name="about_text">Daily Prayer brings together common Tibetan Buddhist prayers so they are easy to read, recite and listen to every day. Texts and recordings are shared for practice; corrections are welcome.</string>
+    <string name="minutes_short">%1$s min</string>
+    <string name="added_to_saved">Added to Saved</string>
+    <string name="removed_from_saved">Removed from Saved</string>
+    <string name="welcome">Welcome to Daily Prayer</string>
+    <string name="welcome_name">Welcome, %1$s</string>
+    <string name="morning_practice">Morning practice</string>
+    <string name="complete">Complete</string>
+    <string name="verse_of">Verse %1$s / %2$s</string>
+    <string name="streaming">Streaming</string>
+    <string name="every_day">Every day</string>
+    <string name="read_again">Read again</string>
+    <string name="continue_k_of_n">Continue · %1$s of %2$s</string>
+    <string name="start_reading">Start reading</string>
+    <string name="done_next">Done · Next prayer</string>
+    <string name="done_finish">Done · Finish %1$s</string>
+    <string name="routine_complete">%1$s complete. Well done.</string>
+    <string name="goal_reached">Goal reached · %1$s recitations</string>
+    <string name="count_reset">Count reset</string>
+    <string name="pick_at_least_one">Pick at least one prayer</string>
+    <string name="add_one_prayer">Add at least one prayer</string>
+    <string name="give_name">Give your routine a name</string>
+    <string name="saved_routine">Saved · %1$s %2$s</string>
+    <string name="routine_deleted">Routine deleted</string>
+    <string name="removed_download">Removed download</string>
+    <string name="reminders_sub">Notifications for your routines</string>
+    <string name="keep_screen_on">Keep screen on while reading</string>
+    <string name="downloaded_sub">%1$s prayers · %2$s</string>
+    <string name="reminders_help">Reminders not arriving?</string>
+    <string name="reminders_help_sub">Check battery and notification settings</string>
+    <string name="share_app">Share the app</string>
+    <string name="rate_app">Rate Daily Prayer</string>
+    <string name="about">About</string>
+    <string name="share_text">Check out Daily Prayer, a Tibetan prayer app: %1$s</string>
+    <string name="contact_email">Prayer request by email</string>
+    <string name="contact_github" translatable="false">GitHub</string>
+    <string name="contact_instagram" translatable="false">Instagram</string>
+    <string name="contact_facebook" translatable="false">Facebook</string>
+    <string name="exit">Exit</string>
+    <string name="app_dictionary">Tibetan Dictionary</string>
+    <string name="app_dictionary_sub">Look up any word</string>
+    <string name="app_calendar">Tibetan Calendar</string>
+    <string name="app_calendar_sub">Holy days &amp; dates</string>
+    <string name="version_line">Daily Prayer · Version %1$s</string>
+    <string name="cat_daily">Daily</string>
+    <string name="cat_sutra">Sutras</string>
+    <string name="cat_life">Long life</string>
+    <string name="cat_praise">Praises</string>
+    <string name="cat_aspire">Aspirations</string>
+    <string name="cat_other">Other</string>
+    <string name="notifications">Notifications</string>
+    <string name="no_notifications">No notifications yet</string>
+    <string name="notification_deleted">Notification deleted</string>
+    <string name="more">More</string>
+    <string name="exact_alarm_rationale">To remind you at the exact time, allow \"Alarms &amp; reminders\" in system settings.</string>
+    <string name="open_settings">Open settings</string>
+    <string name="offline_cannot_stream">You\'re offline. Download this prayer to listen without a connection.</string>
+    <string name="download_failed">Download failed. Try again.</string>
+    <string name="playback_error">Couldn\'t play this recording.</string>
+    <string name="discard_changes_q">Discard changes?</string>
+    <string name="discard">Discard</string>
+    <string name="welcome_notification_title">Hello there</string>
+    <string name="welcome_notification_body">Welcome to Daily Prayer. Swipe left to delete a notification.</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_close">Close</string>
+    <string name="cd_settings">Settings</string>
+    <string name="cd_notifications">Notifications</string>
+    <string name="cd_switch_language">Switch language</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="cd_play">Play</string>
+    <string name="cd_pause">Pause</string>
+    <string name="cd_previous">Previous prayer</string>
+    <string name="cd_next">Next prayer</string>
+    <string name="cd_queue">Queue</string>
+    <string name="cd_save_prayer">Save prayer</string>
+    <string name="cd_unsave_prayer">Remove from saved</string>
+    <string name="cd_listen">Listen</string>
+    <string name="cd_reading_settings">Reading settings</string>
+    <string name="cd_increment">Add one to count</string>
+    <string name="cd_decrement">Subtract one from count</string>
+    <string name="cd_reset_count">Reset count</string>
+    <string name="cd_download">Download for offline listening</string>
+    <string name="cd_cancel_download">Cancel download</string>
+    <string name="cd_remove_download">Remove download</string>
+    <string name="cd_move_up">Move up</string>
+    <string name="cd_remove">Remove</string>
+    <string name="cd_delete">Delete</string>
+    <string name="cd_decrease_text">Decrease text size</string>
+    <string name="cd_increase_text">Increase text size</string>
+    <string name="cd_has_audio">Has audio</string>
+    <string name="cd_step_of">Step %1$s of %2$s</string>
+    <string-array name="week_days">
+        <item>M</item>
+        <item>T</item>
+        <item>W</item>
+        <item>T</item>
+        <item>F</item>
+        <item>S</item>
+        <item>S</item>
+    </string-array>
+    <string-array name="weekday_names">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+    <string-array name="month_names">
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+    <plurals name="reminder_notif_text">
+        <item quantity="one">%1$s prayer · tap to begin</item>
+        <item quantity="other">%1$s prayers · tap to begin</item>
+    </plurals>
+
+    <!-- Accessibility state descriptions -->
+    <string name="state_done">Done</string>
+    <string name="state_not_done">Not done</string>
+    <string name="state_downloading_pct">Downloading %1$s%%</string>
+    <string name="now_playing">Now playing</string>
+    <string name="no_app_available">No app available to open this.</string>
+    <string name="fonts_credit" translatable="false">Fonts: Jomolhari, Cormorant Garamond, Instrument Sans (OFL)</string>
+    <string name="email_subject_prayer_request">Prayer request</string>
+    <string name="reminders">Reminders</string>
+    <string name="repeat_off">Off</string>
+    <string name="cd_speed">Playback speed</string>
+    <string name="cd_repeat">Repeat</string>
+    <string name="cd_seek">Seek</string>
+    <string name="cd_verse">Verse %1$s of %2$s</string>
 </resources>

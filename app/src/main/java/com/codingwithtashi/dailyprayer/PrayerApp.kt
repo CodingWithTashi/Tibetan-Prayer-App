@@ -1,34 +1,21 @@
 package com.codingwithtashi.dailyprayer
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.os.Build
-import android.util.Log
-import com.codingwithtashi.dailyprayer.utils.Constant
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.Constants
+import com.codingwithtashi.dailyprayer.core.init.AppInitializer
+import com.codingwithtashi.dailyprayer.core.notification.NotificationChannels
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.ktx.messaging
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
-/**
- * Created by kunchok on 11/03/2021
- */
 @HiltAndroidApp
 class PrayerApp : Application() {
+
+    @Inject lateinit var initializer: AppInitializer
+
     override fun onCreate() {
-
-        Log.e("TAG", "onCreate: CREATED", )
-
-        FirebaseMessaging.getInstance().subscribeToTopic(Constant.ALL)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.e("TAG", "onCreate: subscribeToTopic", )
-                }else{
-                    Log.e("TAG", "onCreate: subscribeToTopic failed", )
-                }
-            }
         super.onCreate()
+        NotificationChannels.ensure(this)
+        initializer.start()
+        FirebaseMessaging.getInstance().subscribeToTopic("all")
     }
 }

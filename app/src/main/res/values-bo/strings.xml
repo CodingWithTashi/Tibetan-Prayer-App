@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ཉིན་རེའི་ཁ་འདོན།</string>
+    <string name="tab_today">དེ་རིང་</string>
+    <string name="tab_library">དཔེ་མཛོད།</string>
+    <string name="tab_saved">ཉར་ཚགས།</string>
+    <string name="tab_listen">ཉན།</string>
+    <string name="greet">བཀྲ་ཤིས་བདེ་ལེགས།</string>
+    <string name="greet_name">བཀྲ་ཤིས་བདེ་ལེགས། %1$s</string>
+    <string name="todays_practice">དེ་རིང་གི་ཉམས་ལེན།</string>
+    <string name="see_all">ཚང་མ།</string>
+    <string name="all">ཚང་མ།</string>
+    <string name="settings">སྒྲིག་འགོད།</string>
+    <string name="search_hint">སྨོན་ལམ་འཚོལ།</string>
+    <string name="add_routine">ཉམས་ལེན་གསར་སྣོན།</string>
+    <string name="continue_reading">མུ་མཐུད་དུ་ཀློག</string>
+    <string name="downloaded">ཕབ་ལེན་ཟིན།</string>
+    <string name="downloaded_count">ཕབ་ལེན་ཟིན། · %1$s</string>
+    <string name="edit">བཟོ་བཅོས།</string>
+    <string name="done">ཚར།</string>
+    <string name="save">ཉར།</string>
+    <string name="cancel">འདོར།</string>
+    <string name="saved_empty">སྨོན་ལམ་གང་རུང་གི་སྙིང་རྟགས་ལ་མནན་ན་འདིར་ཉར་ཐུབ།</string>
+    <string name="browse_library">དཔེ་མཛོད་ལ་ལྟ།</string>
+    <string name="no_routines">ཉམས་ལེན་གྱི་རེའུ་མིག་མི་འདུག</string>
+    <string name="all_done">དེ་རིང་ཚར་སོང་།</string>
+    <string name="start_routine">འགོ་འཛུགས། · %1$s</string>
+    <string name="day_streak">ཉིན་མཐུད་མར།</string>
+    <string name="continue_">མུ་མཐུད།</string>
+    <string name="skip">མཆོང་།</string>
+    <!-- (AI) review -->
+    <string name="ob_intro">བོད་ཀྱི་སྨོན་ལམ་ ༢༤ ཀློག་པ་དང་འདོན་པ། ཉན་པ། ཉིན་རེའི་ཉམས་ལེན་དང་བཅས།</string>
+    <string name="app_language">སྐད་ཡིག</string>
+    <string name="ob_name_q">ཁྱེད་ཀྱི་མིང་ག་རེ་ཡིན།</string>
+    <string name="ob_name_sub">བཀྲ་ཤིས་བདེ་ལེགས་ཞུ་སྐབས་ཁོ་ནར་བེད་སྤྱོད།</string>
+    <string name="name_ph">མིང་།</string>
+    <string name="ob_routine_q">ཞོགས་པའི་ཉམས་ལེན།</string>
+    <string name="ob_routine_sub">སྨོན་ལམ་འགའ་འདེམས། ཉིན་རེ་དུས་ཚོད་གཅིག་ལ་དྲན་སྐུལ་གཏོང་།</string>
+    <string name="remind_at">དྲན་སྐུལ་དུས་ཚོད།</string>
+    <string name="ob_start">འགོ་འཛུགས།</string>
+    <string name="ob_later">རྗེས་སུ།</string>
+    <string name="name">མིང་།</string>
+    <string name="routine_ph">ཞོགས་པའི་ཉམས་ལེན།</string>
+    <string name="time">དུས་ཚོད།</string>
+    <string name="reminder">དྲན་སྐུལ།</string>
+    <string name="reminder_sub">དུས་ཚོད་འདིར་བརྡ་ཐོ།</string>
+    <string name="reminder_on">དྲན་སྐུལ།</string>
+    <string name="add_prayers">སྨོན་ལམ་སྣོན།</string>
+    <string name="prayers_count">སྨོན་ལམ། %1$s</string>
+    <string name="delete_routine">ཉམས་ལེན་སུབ།</string>
+    <string name="new_routine">ཉམས་ལེན་གསར་པ།</string>
+    <string name="edit_routine">ཉམས་ལེན་བཟོ་བཅོས།</string>
+    <string name="reading">ཀློག་སྟངས།</string>
+    <string name="text_size_n">ཡིག་གཟུགས། %1$s</string>
+    <!-- (AI) review -->
+    <string name="appearance">མདངས།</string>
+    <!-- (AI) review -->
+    <string name="system_default">མ་ལག</string>
+    <string name="light">དཀར།</string>
+    <string name="dark">ནག</string>
+    <string name="recitation_goal">གྲངས་ཀའི་དམིགས་ཡུལ།</string>
+    <string name="reset_q">གྲངས་ཀ་ ༠ ལ་བསྐྱར་སྒྲིག</string>
+    <string name="reset">བསྐྱར་སྒྲིག</string>
+    <string name="undo">ཕྱིར་ལོག</string>
+    <string name="playing_from">གཏོང་བཞིན་པ།</string>
+    <string name="queue">གོ་རིམ།</string>
+    <string name="your_name">མིང་།</string>
+    <string name="language">སྐད་ཡིག</string>
+    <string name="our_apps">ང་ཚོའི་མཉེན་ཆས་གཞན།</string>
+    <string name="no_results">འཚོལ་འབྲས་མི་འདུག</string>
+    <string name="no_downloads">ཕབ་ལེན་གང་ཡང་མི་འདུག</string>
+    <string name="rename_hint">མྱུར་ལམ་གྱི་མིང་བསྒྱུར་ཆོག</string>
+    <string name="about_text">ཉིན་རེའི་ཁ་འདོན་འདིར་བོད་ཀྱི་ནང་ཆོས་ཀྱི་སྨོན་ལམ་ཁག་ཀློག་པ་དང་ཉན་པ་སླ་པོ་ཡོང་ཆེད་བསྒྲིགས་ཡོད།</string>
+    <string name="minutes_short">སྐར་མ། %1$s</string>
+    <string name="added_to_saved">ཉར་ཚགས་སུ་བསྣན།</string>
+    <string name="removed_from_saved">ཉར་ཚགས་ནས་བསལ།</string>
+    <string name="welcome">བཀྲ་ཤིས་བདེ་ལེགས།</string>
+    <string name="welcome_name">བཀྲ་ཤིས་བདེ་ལེགས། %1$s</string>
+    <string name="morning_practice">ཞོགས་པའི་ཉམས་ལེན།</string>
+    <string name="complete">ཚར།</string>
+    <string name="verse_of">ཚིགས་བཅད། %1$s / %2$s</string>
+    <string name="streaming">དྲ་ལམ་ནས་གཏོང་བཞིན།</string>
+    <string name="every_day">ཉིན་ལྟར།</string>
+    <string name="read_again">བསྐྱར་ཀློག</string>
+    <!-- (AI) review -->
+    <string name="continue_k_of_n">མུ་མཐུད། %1$s / %2$s</string>
+    <string name="start_reading">ཀློག་འགོ་འཛུགས།</string>
+    <string name="done_next">ཚར། རྗེས་མ།</string>
+    <!-- (AI) review -->
+    <string name="done_finish">ཉམས་ལེན་ཚར། %1$s</string>
+    <string name="routine_complete">%1$s ཚར་སོང་། ལེགས་སོ།</string>
+    <string name="goal_reached">དམིགས་ཡུལ་འགྲུབ་སོང་། %1$s</string>
+    <string name="count_reset">བསྐྱར་སྒྲིག་བྱས།</string>
+    <string name="pick_at_least_one">སྨོན་ལམ་གཅིག་འདེམས།</string>
+    <string name="add_one_prayer">སྨོན་ལམ་གཅིག་སྣོན།</string>
+    <string name="give_name">མིང་འབྲི།</string>
+    <string name="saved_routine">ཉར་ཟིན། %1$s %2$s</string>
+    <string name="routine_deleted">བསུབས་ཟིན།</string>
+    <string name="removed_download">བསུབས་ཟིན།</string>
+    <string name="reminders_sub">ཉམས་ལེན་གྱི་དྲན་སྐུལ།</string>
+    <string name="keep_screen_on">གསལ་ཡོལ་འབར་བཞག</string>
+    <string name="downloaded_sub">%1$s སྨོན་ལམ། · %2$s</string>
+    <!-- (AI) review -->
+    <string name="reminders_help">དྲན་སྐུལ་མི་འབྱོར་རམ།</string>
+    <!-- (AI) review -->
+    <string name="reminders_help_sub">གློག་ནུས་དང་བརྡ་ཐོའི་སྒྲིག་འགོད་ལ་ལྟོས།</string>
+    <string name="share_app">མཉེན་ཆས་མཉམ་སྤྱོད།</string>
+    <string name="rate_app">སྐར་མ་སྤྲོད།</string>
+    <string name="about">སྐོར།</string>
+    <!-- (AI) review -->
+    <string name="share_text">ཉིན་རེའི་ཁ་འདོན། བོད་ཀྱི་སྨོན་ལམ་མཉེན་ཆས། %1$s</string>
+    <!-- (AI) review -->
+    <string name="contact_email">གློག་འཕྲིན་བརྒྱུད་སྨོན་ལམ་ཞུ།</string>
+    <!-- (AI) review -->
+    <string name="exit">ཕྱིར་ཐོན།</string>
+    <!-- (AI) review -->
+    <string name="app_dictionary">བོད་ཀྱི་ཚིག་མཛོད།</string>
+    <!-- (AI) review -->
+    <string name="app_dictionary_sub">ཚིག་གང་རུང་འཚོལ།</string>
+    <!-- (AI) review -->
+    <string name="app_calendar">བོད་ཀྱི་ལོ་ཐོ།</string>
+    <!-- (AI) review -->
+    <string name="app_calendar_sub">དུས་ཆེན་དང་ཚེས་གྲངས།</string>
+    <!-- (AI) review -->
+    <string name="version_line">ཉིན་རེའི་ཁ་འདོན། · པར་གཞི། %1$s</string>
+    <string name="cat_daily">ཉིན་རེ།</string>
+    <string name="cat_sutra">མདོ།</string>
+    <string name="cat_life">ཞབས་བརྟན།</string>
+    <string name="cat_praise">བསྟོད་པ།</string>
+    <string name="cat_aspire">སྨོན་ལམ།</string>
+    <!-- (AI) review -->
+    <string name="cat_other">གཞན།</string>
+    <!-- (AI) review -->
+    <string name="notifications">བརྡ་ཐོ།</string>
+    <!-- (AI) review -->
+    <string name="no_notifications">བརྡ་ཐོ་མི་འདུག</string>
+    <!-- (AI) review -->
+    <string name="notification_deleted">བརྡ་ཐོ་བསུབས་ཟིན།</string>
+    <!-- (AI) review -->
+    <string name="more">མང་བ།</string>
+    <!-- (AI) review -->
+    <string name="exact_alarm_rationale">དུས་ཚོད་ཏག་ཏག་ལ་དྲན་སྐུལ་གཏོང་ཆེད་མ་ལག་སྒྲིག་འགོད་ནང་ཆོག་མཆན་སྤྲོད་རོགས།</string>
+    <!-- (AI) review -->
+    <string name="open_settings">སྒྲིག་འགོད་ཁ་ཕྱེ།</string>
+    <!-- (AI) review -->
+    <string name="offline_cannot_stream">དྲ་རྒྱ་མེད། དྲ་རྒྱ་མེད་པར་ཉན་ཆེད་ཕབ་ལེན་བྱོས།</string>
+    <!-- (AI) review -->
+    <string name="download_failed">ཕབ་ལེན་མ་ཐུབ། བསྐྱར་དུ་ཚོད་ལྟ་བྱོས།</string>
+    <!-- (AI) review -->
+    <string name="playback_error">སྒྲ་འདི་གཏོང་མ་ཐུབ།</string>
+    <!-- (AI) review -->
+    <string name="discard_changes_q">བཟོ་བཅོས་འདོར་རམ།</string>
+    <!-- (AI) review -->
+    <string name="discard">འདོར།</string>
+    <!-- (AI) review -->
+    <string name="welcome_notification_title">བཀྲ་ཤིས་བདེ་ལེགས།</string>
+    <!-- (AI) review -->
+    <string name="welcome_notification_body">ཉིན་རེའི་ཁ་འདོན་ལ་ཕེབས་པར་དགའ་བསུ་ཞུ། བརྡ་ཐོ་སུབ་ཆེད་གཡོན་དུ་འདྲུད།</string>
+    <!-- untranslated -->
+    <string name="cd_back">Back</string>
+    <!-- untranslated -->
+    <string name="cd_close">Close</string>
+    <!-- untranslated -->
+    <string name="cd_settings">Settings</string>
+    <!-- untranslated -->
+    <string name="cd_notifications">Notifications</string>
+    <!-- untranslated -->
+    <string name="cd_switch_language">Switch language</string>
+    <!-- untranslated -->
+    <string name="cd_clear_search">Clear search</string>
+    <!-- untranslated -->
+    <string name="cd_play">Play</string>
+    <!-- untranslated -->
+    <string name="cd_pause">Pause</string>
+    <!-- untranslated -->
+    <string name="cd_previous">Previous prayer</string>
+    <!-- untranslated -->
+    <string name="cd_next">Next prayer</string>
+    <!-- untranslated -->
+    <string name="cd_queue">Queue</string>
+    <!-- untranslated -->
+    <string name="cd_save_prayer">Save prayer</string>
+    <!-- untranslated -->
+    <string name="cd_unsave_prayer">Remove from saved</string>
+    <!-- untranslated -->
+    <string name="cd_listen">Listen</string>
+    <!-- untranslated -->
+    <string name="cd_reading_settings">Reading settings</string>
+    <!-- untranslated -->
+    <string name="cd_increment">Add one to count</string>
+    <!-- untranslated -->
+    <string name="cd_decrement">Subtract one from count</string>
+    <!-- untranslated -->
+    <string name="cd_reset_count">Reset count</string>
+    <!-- untranslated -->
+    <string name="cd_download">Download for offline listening</string>
+    <!-- untranslated -->
+    <string name="cd_cancel_download">Cancel download</string>
+    <!-- untranslated -->
+    <string name="cd_remove_download">Remove download</string>
+    <!-- untranslated -->
+    <string name="cd_move_up">Move up</string>
+    <!-- untranslated -->
+    <string name="cd_remove">Remove</string>
+    <!-- untranslated -->
+    <string name="cd_delete">Delete</string>
+    <!-- untranslated -->
+    <string name="cd_decrease_text">Decrease text size</string>
+    <!-- untranslated -->
+    <string name="cd_increase_text">Increase text size</string>
+    <!-- untranslated -->
+    <string name="cd_has_audio">Has audio</string>
+    <!-- untranslated -->
+    <string name="cd_step_of">Step %1$s of %2$s</string>
+    <string-array name="week_days">
+        <item>ཟླ</item>
+        <item>མིག</item>
+        <item>ལྷག</item>
+        <item>ཕུར</item>
+        <item>སངས</item>
+        <item>སྤེན</item>
+        <item>ཉི</item>
+    </string-array>
+    <string-array name="weekday_names">
+        <item>ཟླ་བ།</item>
+        <item>མིག་དམར།</item>
+        <item>ལྷག་པ།</item>
+        <item>ཕུར་བུ།</item>
+        <item>པ་སངས།</item>
+        <item>སྤེན་པ།</item>
+        <item>ཉི་མ།</item>
+    </string-array>
+    <!-- (AI) review -->
+    <string-array name="month_names">
+        <item>ཕྱི་ཟླ་དང་པོ།</item>
+        <item>ཕྱི་ཟླ་གཉིས་པ།</item>
+        <item>ཕྱི་ཟླ་གསུམ་པ།</item>
+        <item>ཕྱི་ཟླ་བཞི་པ།</item>
+        <item>ཕྱི་ཟླ་ལྔ་པ།</item>
+        <item>ཕྱི་ཟླ་དྲུག་པ།</item>
+        <item>ཕྱི་ཟླ་བདུན་པ།</item>
+        <item>ཕྱི་ཟླ་བརྒྱད་པ།</item>
+        <item>ཕྱི་ཟླ་དགུ་པ།</item>
+        <item>ཕྱི་ཟླ་བཅུ་པ།</item>
+        <item>ཕྱི་ཟླ་བཅུ་གཅིག་པ།</item>
+        <item>ཕྱི་ཟླ་བཅུ་གཉིས་པ།</item>
+    </string-array>
+    <!-- (AI) review -->
+    <plurals name="reminder_notif_text">
+        <item quantity="other">སྨོན་ལམ། %1$s</item>
+    </plurals>
+
+    <!-- Accessibility state descriptions -->
+    <!-- (AI) review -->
+    <string name="state_done">ཚར།</string>
+    <!-- (AI) review -->
+    <string name="state_not_done">མ་ཚར།</string>
+    <!-- (AI) review -->
+    <string name="state_downloading_pct">ཕབ་ལེན་བྱེད་བཞིན། %1$s%%</string>
+    <!-- (AI) review -->
+    <string name="now_playing">གཏོང་བཞིན་པ།</string>
+    <!-- (AI) review -->
+    <string name="no_app_available">བེད་སྤྱོད་བྱེད་རྒྱུའི་མཉེན་ཆས་མེད།</string>
+    <!-- (AI) review -->
+    <string name="email_subject_prayer_request">སྨོན་ལམ་ཞུ་བ།</string>
+    <!-- (AI) review -->
+    <string name="reminders">དྲན་སྐུལ།</string>
+    <!-- (AI) review -->
+    <string name="repeat_off">མེད།</string>
+    <!-- (AI) review -->
+    <string name="cd_speed">གཏོང་ཚད།</string>
+    <!-- (AI) review -->
+    <string name="cd_repeat">བསྐྱར་གཏོང་།</string>
+    <!-- (AI) review -->
+    <string name="cd_seek">གནས་སྐྱོད།</string>
+    <!-- (AI) review -->
+    <string name="cd_verse">ཚིགས་བཅད། %1$s / %2$s</string>
+</resources>

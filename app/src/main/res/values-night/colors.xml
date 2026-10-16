@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dark appearance: avoids a cream flash on cold start (MainActivity syncs setDefaultNightMode). -->
+    <color name="splash_background">#160E0C</color>
+    <color name="window_background">#160E0C</color>
+</resources>
