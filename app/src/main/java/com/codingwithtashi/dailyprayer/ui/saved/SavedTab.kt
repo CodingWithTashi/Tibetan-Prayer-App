@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.EmptyState
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
 import com.codingwithtashi.dailyprayer.ui.components.PillButton
@@ -49,10 +49,10 @@ fun SavedTab(
     val undo = stringResource(R.string.undo)
     val savedLabel = stringResource(R.string.tab_saved)
     LaunchedEffect(viewModel) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is SavedEvent.Removed -> launch {
-                    toaster.show(message, undo) { viewModel.undoRemove(event.id, event.previousLabel) }
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is SavedEffect.Removed -> launch {
+                    toaster.show(message, undo) { viewModel.onEvent(SavedEvent.UndoRemove(effect.id, effect.previousLabel)) }
                 }
             }
         }
@@ -60,11 +60,11 @@ fun SavedTab(
     SavedContent(
         state = state,
         listState = listState,
-        onToggleEdit = viewModel::toggleEdit,
+        onToggleEdit = { viewModel.onEvent(SavedEvent.ToggleEdit) },
         onOpen = onOpenReader,
-        onPlayPause = { viewModel.playPause(it, savedLabel) },
-        onSetLabel = viewModel::setLabel,
-        onRemove = viewModel::remove,
+        onPlayPause = { viewModel.onEvent(SavedEvent.PlayPause(it, savedLabel)) },
+        onSetLabel = { id, text -> viewModel.onEvent(SavedEvent.SetLabel(id, text)) },
+        onRemove = { viewModel.onEvent(SavedEvent.Remove(it)) },
         onBrowseLibrary = onBrowseLibrary,
         modifier = modifier,
     )
@@ -110,9 +110,9 @@ internal fun SavedContent(
             } else {
                 if (state.editing) {
                     item {
-                        Text(
+                        AppText(
                             stringResource(R.string.rename_hint),
-                            style = PrayerTheme.type.body13,
+                            style = PrayerTheme.type.body,
                             color = c.textMuted,
                             modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
                         )

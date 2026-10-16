@@ -12,7 +12,7 @@ enum class CategoryKey { DAILY, SUTRA, LIFE, PRAISE, ASPIRE, OTHER }
 @Immutable
 data class CategoryColors(val dot: Color, val tileBg: Color, val tileInk: Color)
 
-/** Every colour token of the design system (plan Part H1); two instances: [Light] and [Dark]. */
+/** Every colour token of the design system; two instances: [Light] and [Dark]. */
 @Immutable
 data class PrayerColors(
     val isDark: Boolean,
@@ -28,13 +28,11 @@ data class PrayerColors(
     val ink: Color,
     val textMuted: Color,
     val textSubtle: Color,
-    val textAbout: Color,
     val chevron: Color,
     val accent: Color,
     val onAccent: Color,
     val accentSolid: Color,
     val onAccentSolid: Color,
-    val accentPressed: Color,
     val darkCard: Color,
     val darkCardText: Color,
     /** 1dp border of dark cards: visible only in the dark theme. */
@@ -78,13 +76,11 @@ data class PrayerColors(
             ink = Color(0xFF2A1714),
             textMuted = Color(0xFF6B5A50),
             textSubtle = Color(0xFF8A7766),
-            textAbout = Color(0xFF5A4A40),
             chevron = Color(0xFFB8A890),
             accent = Color(0xFF7A1F24),
             onAccent = Color(0xFFF5EFE3),
             accentSolid = Color(0xFF7A1F24),
             onAccentSolid = Color(0xFFF5EFE3),
-            accentPressed = Color(0xFF5E161B),
             darkCard = Color(0xFF2A1714),
             darkCardText = Color(0xFFF5EFE3),
             darkCardBorder = Color.Transparent,
@@ -118,13 +114,11 @@ data class PrayerColors(
             ink = Color(0xFFF3E6D3),
             textMuted = Color(0xFFC2AE98),
             textSubtle = Color(0xFFB39F8A),
-            textAbout = Color(0xFFC2AE98),
             chevron = Color(0xFF7E6C5E),
             accent = Color(0xFFE9B95A),
             onAccent = Color(0xFF1A0F0E),
             accentSolid = Color(0xFF7A1F24),
             onAccentSolid = Color(0xFFF5EFE3),
-            accentPressed = Color(0xFFD4A64A),
             darkCard = Color(0xFF2A1714),
             darkCardText = Color(0xFFF5EFE3),
             darkCardBorder = Color(0xFF4A3530),
@@ -172,7 +166,7 @@ fun PrayerColors.category(key: CategoryKey): CategoryColors =
 fun categoryColors(key: CategoryKey, dark: Boolean): CategoryColors =
     (if (dark) CategoryDark else CategoryLight).getValue(key)
 
-/** Reader palette; follows the app-wide appearance (plan decision 2). */
+/** Reader palette; follows the app-wide appearance setting. */
 @Immutable
 data class ReaderPalette(
     val bg: Color,
@@ -226,6 +220,9 @@ object NowPlayingPalette {
     val miniSyllable = Color(0xFFEBCB91)
     val miniTrack = Color(0x26F5EFE3)
     val downloaded = Color(0xFF8FB89C)
+
+    /** Scrim behind the queue bottom sheet (black at 45% opacity). */
+    val queueScrim = Color(0x73000000)
 }
 
 /** Current colour set. */

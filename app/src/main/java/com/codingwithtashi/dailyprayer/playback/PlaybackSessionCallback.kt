@@ -25,6 +25,8 @@ class PlaybackSessionCallback(
     private val prayers: PrayerRepository,
     private val repeat: RepeatPolicy,
     private val scope: CoroutineScope,
+    /** Artist shown in the media notification (the app name). */
+    private val artist: String,
     private val onRepeatChanged: () -> Unit,
     private val onControllerDisconnected: () -> Unit,
 ) : MediaSession.Callback {
@@ -60,6 +62,7 @@ class PlaybackSessionCallback(
         val extras = item.requestMetadata.extras
         return buildItem(
             prayer = prayer,
+            artist = artist,
             routineId = extras?.getLong(PlaybackCommands.KEY_ROUTINE_ID, -1L) ?: -1L,
             contextLabel = extras?.getString(PlaybackCommands.KEY_CONTEXT_LABEL),
         )
@@ -87,7 +90,7 @@ class PlaybackSessionCallback(
     }
 
     companion object {
-        fun buildItem(prayer: Prayer, routineId: Long, contextLabel: String?): MediaItem {
+        fun buildItem(prayer: Prayer, artist: String, routineId: Long, contextLabel: String?): MediaItem {
             val path = prayer.audioPath
             val local = prayer.isDownloaded && path != null && File(path).exists()
             val uri: Uri = if (local) Uri.fromFile(File(path)) else prayer.audioUrl.toUri()
@@ -100,7 +103,7 @@ class PlaybackSessionCallback(
             val metadata = MediaMetadata.Builder()
                 .setTitle(prayer.titleEn.ifBlank { prayer.title })
                 .setSubtitle(prayer.title)
-                .setArtist("Daily Prayer")
+                .setArtist(artist)
                 .setExtras(extras)
                 .build()
             return MediaItem.Builder()

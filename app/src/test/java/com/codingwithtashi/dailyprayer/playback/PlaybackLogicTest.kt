@@ -1,6 +1,7 @@
 package com.codingwithtashi.dailyprayer.playback
 
 import com.codingwithtashi.dailyprayer.core.text.PrayerText
+import com.codingwithtashi.dailyprayer.ui.testPrayer
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
@@ -39,5 +40,14 @@ class PlaybackLogicTest {
         assertThat(PlaybackLogic.previousRestarts(1_000, 0)).isTrue()
         assertThat(PlaybackLogic.previousRestarts(1_000, 2)).isFalse()
         assertThat(PlaybackLogic.previousRestarts(8_000, 1)).isFalse()
+    }
+
+    @Test fun offlineRule() {
+        val a = testPrayer(1, hasAudio = true).copy(isDownloaded = true)
+        val b = testPrayer(2, hasAudio = true)
+        assertThat(PlaybackLogic.blockedOffline(listOf(a, b), online = true) { false }).isFalse()
+        assertThat(PlaybackLogic.blockedOffline(listOf(a, b), online = false) { it == b.audioUrl }).isFalse()
+        assertThat(PlaybackLogic.blockedOffline(listOf(a), online = false) { false }).isFalse()
+        assertThat(PlaybackLogic.blockedOffline(listOf(a, b), online = false) { false }).isTrue()
     }
 }

@@ -12,16 +12,19 @@ import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
 import com.codingwithtashi.dailyprayer.data.repository.PrayerRepository
 import com.codingwithtashi.dailyprayer.data.repository.RoutineRepository
 import com.codingwithtashi.dailyprayer.data.seed.OnboardingDefaults
+import com.codingwithtashi.dailyprayer.reminders.NotificationPermissionPolicy
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -64,6 +67,7 @@ class OnboardingViewModel @Inject constructor(
     private val prefs: UserPreferencesRepository,
     prayers: PrayerRepository,
     private val routines: RoutineRepository,
+    private val permissionPolicy: NotificationPermissionPolicy,
 ) : ViewModel() {
 
     /** Overridable for tests (AppCompatDelegate is not available on the JVM). */
@@ -81,10 +85,10 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private val effectChannel = Channel<OnboardingEffect>(Channel.BUFFERED)
-    val effects = effectChannel
+    val effects: Flow<OnboardingEffect> = effectChannel.receiveAsFlow()
     private var finishing = false
 
-    val uiState: StateFlow<OnboardingUiState> = combine(
+    val state: StateFlow<OnboardingUiState> = combine(
         combine(step, name, picks, time, showTimePicker) { s, n, p, t, d ->
             OnboardingUiState(step = s, name = n, picks = p.toSet(), timeMinutes = t, showTimePicker = d)
         },
@@ -116,21 +120,16 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    /** Called by the UI after the notification-permission dialog closed (result ignored). */
-    fun onPermissionAsked() {
-        viewModelScope.launch { prefs.setNotificationPermissionAsked(true) }
-    }
-
     /** True once a routine was created by the finish step (drives the exact-alarm prompt). */
     var routineCreated: Boolean = false
         private set
 
-    /** Marks the exact-alarm explanation as shown; returns true only the first time. */
-    suspend fun promptExactAlarmOnce(): Boolean {
-        if (prefs.snapshot().exactAlarmPromptShown) return false
-        prefs.setExactAlarmPromptShown(true)
-        return true
-    }
+    /**
+     * Whether the runtime notification dialog can still be shown (see [NotificationPermissionPolicy]). When
+     * true it is recorded as asked and the UI must launch the dialog now; otherwise the UI offers the settings screen.
+     */
+    suspend fun claimNotificationPermissionRequest(shouldShowRationale: Boolean): Boolean =
+        permissionPolicy.claimRequest(shouldShowRationale)
 
     private fun finish(withRoutine: Boolean, routineName: String) {
         if (finishing) return

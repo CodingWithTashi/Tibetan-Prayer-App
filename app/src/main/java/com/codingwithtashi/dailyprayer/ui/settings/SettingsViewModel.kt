@@ -1,14 +1,22 @@
 package com.codingwithtashi.dailyprayer.ui.settings
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.codingwithtashi.dailyprayer.BuildConfig
+import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.core.Links
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
 import com.codingwithtashi.dailyprayer.core.locale.AppLocale
+import com.codingwithtashi.dailyprayer.data.model.AppTextSize
 import com.codingwithtashi.dailyprayer.data.model.Appearance
+import com.codingwithtashi.dailyprayer.data.prefs.ReaderTextSize
 import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
 import com.codingwithtashi.dailyprayer.data.repository.DownloadRepository
+import com.codingwithtashi.dailyprayer.reminders.NotificationPermissionPolicy
+import com.codingwithtashi.dailyprayer.reminders.ReminderHealth
+import com.codingwithtashi.dailyprayer.reminders.ReminderHealthMonitor
+import com.codingwithtashi.dailyprayer.reminders.ReminderIssue
 import com.codingwithtashi.dailyprayer.reminders.ReminderScheduler
 import com.codingwithtashi.dailyprayer.ui.components.avatarInitial
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,13 +40,18 @@ open class LocaleApplier @Inject constructor() {
     open fun apply(language: AppLanguage) = AppLocale.apply(language)
 }
 
+/** What the reminder status row shows. */
+enum class ReminderStatus { OFF, WORKING, NOTIFICATIONS_OFF, EXACT_ALARMS_OFF }
+
 data class SettingsUiState(
     val name: String = "",
     val initial: String = avatarInitial(null),
     val language: AppLanguage = AppLanguage.EN,
     val appearance: Appearance = Appearance.SYSTEM,
-    val textSizeSp: Int = 22,
+    val appTextSize: AppTextSize = AppTextSize.DEFAULT,
+    val textSizeSp: Int = ReaderTextSize.DEFAULT,
     val remindersEnabled: Boolean = true,
+    val reminderStatus: ReminderStatus = ReminderStatus.WORKING,
     val keepScreenOn: Boolean = true,
     val downloadedCount: Int = 0,
     val storageLabel: String? = null,
@@ -52,6 +65,7 @@ sealed interface SettingsEvent {
     data class SetName(val name: String) : SettingsEvent
     data class SetLanguage(val language: AppLanguage) : SettingsEvent
     data class SetAppearance(val appearance: Appearance) : SettingsEvent
+    data class SetAppTextSize(val size: AppTextSize) : SettingsEvent
     data object SizeUp : SettingsEvent
     data object SizeDown : SettingsEvent
     data class SetGoal(val goal: Int) : SettingsEvent
@@ -69,7 +83,17 @@ sealed interface SettingsEvent {
     data object OpenInstagram : SettingsEvent
     data object OpenFacebook : SettingsEvent
     data object EmailPrayerRequest : SettingsEvent
-    data object RemindersHelp : SettingsEvent
+
+    /** Re-reads notification and exact-alarm state; send on every resume. */
+
+    /** The status row was tapped: opens the matching system screen when something needs fixing. */
+    data object FixReminderStatus : SettingsEvent
+
+    /**
+     * The runtime notification permission is missing after the user turned reminders on.
+     * [shouldShowRationale] is Android's answer for whether a request can still be made.
+     */
+    data class NotificationPermissionMissing(val shouldShowRationale: Boolean) : SettingsEvent
     data object OpenDownloads : SettingsEvent
     data object OpenNotifications : SettingsEvent
     data object Exit : SettingsEvent
@@ -80,8 +104,15 @@ sealed interface SettingsEffect {
     /** The screen builds the localized share sentence around [url]. */
     data class ShareLink(val url: String) : SettingsEffect
     data class OpenUrl(val url: String) : SettingsEffect
-    data class SendEmail(val to: String, val subject: String) : SettingsEffect
-    data object OpenAppDetailsSettings : SettingsEffect
+    data class SendEmail(val to: String) : SettingsEffect
+    data object OpenNotificationSettings : SettingsEffect
+    data object OpenExactAlarmSettings : SettingsEffect
+
+    /** The runtime permission dialog may be shown. */
+    data object LaunchNotificationPermission : SettingsEffect
+
+    /** Notifications are blocked and cannot be requested again: show [res], then open notification settings. */
+    data class NotificationsBlocked(@StringRes val res: Int) : SettingsEffect
     data object OpenDownloads : SettingsEffect
     data object OpenNotifications : SettingsEffect
     data object Exit : SettingsEffect
@@ -91,8 +122,10 @@ sealed interface SettingsEffect {
 class SettingsViewModel @Inject constructor(
     private val prefs: UserPreferencesRepository,
     private val reminderScheduler: ReminderScheduler,
+    private val healthMonitor: ReminderHealthMonitor,
     private val localeApplier: LocaleApplier,
     private val downloads: DownloadRepository,
+    private val permissionPolicy: NotificationPermissionPolicy,
     @ApplicationScope private val appScope: CoroutineScope,
 ) : ViewModel() {
 
@@ -105,20 +138,23 @@ class SettingsViewModel @Inject constructor(
     private val _effects = Channel<SettingsEffect>(Channel.BUFFERED)
     val effects = _effects.receiveAsFlow()
 
-    val uiState: StateFlow<SettingsUiState> =
+    val state: StateFlow<SettingsUiState> =
         combine(
             prefs.prefs,
             combine(nameOverride, aboutOpen, showReading) { n, a, r -> Triple(n, a, r) },
             combine(downloads.downloadedCount(), downloads.totalBytes()) { count, bytes -> count to bytes },
-        ) { p, (nameEdit, about, reading), (downloadedCount, bytes) ->
+            healthMonitor.health,
+        ) { p, (nameEdit, about, reading), (downloadedCount, bytes), h ->
             val name = nameEdit ?: p.userName
             SettingsUiState(
                 name = name,
                 initial = avatarInitial(name),
                 language = p.appLanguage,
                 appearance = p.appearance,
-                textSizeSp = p.textSize.coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE),
+                textSizeSp = p.textSize,
+                appTextSize = p.appTextSize,
                 remindersEnabled = p.remindersEnabled,
+                reminderStatus = reminderStatus(p.remindersEnabled, h),
                 keepScreenOn = p.keepScreenOn,
                 aboutOpen = about,
                 showReadingSheet = reading,
@@ -136,24 +172,36 @@ class SettingsViewModel @Inject constructor(
                 localeApplier.apply(event.language)
             }
             is SettingsEvent.SetAppearance -> viewModelScope.launch { prefs.setAppearance(event.appearance) }
+            is SettingsEvent.SetAppTextSize -> viewModelScope.launch { prefs.setAppTextSize(event.size) }
             SettingsEvent.SizeUp -> viewModelScope.launch {
-                prefs.setTextSize((uiState.value.textSizeSp + TEXT_SIZE_STEP).coerceAtMost(MAX_TEXT_SIZE))
+                prefs.setTextSize(state.value.textSizeSp + ReaderTextSize.STEP)
             }
             SettingsEvent.SizeDown -> viewModelScope.launch {
-                prefs.setTextSize((uiState.value.textSizeSp - TEXT_SIZE_STEP).coerceAtLeast(MIN_TEXT_SIZE))
+                prefs.setTextSize(state.value.textSizeSp - ReaderTextSize.STEP)
             }
             is SettingsEvent.SetGoal -> viewModelScope.launch { prefs.setRecitationGoal(event.goal) }
             SettingsEvent.OpenReading -> showReading.value = true
             SettingsEvent.CloseReading -> showReading.value = false
             SettingsEvent.ToggleReminders -> toggleReminders()
             is SettingsEvent.NotificationPermissionResult -> viewModelScope.launch {
-                prefs.setNotificationPermissionAsked(true)
                 if (!event.granted) {
                     prefs.setRemindersEnabled(false)
                     reminderScheduler.rescheduleAll()
                 }
+                healthMonitor.refresh()
             }
-            SettingsEvent.ToggleKeepScreenOn -> viewModelScope.launch { prefs.setKeepScreenOn(!uiState.value.keepScreenOn) }
+            SettingsEvent.FixReminderStatus -> when (state.value.reminderStatus) {
+                ReminderStatus.NOTIFICATIONS_OFF -> emit(SettingsEffect.OpenNotificationSettings)
+                ReminderStatus.EXACT_ALARMS_OFF -> emit(SettingsEffect.OpenExactAlarmSettings)
+                ReminderStatus.OFF, ReminderStatus.WORKING -> Unit
+            }
+            is SettingsEvent.NotificationPermissionMissing -> viewModelScope.launch {
+                emit(
+                    if (permissionPolicy.claimRequest(event.shouldShowRationale)) SettingsEffect.LaunchNotificationPermission
+                    else SettingsEffect.NotificationsBlocked(R.string.reminder_notifications_blocked_toast),
+                )
+            }
+            SettingsEvent.ToggleKeepScreenOn -> viewModelScope.launch { prefs.setKeepScreenOn(!state.value.keepScreenOn) }
             SettingsEvent.ToggleAbout -> aboutOpen.update { !it }
             SettingsEvent.Share -> emit(SettingsEffect.ShareLink(Links.PLAY_STORE_URL))
             SettingsEvent.Rate -> emit(SettingsEffect.OpenUrl(Links.PLAY_STORE_URL))
@@ -162,8 +210,7 @@ class SettingsViewModel @Inject constructor(
             SettingsEvent.OpenGithub -> emit(SettingsEffect.OpenUrl(Links.GITHUB_URL))
             SettingsEvent.OpenInstagram -> emit(SettingsEffect.OpenUrl(Links.INSTAGRAM_URL))
             SettingsEvent.OpenFacebook -> emit(SettingsEffect.OpenUrl(Links.FACEBOOK_URL))
-            SettingsEvent.EmailPrayerRequest -> emit(SettingsEffect.SendEmail(Links.DEV_EMAIL, "Prayer Request"))
-            SettingsEvent.RemindersHelp -> emit(SettingsEffect.OpenAppDetailsSettings)
+            SettingsEvent.EmailPrayerRequest -> emit(SettingsEffect.SendEmail(Links.DEV_EMAIL))
             SettingsEvent.OpenDownloads -> emit(SettingsEffect.OpenDownloads)
             SettingsEvent.OpenNotifications -> emit(SettingsEffect.OpenNotifications)
             SettingsEvent.Exit -> emit(SettingsEffect.Exit)
@@ -202,13 +249,21 @@ class SettingsViewModel @Inject constructor(
         appScope.launch { prefs.setUserName(name) }
     }
 
+    /** Runs in the application scope so leaving the screen cannot cancel the rescheduling. */
     private fun toggleReminders() {
-        viewModelScope.launch {
-            val enable = !uiState.value.remindersEnabled
+        val enable = !state.value.remindersEnabled
+        appScope.launch {
             prefs.setRemindersEnabled(enable)
             reminderScheduler.rescheduleAll()
             if (enable) emit(SettingsEffect.RequestNotificationPermission)
         }
+    }
+
+    private fun reminderStatus(remindersEnabled: Boolean, h: ReminderHealth) = when {
+        !remindersEnabled -> ReminderStatus.OFF
+        h.issue == ReminderIssue.NOTIFICATIONS_OFF -> ReminderStatus.NOTIFICATIONS_OFF
+        h.issue == ReminderIssue.EXACT_ALARMS_OFF -> ReminderStatus.EXACT_ALARMS_OFF
+        else -> ReminderStatus.WORKING
     }
 
     companion object {

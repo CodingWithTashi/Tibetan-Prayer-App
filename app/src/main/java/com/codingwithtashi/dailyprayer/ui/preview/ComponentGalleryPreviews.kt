@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarVisuals
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -23,11 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
+import com.codingwithtashi.dailyprayer.data.model.AppTextSize
 import com.codingwithtashi.dailyprayer.ui.components.AppCard
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.AppearanceKind
 import com.codingwithtashi.dailyprayer.ui.components.AppearanceOptionCard
 import com.codingwithtashi.dailyprayer.ui.components.Avatar
@@ -52,7 +55,6 @@ import com.codingwithtashi.dailyprayer.ui.components.LanguageOption
 import com.codingwithtashi.dailyprayer.ui.components.LibraryRow
 import com.codingwithtashi.dailyprayer.ui.components.ListenRow
 import com.codingwithtashi.dailyprayer.ui.components.MiniPlayer
-import com.codingwithtashi.dailyprayer.ui.components.NumberText
 import com.codingwithtashi.dailyprayer.ui.components.Overline
 import com.codingwithtashi.dailyprayer.ui.components.PickRow
 import com.codingwithtashi.dailyprayer.ui.components.PillButton
@@ -83,6 +85,8 @@ import com.codingwithtashi.dailyprayer.ui.components.TopBar
 import com.codingwithtashi.dailyprayer.ui.components.avatarInitial
 import com.codingwithtashi.dailyprayer.ui.components.contentWidth
 import com.codingwithtashi.dailyprayer.ui.theme.CategoryKey
+import com.codingwithtashi.dailyprayer.ui.theme.Jomolhari
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import com.codingwithtashi.dailyprayer.ui.theme.category
 
@@ -117,10 +121,10 @@ private fun GalleryBody() {
         ScreenTitle("Library")
         GallerySection("Tiles, flags, avatar") {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                p.forEach { PrayerTile(it.syllable, it.category, 44.dp, 12.dp, PrayerTheme.type.tibetanTile14) }
+                p.forEach { PrayerTile(it.syllable, it.category, 44.dp, 12.dp, PrayerTheme.type.tileGlyphSmall) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                p.forEach { PrayerTile(it.syllable, it.category, 44.dp, 12.dp, PrayerTheme.type.tibetanTile14, darkVariant = true) }
+                p.forEach { PrayerTile(it.syllable, it.category, 44.dp, 12.dp, PrayerTheme.type.tileGlyphSmall, darkVariant = true) }
             }
             FlagStrip(FlagSize.Large)
             FlagStrip(FlagSize.Small)
@@ -144,7 +148,7 @@ private fun GalleryBody() {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconActionButton(R.drawable.ic_heart, "Save", noop)
                 IconActionButton(R.drawable.ic_heart_filled, "Unsave", noop, tint = c.accent)
-                IconActionButton("Reading settings", noop) { Text("Aa", style = PrayerTheme.type.aaGlyph, color = c.ink) }
+                IconActionButton("Reading settings", noop) { AppText(stringResource(R.string.reader_settings_glyph), style = PrayerTheme.type.aaGlyph, color = c.ink) }
                 CircleButton(46.dp, "Minus", noop, border = androidx.compose.foundation.BorderStroke(1.dp, c.border)) {
                     androidx.compose.material3.Icon(androidx.compose.ui.res.painterResource(R.drawable.ic_minus), null, Modifier.size(18.dp), tint = c.ink)
                 }
@@ -152,7 +156,7 @@ private fun GalleryBody() {
                 PlayCircle(40.dp, isCurrent = true, isPlaying = true, onClick = noop)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                SmallPill(noop, "Speed") { Text("1.0×", style = PrayerTheme.type.caption12Semi, color = c.ink) }
+                SmallPill(noop, "Speed") { AppText("1.0×", style = PrayerTheme.type.bodySmallStrong, color = c.ink) }
                 DownloadButton(DownloadUiState.NotDownloaded, noop)
                 DownloadButton(DownloadUiState.Downloading(0.42f), noop)
                 DownloadButton(DownloadUiState.Downloaded, noop)
@@ -161,9 +165,9 @@ private fun GalleryBody() {
         }
         GallerySection("Selection controls") {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                CheckCircle(24.dp, true)
-                CheckCircle(24.dp, false)
-                CheckCircle(26.dp, false, number = "2")
+                CheckCircle(PrayerDimens.checkCircleSmallMin, true)
+                CheckCircle(PrayerDimens.checkCircleSmallMin, false)
+                CheckCircle(PrayerDimens.checkCircleLargeMin, false, number = "2")
                 SquareCheck(true)
                 SquareCheck(false)
                 ToggleSwitch(checked, { checked = it })
@@ -181,8 +185,8 @@ private fun GalleryBody() {
                 listOf("21", "108", "1k", "10k").forEachIndexed { i, g -> GoalPill(g, i == 1, noop, Modifier.weight(1f)) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                LanguageOption("English", true, noop, PrayerTheme.type.langOption(AppLanguage.EN), Modifier.weight(1f))
-                LanguageOption("བོད་ཡིག", false, noop, PrayerTheme.type.langOption(AppLanguage.BO), Modifier.weight(1f))
+                LanguageOption("English", true, noop, PrayerTheme.type.leadStrong, Modifier.weight(1f))
+                LanguageOption("བོད་ཡིག", false, noop, PrayerTheme.type.leadStrong, Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 AppearanceOptionCard(AppearanceKind.System, "System", true, noop, Modifier.weight(1f))
@@ -191,25 +195,25 @@ private fun GalleryBody() {
             }
             var seg by remember { mutableIntStateOf(0) }
             val type = PrayerTheme.type
-            SegmentedControl(listOf("English", "བོད་ཡིག"), seg, { seg = it }, { type.langOption(if (it == 0) AppLanguage.EN else AppLanguage.BO) })
+            SegmentedControl(listOf("English", "བོད་ཡིག"), seg, { seg = it }, { type.leadStrong })
         }
         GallerySection("Text, bars, inputs") {
             Overline("Playing from")
             TibetanText("རྒྱུན་ཆགས་གསུམ་པ།", PrayerTheme.type.tibetanHero, color = c.accent)
-            NumberText("21 / 108", PrayerTheme.type.counter18)
+            AppText("21 / 108", style = PrayerTheme.type.counter, maxLines = 1)
             ProgressBarThin(0.4f, height = 6.dp)
             ProgressBarThin(0.7f, height = 2.dp)
             ConicProgressRing(0.6f)
             SheetHandle(Modifier.align(Alignment.CenterHorizontally))
-            PrayerInput(text, { text = it }, 56.dp, 16.dp, PrayerTheme.type.input18, placeholder = "Your name", maxLength = 24)
-            DashedBox(Modifier.fillMaxWidth().height(50.dp), radius = 14.dp) {
-                Text("Add prayers", style = PrayerTheme.type.body14Semi, color = c.accent)
+            PrayerInput(text, { text = it }, PrayerDimens.inputLarge, 16.dp, PrayerTheme.type.inputLarge, placeholder = "Your name", maxLength = 24)
+            DashedBox(Modifier.fillMaxWidth().heightIn(min = PrayerDimens.dashedBoxMin), radius = 14.dp) {
+                AppText("Add prayers", style = PrayerTheme.type.bodyStrong, color = c.accent)
             }
             EmptyState(R.drawable.ic_heart, "Nothing saved yet", button = "Browse library" to noop)
         }
         GallerySection("Top bar and rows") {
             Box(Modifier.background(c.surface)) {
-                TopBar(onBack = noop, center = { Text("Settings", style = PrayerTheme.type.body15Semi, color = c.ink) }, actions = {
+                TopBar(onBack = noop, center = { AppText("Settings", style = PrayerTheme.type.bodyLargeStrong, color = c.ink) }, actions = {
                     IconActionButton(R.drawable.ic_heart, "Save", noop)
                 })
             }
@@ -262,27 +266,62 @@ private fun GalleryBody() {
     }
 }
 
-/** Gallery of every shared component, light block above dark block. */
+/** One row per [PrayerTypography] token: its name and a sample line (Tibetan for Jomolhari tokens). */
 @Composable
-fun ComponentGallery(modifier: Modifier = Modifier) {
-    Column(modifier) {
-        PrayerTheme(darkTheme = false) { GalleryBody() }
-        PrayerTheme(darkTheme = true) { GalleryBody() }
+private fun TypeScaleSection() {
+    val c = PrayerTheme.colors
+    val type = PrayerTheme.type
+    GallerySection("Type scale") {
+        type.all.forEach { (name, style) ->
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                AppText("$name · ${style.fontSize.value.toInt()}sp", style = type.caption, color = c.textMuted)
+                val sample = if (style.fontFamily == Jomolhari) "བཀྲ་ཤིས་བདེ་ལེགས། ༡༢༣" else "Daily prayer 108"
+                AppText(sample, style = style, color = c.ink)
+            }
+        }
     }
 }
 
-@Preview(name = "light", widthDp = 360, heightDp = 6200, showBackground = true)
+/**
+ * Gallery of every shared component, light block above dark block. The type scale is shown once,
+ * above the light block. [textScale] is the app-wide Text size multiplier.
+ */
+@Composable
+fun ComponentGallery(modifier: Modifier = Modifier, textScale: Float = 1f) {
+    Column(modifier) {
+        PrayerTheme(darkTheme = false, textScale = textScale) {
+            Column(Modifier.background(PrayerTheme.colors.background).padding(horizontal = 20.dp, vertical = 16.dp)) { TypeScaleSection() }
+            GalleryBody()
+        }
+        PrayerTheme(darkTheme = true, textScale = textScale) { GalleryBody() }
+    }
+}
+
+// Canvases are tall because the type scale and the larger text sizes lengthen the gallery.
+@Preview(name = "light", widthDp = 360, heightDp = 10000, showBackground = true)
 @Composable
 private fun GalleryLightPreview() = ComponentGallery()
 
-@Preview(name = "dark", widthDp = 360, heightDp = 6200, uiMode = UI_MODE_NIGHT_YES, showBackground = true)
+@Preview(name = "dark", widthDp = 360, heightDp = 10000, uiMode = UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
 private fun GalleryDarkPreview() = ComponentGallery()
 
-@Preview(name = "bo", widthDp = 360, heightDp = 6200, locale = "bo", showBackground = true)
+@Preview(name = "bo", widthDp = 360, heightDp = 10000, locale = "bo", showBackground = true)
 @Composable
 private fun GalleryBoPreview() = ComponentGallery()
 
-@Preview(name = "fontScale1.3", widthDp = 360, heightDp = 7600, fontScale = 1.3f, showBackground = true)
+@Preview(name = "text size Small", widthDp = 360, heightDp = 10000, showBackground = true)
+@Composable
+private fun GalleryTextSmallPreview() = ComponentGallery(textScale = AppTextSize.SMALL.scale)
+
+@Preview(name = "text size Largest", widthDp = 360, heightDp = 13000, showBackground = true)
+@Composable
+private fun GalleryTextLargestPreview() = ComponentGallery(textScale = AppTextSize.LARGEST.scale)
+
+@Preview(name = "fontScale1.3", widthDp = 360, heightDp = 12000, fontScale = 1.3f, showBackground = true)
 @Composable
 private fun GalleryFontScalePreview() = ComponentGallery()
+
+@Preview(name = "fontScale1.5", widthDp = 360, heightDp = 14000, fontScale = 1.5f, showBackground = true)
+@Composable
+private fun GalleryFontScale15Preview() = ComponentGallery()

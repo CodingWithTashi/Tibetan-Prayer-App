@@ -17,7 +17,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -30,9 +29,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 
-/** Custom snackbar content: darkCard, r16, min height 50, body14Medium text and a gold Undo action. */
+/** Custom snackbar content: darkCard, r16, min height 50, bodyMedium text and a gold Undo action. */
 @Composable
-fun PrayerToast(data: SnackbarData, modifier: Modifier = Modifier) {
+internal fun PrayerToast(data: SnackbarData, modifier: Modifier = Modifier) {
     val c = PrayerTheme.colors
     val t = PrayerTheme.type
     val shape = RoundedCornerShape(16.dp)
@@ -49,12 +48,12 @@ fun PrayerToast(data: SnackbarData, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(data.visuals.message, style = t.body14Medium, color = c.darkCardText, modifier = Modifier.weight(1f).padding(vertical = 12.dp))
+        AppText(data.visuals.message, style = t.bodyMedium, color = c.darkCardText, modifier = Modifier.weight(1f).padding(vertical = 12.dp))
         val action = data.visuals.actionLabel
         if (action != null) {
-            Text(
+            AppText(
                 action,
-                style = t.body14Semi,
+                style = t.bodyStrong,
                 color = c.gold,
                 modifier = Modifier
                     .defaultMinSize(minHeight = 48.dp)

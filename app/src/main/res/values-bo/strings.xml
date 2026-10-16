@@ -51,7 +51,18 @@
     <string name="new_routine">ཉམས་ལེན་གསར་པ།</string>
     <string name="edit_routine">ཉམས་ལེན་བཟོ་བཅོས།</string>
     <string name="reading">ཀློག་སྟངས།</string>
-    <string name="text_size_n">ཡིག་གཟུགས། %1$s</string>
+    <!-- (AI) review -->
+    <string name="text_size_n">གསོལ་འདེབས་ཡིག་གཟུགས། %1$s</string>
+    <!-- (AI) review -->
+    <string name="text_size">ཡིག་གཟུགས་ཆེ་ཆུང་།</string>
+    <!-- (AI) review -->
+    <string name="text_size_small">ཆུང་བ།</string>
+    <!-- (AI) review -->
+    <string name="text_size_default">སྔོན་སྒྲིག</string>
+    <!-- (AI) review -->
+    <string name="text_size_large">ཆེ་བ།</string>
+    <!-- (AI) review -->
+    <string name="text_size_largest">ཆེས་ཆེ་བ།</string>
     <!-- (AI) review -->
     <string name="appearance">མདངས།</string>
     <!-- (AI) review -->
@@ -100,10 +111,6 @@
     <string name="reminders_sub">ཉམས་ལེན་གྱི་དྲན་སྐུལ།</string>
     <string name="keep_screen_on">གསལ་ཡོལ་འབར་བཞག</string>
     <string name="downloaded_sub">%1$s སྨོན་ལམ། · %2$s</string>
-    <!-- (AI) review -->
-    <string name="reminders_help">དྲན་སྐུལ་མི་འབྱོར་རམ།</string>
-    <!-- (AI) review -->
-    <string name="reminders_help_sub">གློག་ནུས་དང་བརྡ་ཐོའི་སྒྲིག་འགོད་ལ་ལྟོས།</string>
     <string name="share_app">མཉེན་ཆས་མཉམ་སྤྱོད།</string>
     <string name="rate_app">སྐར་མ་སྤྲོད།</string>
     <string name="about">སྐོར།</string>
@@ -204,10 +211,10 @@
     <string name="cd_remove">Remove</string>
     <!-- untranslated -->
     <string name="cd_delete">Delete</string>
-    <!-- untranslated -->
-    <string name="cd_decrease_text">Decrease text size</string>
-    <!-- untranslated -->
-    <string name="cd_increase_text">Increase text size</string>
+    <!-- (AI) review -->
+    <string name="cd_decrease_text">ཡིག་གཟུགས་ཆུང་དུ་གཏོང་།</string>
+    <!-- (AI) review -->
+    <string name="cd_increase_text">ཡིག་གཟུགས་ཆེ་རུ་གཏོང་།</string>
     <!-- untranslated -->
     <string name="cd_has_audio">Has audio</string>
     <!-- untranslated -->
@@ -275,4 +282,32 @@
     <string name="cd_seek">གནས་སྐྱོད།</string>
     <!-- (AI) review -->
     <string name="cd_verse">ཚིགས་བཅད། %1$s / %2$s</string>
+    <!-- (AI) review -->
+    <string name="reminder_status">དྲན་སྐུལ་གྱི་གནས་སྟངས།</string>
+    <!-- (AI) review -->
+    <string name="reminder_status_off">སྒོ་བརྒྱབ་ཡོད།</string>
+    <!-- (AI) review -->
+    <string name="reminder_status_working">ལེགས་པོ་འཁོར་བཞིན་ཡོད།</string>
+    <!-- (AI) review -->
+    <string name="reminder_status_notifications_off">བརྡ་ཐོ་སྒོ་བརྒྱབ་ཡོད། · ཁ་ཕྱེ།</string>
+    <!-- (AI) review -->
+    <string name="reminder_status_exact_off">དུས་ཚོད་ཅུང་ཟད་འགྱུར་སྲིད། · དུས་ཚོད་ཏག་ཏག་ལ་ཆོག་མཆན་སྤྲོད།</string>
+    <!-- (AI) review -->
+    <string name="reminder_notifications_blocked_toast">བརྡ་ཐོ་བཀག་ཡོད། སྒྲིག་འགོད་ནང་ཁ་ཕྱེ།</string>
+    <!-- (AI) review -->
+    <string name="reminder_warn_notifications_off">དྲན་སྐུལ་གྱི་སྒྲ་མི་གཏོང་། བརྡ་ཐོ་སྒོ་བརྒྱབ་ཡོད།</string>
+    <!-- (AI) review -->
+    <string name="reminder_warn_exact_off">དྲན་སྐུལ་འགོར་སྲིད། དུས་ཚོད་ཏག་ཏག་སྒོ་བརྒྱབ་ཡོད།</string>
+    <!-- (AI) review -->
+    <string name="reminders_off_in_settings">སྒྲིག་འགོད་ནང་དྲན་སྐུལ་སྒོ་བརྒྱབ་ཡོད།</string>
+    <!-- (AI) review -->
+    <string name="reminder_fix_turn_on">ཁ་ཕྱེ།</string>
+    <!-- (AI) review -->
+    <string name="reminder_fix_allow">ཆོག</string>
+    <!-- (AI) review -->
+    <string name="notifications_off_title">བརྡ་ཐོ་སྒོ་བརྒྱབ་ཡོད།</string>
+    <!-- (AI) review -->
+    <string name="notifications_off_body">མཉེན་ཆས་འདིར་བརྡ་ཐོ་ཆོག་མཆན་མ་སྤྲད་ན་དྲན་སྐུལ་མཐོང་མི་ཐུབ།</string>
+    <!-- (AI) review -->
+    <string name="not_now">ད་ལྟ་མིན།</string>
 </resources>

@@ -8,12 +8,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -26,8 +25,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 
 /** Visual variant of a [PillButton]. */
@@ -46,7 +48,8 @@ sealed interface PillVariant {
 }
 
 /**
- * Pill-shaped button. Text style follows [height] unless [textStyle] is given; colour overrides
+ * Pill-shaped button. [height] is the nominal size: the pill is [PrayerDimens.pillButtonBoost] taller than it
+ * as a minimum and grows with its (up to two-line) text. Text style follows [height] unless [textStyle] is given; colour overrides
  * replace the variant defaults. Touch target is at least 48dp. The visible pill fills the width
  * the caller imposes (`Modifier.fillMaxWidth()` / `weight`); otherwise it wraps its content.
  * [interactive] = false renders a plain, non-clickable pill at full opacity.
@@ -59,7 +62,7 @@ fun PillButton(
     variant: PillVariant = PillVariant.Filled,
     height: Dp = 48.dp,
     horizontalPadding: Dp = 20.dp,
-    radius: Dp = height / 2,
+    radius: Dp = (height + PrayerDimens.pillButtonBoost) / 2,
     @DrawableRes leadingIcon: Int? = null,
     leadingIconSize: Dp = 16.dp,
     enabled: Boolean = true,
@@ -71,11 +74,11 @@ fun PillButton(
     val c = PrayerTheme.colors
     val type = PrayerTheme.type
     val style = textStyle ?: when {
-        height >= 54.dp -> type.body16Semi
-        height >= 48.dp -> type.body15Semi
-        height >= 44.dp -> type.body14Semi
-        height >= 40.dp -> type.body14Semi
-        else -> type.body13Semi
+        height >= 54.dp -> type.leadStrong
+        height >= 48.dp -> type.bodyLargeStrong
+        height >= 44.dp -> type.bodyStrong
+        height >= 40.dp -> type.bodyStrong
+        else -> type.bodyStrong
     }
     val defaultContainer = when (variant) {
         PillVariant.Filled -> c.accentSolid
@@ -99,7 +102,7 @@ fun PillButton(
     ) {
         Row(
             Modifier
-                .height(height)
+                .heightIn(min = height + PrayerDimens.pillButtonBoost)
                 .alpha(if (enabled || !interactive) 1f else 0.5f)
                 .clip(shape)
                 .background(bg)
@@ -123,7 +126,9 @@ fun PillButton(
                 Icon(painterResource(leadingIcon), contentDescription = null, tint = fg, modifier = Modifier.size(leadingIconSize))
                 Box(Modifier.size(8.dp))
             }
-            Text(text, style = style, color = fg, maxLines = 1)
+            AppText(
+                text, style = style, color = fg, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center,
+            )
         }
     }
 }

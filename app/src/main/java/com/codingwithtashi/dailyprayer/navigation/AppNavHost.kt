@@ -24,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.codingwithtashi.dailyprayer.core.notification.DeepLink
+import com.codingwithtashi.dailyprayer.core.notification.DeepLinks
 import com.codingwithtashi.dailyprayer.ui.main.MainScaffold
 import com.codingwithtashi.dailyprayer.ui.main.MainViewModel
 import com.codingwithtashi.dailyprayer.ui.notifications.NotificationsScreen
@@ -59,7 +60,13 @@ fun AppNavHost(
             // Ignore links until onboarding is done.
             if (current != null && !current.hasRoute<Onboarding>()) {
                 when (link) {
-                    is DeepLink.OpenRoutine -> navController.navigate(RoutineDetail(link.routineId))
+                    is DeepLink.OpenRoutine -> {
+                        val showing = navController.currentBackStackEntry
+                            ?.takeIf { it.destination.hasRoute<RoutineDetail>() }?.toRoute<RoutineDetail>()?.routineId
+                        if (!DeepLinks.isRedundant(link, showing)) {
+                            navController.navigate(RoutineDetail(link.routineId))
+                        }
+                    }
                     DeepLink.OpenNotifications -> navController.navigate(Notifications)
                     DeepLink.OpenPlayer -> navController.navigate(NowPlaying)
                     is DeepLink.OpenPrayer -> navController.navigate(Reader(link.prayerId))

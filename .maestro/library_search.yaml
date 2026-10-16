@@ -1,0 +1,30 @@
+# Library tab -> English search -> Tibetan search -> clear.
+appId: com.codingwithtashi.dailyprayer.stage
+tags:
+  - smoke
+---
+- runFlow: common/onboard_en.yaml
+- tapOn: "Library"
+- assertVisible: "Search in Tibetan or English"
+# English query: matches "Refuge", "Refuge & Bodhicitta", "Kapsum Refuge Prayer".
+- tapOn:
+    id: "library_search"
+- inputText: "refuge"
+- assertVisible: "Refuge & Bodhicitta"
+- assertVisible: "Kapsum Refuge Prayer"
+- assertNotVisible: "The Heart Sutra"
+# Clear, then a Tibetan query: ཤེས་རབ (matches ཤེས་རབ་སྙིང་པོ། = The Heart Sutra).
+- tapOn: "Clear search"
+- tapOn:
+    id: "library_search"
+- inputText: "ཤེས་རབ"
+- assertVisible: "The Heart Sutra"
+- assertNotVisible: "Refuge & Bodhicitta"
+# No match -> empty state.
+- tapOn: "Clear search"
+- tapOn:
+    id: "library_search"
+- inputText: "zzzzqq"
+- assertVisible: "No prayers match your search."
+- tapOn: "Clear search"
+- assertVisible: "Refuge & Bodhicitta"

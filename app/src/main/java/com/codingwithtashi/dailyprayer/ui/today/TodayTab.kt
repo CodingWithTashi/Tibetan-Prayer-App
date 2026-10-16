@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
@@ -44,7 +43,6 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -53,6 +51,7 @@ import androidx.window.core.layout.WindowSizeClass
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
 import com.codingwithtashi.dailyprayer.core.time.DateFormats
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.Avatar
 import com.codingwithtashi.dailyprayer.ui.components.BellButton
 import com.codingwithtashi.dailyprayer.ui.components.CheckCircle
@@ -66,6 +65,7 @@ import com.codingwithtashi.dailyprayer.ui.components.SectionLabel
 import com.codingwithtashi.dailyprayer.ui.components.contentWidth
 import com.codingwithtashi.dailyprayer.ui.components.rememberIsCompactWidth
 import com.codingwithtashi.dailyprayer.ui.theme.CategoryKey
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import java.time.LocalDate
 import java.time.ZoneId
@@ -84,15 +84,15 @@ fun TodayTab(
     modifier: Modifier = Modifier,
     viewModel: TodayViewModel = hiltViewModel(),
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refresh() }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onEvent(TodayEvent.Refresh) }
     // Midnight rollover while the app stays in the foreground.
     LaunchedEffect(state.date) {
         val zone = ZoneId.systemDefault()
         val now = java.time.ZonedDateTime.now(zone)
         val untilMidnight = java.time.Duration.between(now, now.toLocalDate().plusDays(1).atStartOfDay(zone)).toMillis()
         delay(untilMidnight + 500)
-        viewModel.refresh()
+        viewModel.onEvent(TodayEvent.Refresh)
     }
     TodayContent(
         state = state,
@@ -107,7 +107,7 @@ fun TodayTab(
                 is TodayEvent.StartRoutine -> onOpenReader(e.nextPrayerId, e.routineId)
                 is TodayEvent.OpenReader -> onOpenReader(e.prayerId, null)
                 TodayEvent.SeeAllSaved -> onSeeAllSaved()
-                TodayEvent.ToggleLanguage -> viewModel.onEvent(e)
+                TodayEvent.ToggleLanguage, TodayEvent.Refresh -> viewModel.onEvent(e)
             }
         },
     )
@@ -152,14 +152,14 @@ private fun Header(state: TodayUiState, onEvent: (TodayEvent) -> Unit) {
         stringArrayResource(R.array.month_names).toList(),
     )
     val greetingText = state.greetingName?.let { stringResource(R.string.greet_name, it) } ?: stringResource(R.string.greet)
-    val greetingStyle = if (compactHeight) t.greeting.copy(fontSize = 24.sp, lineHeight = 28.sp) else t.greeting
+    val greetingStyle = if (compactHeight) t.greetingCompact else t.greeting
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
         Column(Modifier.weight(1f).padding(end = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             FlagStrip(FlagSize.Small)
-            Text(greetingText, style = greetingStyle, color = c.accent)
-            Text(
-                text = if (state.language == AppLanguage.EN) dateText.uppercase() else dateText,
-                style = t.caption12Medium.copy(letterSpacing = if (state.language == AppLanguage.EN) 0.06.em else t.caption12Medium.letterSpacing),
+            AppText(greetingText, style = greetingStyle, color = c.accent)
+            AppText(
+                text = dateText.uppercase(),
+                style = t.bodySmallMedium.copy(letterSpacing = 0.06.em),
                 color = c.textMuted,
             )
         }
@@ -185,7 +185,7 @@ private fun LangPill(language: AppLanguage, onClick: () -> Unit) {
     val c = PrayerTheme.colors
     val t = PrayerTheme.type
     val cd = stringResource(R.string.cd_switch_language)
-    val shape = RoundedCornerShape(17.dp)
+    val shape = RoundedCornerShape(20.dp)
     Box(
         Modifier
             .minimumInteractiveComponentSize()
@@ -194,18 +194,15 @@ private fun LangPill(language: AppLanguage, onClick: () -> Unit) {
     ) {
         Box(
             Modifier
-                .height(34.dp)
+                .heightIn(min = PrayerDimens.langPillMin)
                 .clip(shape)
                 .border(1.dp, c.border, shape)
                 .clickable(role = Role.Button, onClick = onClick)
                 .padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center,
         ) {
-            if (language == AppLanguage.BO) {
-                Text("EN", style = t.body13Semi, color = c.ink, maxLines = 1)
-            } else {
-                Text("བོད", style = t.tibUiPill, color = c.ink, maxLines = 1)
-            }
+            val target = if (language == AppLanguage.BO) R.string.lang_pill_en else R.string.lang_pill_bo
+            AppText(stringResource(target), style = t.bodyStrong, color = c.ink, maxLines = 1)
         }
     }
 }
@@ -242,9 +239,9 @@ private fun WeekRow(state: TodayUiState) {
                             Icon(painterResource(R.drawable.ic_check), null, Modifier.size(11.dp), tint = c.onAccent)
                         }
                     }
-                    Text(
+                    AppText(
                         letters[i],
-                        style = t.weekDay(state.language),
+                        style = t.caption,
                         color = if (day.isToday) c.accent else c.textMuted,
                         maxLines = 1,
                     )
@@ -252,8 +249,8 @@ private fun WeekRow(state: TodayUiState) {
             }
         }
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-            Text(state.streak, style = t.statNumber, color = c.ink, maxLines = 1)
-            Text(stringResource(R.string.day_streak), style = t.caption11, color = c.textMuted, maxLines = 1)
+            AppText(state.streak, style = t.statNumber, color = c.ink, maxLines = 1)
+            AppText(stringResource(R.string.day_streak), style = t.caption, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -272,13 +269,13 @@ private fun PracticeCard(state: TodayUiState, onEvent: (TodayEvent) -> Unit) {
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            SectionLabel(stringResource(R.string.todays_practice), style = t.label11)
-            state.practiceCount?.let { Text(it, style = t.label11, color = c.accent, maxLines = 1) }
+            SectionLabel(stringResource(R.string.todays_practice), style = t.label)
+            state.practiceCount?.let { AppText(it, style = t.label, color = c.accent, maxLines = 1, overflow = TextOverflow.Ellipsis) }
         }
         if (state.routines.isEmpty()) {
-            Text(
+            AppText(
                 stringResource(R.string.no_routines),
-                style = t.body14,
+                style = t.body,
                 color = c.textMuted,
                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
             )
@@ -316,7 +313,7 @@ private fun PracticeCard(state: TodayUiState, onEvent: (TodayEvent) -> Unit) {
                     height = 40.dp,
                     leadingIcon = R.drawable.ic_plus,
                     leadingIconSize = 14.dp,
-                    textStyle = t.body13Semi,
+                    textStyle = t.bodyStrong,
                 )
             }
         }
@@ -341,12 +338,12 @@ private fun TodayRoutineRow(routine: TodayRoutine, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        CheckCircle(24.dp, routine.done)
+        CheckCircle(PrayerDimens.checkCircleSmallMin, routine.done)
         Column(Modifier.weight(1f)) {
-            Text(routine.name, style = t.body15Semi, color = if (routine.done) c.textMuted else c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(subtitle, style = t.caption12, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            AppText(routine.name, style = t.bodyLargeStrong, color = if (routine.done) c.textMuted else c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            AppText(subtitle, style = t.bodySmall, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        Text(routine.timeLabel, style = t.body13Medium, color = c.textMuted, maxLines = 1)
+        AppText(routine.timeLabel, style = t.bodyMedium, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Icon(painterResource(R.drawable.ic_chevron_right), null, Modifier.size(16.dp), tint = c.textSubtle)
     }
 }
@@ -367,12 +364,12 @@ private fun ContinueCard(cr: ContinueReading, onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        PrayerTile(p.syllable, CategoryKey.valueOf(p.category.name), 44.dp, 12.dp, t.tibetanTile14)
+        PrayerTile(p.syllable, CategoryKey.valueOf(p.category.name), 44.dp, 12.dp, t.tileGlyphSmall)
         Column(Modifier.weight(1f)) {
-            SectionLabel(stringResource(R.string.continue_reading), style = t.label11Narrow, color = c.accent)
-            Text(p.titleEn, style = t.body15Semi, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            SectionLabel(stringResource(R.string.continue_reading), style = t.label, color = c.accent)
+            AppText(p.titleEn, style = t.bodyLargeStrong, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
-        Text(cr.pct, style = t.body13Semi, color = c.accent, maxLines = 1)
+        AppText(cr.pct, style = t.bodyStrong, color = c.accent, maxLines = 1)
     }
 }
 
@@ -388,19 +385,19 @@ private fun SavedSection(state: TodayUiState, onEvent: (TodayEvent) -> Unit) {
     }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.tab_saved), style = t.sectionTitle, color = c.ink)
+            AppText(stringResource(R.string.tab_saved), style = t.sectionTitle, color = c.ink)
             Box(
                 Modifier
                     .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
                     .clickable(role = Role.Button) { onEvent(TodayEvent.SeeAllSaved) },
                 contentAlignment = Alignment.CenterEnd,
             ) {
-                Text(stringResource(R.string.see_all), style = t.body13Semi, color = c.accent, maxLines = 1)
+                AppText(stringResource(R.string.see_all), style = t.bodyStrong, color = c.accent, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
         if (state.savedTiles.isEmpty()) {
             DashedBox(Modifier.fillMaxWidth(), radius = 16.dp, contentPadding = PaddingValues(16.dp)) {
-                Text(stringResource(R.string.saved_empty), style = t.body14, color = c.textMuted, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                AppText(stringResource(R.string.saved_empty), style = t.body, color = c.textMuted, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
             }
         } else {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -416,10 +413,10 @@ private fun SavedSection(state: TodayUiState, onEvent: (TodayEvent) -> Unit) {
                             CategoryKey.valueOf(tile.prayer.category.name),
                             size = null,
                             radius = 16.dp,
-                            style = t.tibetanTile19,
+                            style = t.tileGlyphXL,
                             modifier = Modifier.fillMaxWidth().aspectRatio(1f),
                         )
-                        Text(tile.label, style = t.caption12Medium, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        AppText(tile.label, style = t.bodySmallMedium, color = c.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
                     }
                 }
                 repeat((columns - state.savedTiles.size).coerceAtLeast(0)) { Spacer(Modifier.weight(1f)) }

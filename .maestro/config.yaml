@@ -1,0 +1,6 @@
+# Maestro workspace config. Run everything with:  maestro test .maestro/
+# Only top-level flows are executed; shared steps live in common/ and are pulled in with runFlow.
+# Flows that need internet carry the tag "network"; skip them offline with:
+#   maestro test --exclude-tags=network .maestro/
+flows:
+  - "*.yaml"

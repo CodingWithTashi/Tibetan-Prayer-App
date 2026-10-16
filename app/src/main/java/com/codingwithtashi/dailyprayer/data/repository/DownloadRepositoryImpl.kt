@@ -8,6 +8,7 @@ import com.codingwithtashi.dailyprayer.data.download.AudioFileStore
 import com.codingwithtashi.dailyprayer.data.download.DownloadException
 import com.codingwithtashi.dailyprayer.data.model.DownloadError
 import com.codingwithtashi.dailyprayer.data.model.DownloadState
+import com.codingwithtashi.dailyprayer.playback.AudioCache
 import java.io.File
 import java.util.Locale
 import javax.inject.Inject
@@ -32,6 +33,7 @@ class DownloadRepositoryImpl @Inject constructor(
     private val downloader: AudioDownloader,
     private val files: AudioFileStore,
     private val connectivity: ConnectivityChecker,
+    private val audioCache: AudioCache,
     @ApplicationScope private val scope: CoroutineScope,
     @IoDispatcher private val io: CoroutineDispatcher,
 ) : DownloadRepository {
@@ -60,7 +62,7 @@ class DownloadRepositoryImpl @Inject constructor(
             return
         }
         if (prayer.isDownloaded && prayer.audioPath?.let { File(it).exists() } == true) return
-        if (!connectivity.isOnline()) {
+        if (!connectivity.isOnline() && !withContext(io) { audioCache.isFullyCached(prayer.audioUrl) }) {
             setTransient(id, DownloadState.Failed(DownloadError.OFFLINE))
             return
         }

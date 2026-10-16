@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -21,7 +23,6 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,15 +37,21 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerColors
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 
-/** Segmented control (track segmentBg r16, options h44 r12; selected gets a surface fill and 2dp shadow). */
+/**
+ * Segmented control (track segmentBg r16, options h44 r12; selected gets a surface fill and 2dp shadow).
+ * [contentDescriptionFor] overrides the spoken label per segment (e.g. when the visible label is a glyph).
+ */
 @Composable
 fun SegmentedControl(
     options: List<String>,
@@ -52,6 +59,7 @@ fun SegmentedControl(
     onSelect: (Int) -> Unit,
     textStyleFor: (index: Int) -> TextStyle,
     modifier: Modifier = Modifier,
+    contentDescriptionFor: ((Int) -> String)? = null,
 ) {
     val c = PrayerTheme.colors
     Row(
@@ -59,6 +67,7 @@ fun SegmentedControl(
             .fillMaxWidth()
             .background(c.segmentBg, RoundedCornerShape(16.dp))
             .padding(4.dp)
+            .height(IntrinsicSize.Min)
             .selectableGroup(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
@@ -68,14 +77,23 @@ fun SegmentedControl(
             Box(
                 Modifier
                     .weight(1f)
-                    .height(48.dp)
+                    .heightIn(min = PrayerDimens.segmentedControlMin)
+                    .fillMaxHeight()
                     .then(if (selected) Modifier.shadow(2.dp, shape) else Modifier)
                     .clip(shape)
                     .background(if (selected) c.surface else Color.Transparent)
-                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(i) }),
+                    .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(i) })
+                    .then(
+                        if (contentDescriptionFor != null) {
+                            val description = contentDescriptionFor(i)
+                            Modifier.semantics { contentDescription = description }
+                        } else {
+                            Modifier
+                        },
+                    ),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(label, style = textStyleFor(i), color = if (selected) c.ink else c.textMuted, maxLines = 1)
+                AppText(label, style = textStyleFor(i), color = if (selected) c.ink else c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -126,7 +144,7 @@ fun EmptyState(
         Box(Modifier.size(64.dp).background(c.surfaceWarm, CircleShape), contentAlignment = Alignment.Center) {
             Icon(painterResource(icon), contentDescription = null, tint = c.accent, modifier = Modifier.size(28.dp))
         }
-        Text(text, style = PrayerTheme.type.body14, color = c.textMuted, textAlign = TextAlign.Center)
+        AppText(text, style = PrayerTheme.type.body, color = c.textMuted, textAlign = TextAlign.Center)
         if (button != null) {
             PillButton(button.first, button.second, height = 44.dp, horizontalPadding = 20.dp)
         }
@@ -153,7 +171,7 @@ fun LanguageOption(
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, style = textStyle, color = c.ink, maxLines = 1)
+        AppText(label, style = textStyle, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -185,7 +203,7 @@ fun AppearanceOptionCard(
             .selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(label, style = PrayerTheme.type.body14Semi, color = fg, maxLines = 1)
+        AppText(label, style = PrayerTheme.type.bodyStrong, color = fg, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -210,10 +228,10 @@ fun AppCard(
             .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        PrayerTile(glyph, com.codingwithtashi.dailyprayer.ui.theme.CategoryKey.OTHER, 40.dp, 11.dp, PrayerTheme.type.tibetanTile16, containerColor = tileColor, contentColor = c.onAccentSolid)
+        PrayerTile(glyph, com.codingwithtashi.dailyprayer.ui.theme.CategoryKey.OTHER, 40.dp, 11.dp, PrayerTheme.type.tileGlyphLarge, containerColor = tileColor, contentColor = c.onAccentSolid)
         Column {
-            Text(title, style = PrayerTheme.type.body14Semi, color = c.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            Text(sub, style = PrayerTheme.type.caption12, color = subColor, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            AppText(title, style = PrayerTheme.type.bodyStrong, color = c.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            AppText(sub, style = PrayerTheme.type.bodySmall, color = subColor, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         Spacer(Modifier.size(0.dp))
     }

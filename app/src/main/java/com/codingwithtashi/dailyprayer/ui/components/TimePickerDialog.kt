@@ -3,7 +3,6 @@ package com.codingwithtashi.dailyprayer.ui.components
 import android.text.format.DateFormat
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDefaults
@@ -37,12 +36,12 @@ fun PrayerTimePickerDialog(
         containerColor = c.surface,
         confirmButton = {
             TextButton(onClick = { onConfirm(state.hour * 60 + state.minute) }) {
-                Text(stringResource(R.string.done), style = PrayerTheme.type.body14Semi, color = c.accent)
+                AppText(stringResource(R.string.done), style = PrayerTheme.type.bodyStrong, color = c.accent)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel), style = PrayerTheme.type.body14Semi, color = c.textMuted)
+                AppText(stringResource(R.string.cancel), style = PrayerTheme.type.bodyStrong, color = c.textMuted)
             }
         },
         text = {

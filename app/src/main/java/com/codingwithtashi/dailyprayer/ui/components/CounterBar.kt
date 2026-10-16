@@ -1,5 +1,6 @@
 package com.codingwithtashi.dailyprayer.ui.components
 
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,12 +8,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,11 +27,12 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import androidx.compose.foundation.layout.size
 
 /**
- * Reader counter pill (h66, r33): minus, count/goal with a thin progress bar, reset and a large
+ * Reader counter pill (min h72, r36): minus, count/goal with a thin progress bar, reset and a large
  * plus button. [countText]/[goalText] are already localised; the count is a polite live region.
  */
 @Composable
@@ -47,7 +48,7 @@ fun CounterBar(
 ) {
     val c = PrayerTheme.colors
     val t = PrayerTheme.type
-    val shape = RoundedCornerShape(33.dp)
+    val shape = RoundedCornerShape(36.dp)
     val haptic = LocalHapticFeedback.current
     Row(
         modifier
@@ -55,7 +56,7 @@ fun CounterBar(
             .shadow(12.dp, shape, ambientColor = c.ink, spotColor = c.ink)
             .background(c.darkCard, shape)
             .border(1.dp, c.darkCardBorder, shape)
-            .height(66.dp)
+            .heightIn(min = PrayerDimens.counterBarMin)
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -75,8 +76,8 @@ fun CounterBar(
                 Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
                 verticalAlignment = Alignment.Bottom,
             ) {
-                Text(countText, style = t.counter18, color = c.darkCardText, maxLines = 1)
-                Text(" / $goalText", style = t.body13, color = c.darkCardSubtle, maxLines = 1)
+                AppText(countText, style = t.counter, color = c.darkCardText, maxLines = 1)
+                AppText(" / $goalText", style = t.body, color = c.darkCardSubtle, maxLines = 1)
             }
             ProgressBarThin(
                 progress = progress,
@@ -100,6 +101,7 @@ fun CounterBar(
         CircleButton(
             size = 54.dp,
             contentDescription = stringResource(R.string.cd_increment),
+            modifier = Modifier.testTag("counter_increment"),
             onClick = {
                 haptic.performHapticFeedback(HapticFeedbackType.ContextClick)
                 onInc()

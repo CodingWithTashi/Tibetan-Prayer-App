@@ -1,0 +1,11 @@
+# Fresh install -> full English onboarding -> Today.
+appId: com.codingwithtashi.dailyprayer.stage
+tags:
+  - smoke
+---
+- runFlow: common/onboard_en.yaml
+# Today is visible: greeting uses the typed name, the tab bar and the routine call to action.
+- assertVisible: "Tashi delek, Tashi"
+- assertVisible: "Today"
+- assertVisible: "Library"
+- assertVisible: "Start · Morning practice"

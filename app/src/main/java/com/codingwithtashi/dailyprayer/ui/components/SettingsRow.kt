@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,11 +62,11 @@ fun SettingsRow(
     ) {
         Icon(painterResource(icon), null, Modifier.size(20.dp), tint = tint)
         Column(Modifier.weight(1f)) {
-            Text(label, style = t.body15Semi, color = labelColor)
-            if (sub != null) Text(sub, style = t.caption12, color = c.textMuted)
+            AppText(label, style = t.bodyLargeStrong, color = labelColor)
+            if (sub != null) AppText(sub, style = t.bodySmall, color = c.textMuted)
         }
         when (trailing) {
-            is SettingsTrailing.Value -> Text(trailing.text, style = t.body14Medium, color = c.textMuted)
+            is SettingsTrailing.Value -> AppText(trailing.text, style = t.bodyMedium, color = c.textMuted)
             is SettingsTrailing.Switch -> ToggleSwitch(trailing.checked, onCheckedChange = null)
             SettingsTrailing.Chevron -> Icon(painterResource(R.drawable.ic_chevron_right), null, Modifier.size(16.dp), tint = c.chevron)
             SettingsTrailing.None -> Unit

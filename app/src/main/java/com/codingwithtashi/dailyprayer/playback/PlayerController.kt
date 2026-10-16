@@ -41,6 +41,7 @@ class PlayerController @Inject constructor(
     @ApplicationContext private val context: Context,
     private val prayers: PrayerRepository,
     private val connectivity: ConnectivityChecker,
+    private val audioCache: AudioCache,
     @ApplicationScope private val scope: CoroutineScope,
 ) : PlayerControllerApi {
     private val _state = MutableStateFlow(PlayerState())
@@ -154,7 +155,10 @@ class PlayerController @Inject constructor(
     ): PlaybackError? {
         if (prayerIds.isEmpty()) return null
         val found = prayers.getByIds(prayerIds)
-        if (found.any { !it.isDownloaded } && !connectivity.isOnline()) {
+        val blocked = withContext(Dispatchers.IO) {
+            PlaybackLogic.blockedOffline(found, connectivity.isOnline(), audioCache::isFullyCached)
+        }
+        if (blocked) {
             localError = PlaybackError.OFFLINE
             _errors.tryEmit(PlaybackError.OFFLINE)
             withContext(Dispatchers.Main.immediate) { sync() }

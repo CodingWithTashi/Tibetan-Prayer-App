@@ -1,0 +1,25 @@
+# Settings: Appearance Dark -> System, Text size Largest -> Default, Language Tibetan -> English.
+appId: com.codingwithtashi.dailyprayer.stage
+---
+- runFlow: common/onboard_en.yaml
+- tapOn: "Settings"
+- assertVisible: "Appearance"
+# Appearance.
+- tapOn: "Dark"
+- assertVisible: "Dark"
+- tapOn: "System"
+# Text size: segments are described Small/Default/Large/Largest; the caption names the current one.
+- tapOn: "Largest"
+- assertVisible: "Text size"
+- tapOn: "Default"
+# Language to Tibetan: the Settings title becomes སྒྲིག་འགོད།
+- tapOn: "བོད་ཡིག"
+- extendedWaitUntil:
+    visible: "སྒྲིག་འགོད།"
+    timeout: 10000
+# And back to English.
+- tapOn: "English"
+- extendedWaitUntil:
+    visible: "Appearance"
+    timeout: 10000
+- assertVisible: "Settings"

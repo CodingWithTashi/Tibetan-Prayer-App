@@ -10,6 +10,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.compose.rememberNavController
 import com.codingwithtashi.dailyprayer.data.model.Appearance
 import com.codingwithtashi.dailyprayer.navigation.AppNavHost
@@ -31,7 +33,7 @@ fun AppRoot(state: AppRootState.Ready) {
     // Language is derived from the composition's own configuration (PrayerTheme's default) so the
     // typography always matches the resources actually being shown, including right after a per-app
     // locale switch when the stored preference and AppCompat's locale list briefly disagree.
-    PrayerTheme(darkTheme = isDark) {
+    PrayerTheme(darkTheme = isDark, textScale = state.textSize.scale) {
         val hostState = remember { SnackbarHostState() }
         val toaster = remember(hostState) { Toaster(hostState) }
         // Fixed at first composition: later onboarded changes must not rebuild the graph.
@@ -39,7 +41,13 @@ fun AppRoot(state: AppRootState.Ready) {
         val navController = rememberNavController()
         SystemBarIcons(darkBackground = isDark)
         CompositionLocalProvider(LocalToaster provides toaster) {
-            Box(Modifier.fillMaxSize().background(PrayerTheme.colors.background)) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(PrayerTheme.colors.background)
+                    // Exposes testTag values as resource ids so UI-automation flows (Maestro) can select by id.
+                    .semantics { testTagsAsResourceId = true },
+            ) {
                 AppNavHost(startDestination = startDestination, navController = navController)
                 AppToastHost(hostState, Modifier.align(Alignment.TopCenter))
             }

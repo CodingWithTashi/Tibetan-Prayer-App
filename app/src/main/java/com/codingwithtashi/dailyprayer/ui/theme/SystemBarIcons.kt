@@ -1,19 +1,11 @@
 package com.codingwithtashi.dailyprayer.ui.theme
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-
-private tailrec fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
-}
+import com.codingwithtashi.dailyprayer.core.findActivity
 
 /**
  * Sets light/dark status and navigation bar icons for [darkBackground] and restores the previous

@@ -1,23 +1,35 @@
 package com.codingwithtashi.dailyprayer.ui.main
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
-import com.codingwithtashi.dailyprayer.navigation.ListenFilter
 import com.codingwithtashi.dailyprayer.navigation.MainTab
-import com.codingwithtashi.dailyprayer.ui.components.MiniPlayerUi
+import com.codingwithtashi.dailyprayer.ui.library.LibraryContent
+import com.codingwithtashi.dailyprayer.ui.listen.ListenContent
+import com.codingwithtashi.dailyprayer.ui.preview.PreviewData
+import com.codingwithtashi.dailyprayer.ui.saved.SavedContent
+import com.codingwithtashi.dailyprayer.ui.today.TodayContent
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 
-private val sampleMini = MiniPlayerUi("ཀ", "Refuge and Bodhicitta", "Verse 2 / 8", isPlaying = true, progress = 0.4f)
+@Composable
+private fun PreviewTab(tab: MainTab, listState: LazyListState, modifier: Modifier, language: AppLanguage) {
+    when (tab) {
+        MainTab.TODAY -> TodayContent(PreviewData.today(language), listState, {}, modifier)
+        MainTab.LIBRARY -> LibraryContent(PreviewData.library(), listState, {}, {}, {}, modifier)
+        MainTab.SAVED -> SavedContent(PreviewData.saved(), listState, {}, {}, {}, { _, _ -> }, {}, {}, modifier)
+        MainTab.LISTEN -> ListenContent(PreviewData.listen(language), listState, "Listen", {}, {}, modifier)
+    }
+}
 
 @Composable
 private fun Sample(language: AppLanguage = AppLanguage.EN, dark: Boolean = false, tab: MainTab = MainTab.TODAY) {
     PrayerTheme(darkTheme = dark, language = language, reduceMotion = true) {
         MainScaffoldContent(
-            tab = tab, listenFilter = ListenFilter.ALL, miniPlayer = sampleMini,
-            onSelectTab = {}, onListenFilterChange = {}, onOpenSettings = {}, onOpenNotifications = {},
-            onOpenRoutine = {}, onNewRoutine = {}, onOpenReader = { _, _ -> }, onOpenPlayer = {},
-            onMiniPlayerOpen = {}, onMiniPlayerPlayPause = {}, onMiniPlayerClose = {},
+            tab = tab, miniPlayer = PreviewData.miniPlayer,
+            onSelectTab = {}, onMiniPlayerOpen = {}, onMiniPlayerPlayPause = {}, onMiniPlayerClose = {},
+            tabContent = { current, listState, modifier -> PreviewTab(current, listState, modifier, language) },
         )
     }
 }

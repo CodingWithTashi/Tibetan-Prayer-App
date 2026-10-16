@@ -2,7 +2,7 @@ package com.codingwithtashi.dailyprayer.data.download
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import com.codingwithtashi.dailyprayer.ui.routine.testPrayer
+import com.codingwithtashi.dailyprayer.ui.testPrayer
 import com.google.common.truth.Truth.assertThat
 import java.io.File
 import org.junit.Test

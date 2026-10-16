@@ -11,8 +11,8 @@ import com.codingwithtashi.dailyprayer.playback.PlayerState
 import com.codingwithtashi.dailyprayer.ui.FakeDownloadRepository
 import com.codingwithtashi.dailyprayer.ui.FakePlayerControllerApi
 import com.codingwithtashi.dailyprayer.ui.components.DownloadUiState
-import com.codingwithtashi.dailyprayer.ui.routine.testPrayer
-import com.codingwithtashi.dailyprayer.ui.today.FakePrefs
+import com.codingwithtashi.dailyprayer.ui.testPrayer
+import com.codingwithtashi.dailyprayer.ui.FakePrefs
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.every
@@ -67,7 +67,7 @@ class ListenViewModelTest {
         val items = vm().vm.state.value.items
         assertThat(items.map { it.durationLabel }).containsExactly("3:42", "1:15", "1:15").inOrder()
         assertThat(items.map { it.metaKind }).containsExactly(MetaKind.TIBETAN, MetaKind.TIBETAN, MetaKind.TIBETAN)
-        assertThat(items[0].tib).isEqualTo("tib1")
+        assertThat(items[0].tib).isEqualTo("བོད1")
     }
 
     @Test fun metaKindsFollowDownloadStateWithLocalisedPercent() = runTest(dispatcher) {
@@ -91,11 +91,11 @@ class ListenViewModelTest {
         downloads.count.value = 1
         downloads.bytes.value = 4_500_000L
         assertThat(e.vm.state.value.items).hasSize(3)
-        e.vm.setFilter(ListenFilter.DOWNLOADED)
+        e.vm.onEvent(ListenEvent.SetFilter(ListenFilter.DOWNLOADED))
         assertThat(e.vm.state.value.items.map { it.id }).containsExactly(2)
         assertThat(e.vm.state.value.downloadedCount).isEqualTo(1)
         assertThat(e.vm.state.value.storageLabel).isEqualTo("4.5 MB")
-        e.vm.setFilter(ListenFilter.ALL)
+        e.vm.onEvent(ListenEvent.SetFilter(ListenFilter.ALL))
         assertThat(e.vm.state.value.items).hasSize(3)
     }
 

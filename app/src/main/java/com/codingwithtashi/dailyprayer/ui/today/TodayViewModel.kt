@@ -83,6 +83,8 @@ sealed interface TodayEvent {
     data object NewRoutine : TodayEvent
     data class OpenReader(val prayerId: Int) : TodayEvent
     data object SeeAllSaved : TodayEvent
+    /** Re-reads "today" (midnight rollover / app returning to the foreground). */
+    data object Refresh : TodayEvent
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -100,7 +102,7 @@ class TodayViewModel @Inject constructor(
 
     private val today = MutableStateFlow(clock.today())
 
-    val uiState: StateFlow<TodayUiState> = today.flatMapLatest { day ->
+    val state: StateFlow<TodayUiState> = today.flatMapLatest { day ->
         combine(
             prefs.prefs,
             routines.observeRoutines(),
@@ -114,18 +116,16 @@ class TodayViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUiState(date = clock.today()))
 
-    /** Re-reads "today" (midnight rollover / app returning to the foreground). */
-    fun refresh() {
-        today.value = clock.today()
-    }
-
     fun onEvent(event: TodayEvent) {
-        if (event == TodayEvent.ToggleLanguage) {
-            viewModelScope.launch {
-                val next = if (uiState.value.language == AppLanguage.EN) AppLanguage.BO else AppLanguage.EN
+        when (event) {
+            TodayEvent.Refresh -> today.value = clock.today()
+            TodayEvent.ToggleLanguage -> viewModelScope.launch {
+                val next = if (state.value.language == AppLanguage.EN) AppLanguage.BO else AppLanguage.EN
                 prefs.setAppLanguage(next)
                 applyLocale(next)
             }
+            // Navigation events are handled by the screen.
+            else -> Unit
         }
     }
 
@@ -187,6 +187,6 @@ class TodayViewModel @Inject constructor(
 
     internal companion object {
         fun savedLabel(p: Prayer): String =
-            p.savedLabel ?: p.titleEn.removePrefix("The ").split(' ').take(2).joinToString(" ")
+            p.savedLabel ?: p.titleEn.removePrefix("The ")
     }
 }

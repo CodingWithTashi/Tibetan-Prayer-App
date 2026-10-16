@@ -10,7 +10,7 @@ interface RoutineRepository {
     fun observeRoutines(): Flow<List<Routine>>
     fun observeRoutine(id: Long): Flow<Routine?>
 
-    /** One-shot reads for receivers / schedulers (not in the Part D contract). */
+    /** One-shot reads for receivers / schedulers. */
     suspend fun getRoutine(id: Long): Routine?
     suspend fun getRoutines(): List<Routine>
 

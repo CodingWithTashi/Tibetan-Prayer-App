@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -31,11 +32,12 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import com.codingwithtashi.dailyprayer.ui.theme.motionDuration
 
 /**
- * Screen top bar: 52dp plus the status-bar inset. [onBack] null leaves a 48dp spacer where the
+ * Screen top bar: at least 56dp plus the status-bar inset. [onBack] null leaves a 48dp spacer where the
  * back button would be; [center] fills the middle; [actions] sit at the end.
  */
 @Composable
@@ -51,7 +53,7 @@ fun TopBar(
         modifier = modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .height(52.dp)
+            .heightIn(min = PrayerDimens.topBarMin)
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

@@ -1,12 +1,8 @@
 package com.codingwithtashi.dailyprayer.ui.settings
 
 import android.Manifest
-import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -22,16 +18,15 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -41,8 +36,12 @@ import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.core.Links
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
 import com.codingwithtashi.dailyprayer.core.text.TibetanNumerals
+import com.codingwithtashi.dailyprayer.data.model.AppTextSize
 import com.codingwithtashi.dailyprayer.data.model.Appearance
+import com.codingwithtashi.dailyprayer.reminders.ExactAlarmPermission
+import com.codingwithtashi.dailyprayer.reminders.NotificationAccess
 import com.codingwithtashi.dailyprayer.ui.components.AppCard
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.Avatar
 import com.codingwithtashi.dailyprayer.ui.components.FlagSize
 import com.codingwithtashi.dailyprayer.ui.components.FlagStrip
@@ -52,8 +51,10 @@ import com.codingwithtashi.dailyprayer.ui.components.SectionLabel
 import com.codingwithtashi.dailyprayer.ui.components.SegmentedControl
 import com.codingwithtashi.dailyprayer.ui.components.SettingsRow
 import com.codingwithtashi.dailyprayer.ui.components.SettingsTrailing
+import com.codingwithtashi.dailyprayer.ui.components.rememberSafeLauncher
 import com.codingwithtashi.dailyprayer.ui.components.TopBar
 import com.codingwithtashi.dailyprayer.ui.components.contentWidth
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import kotlinx.coroutines.launch
 
@@ -65,33 +66,33 @@ fun SettingsScreen(
     onExit: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.flushName() }
     val context = LocalContext.current
+    val resources = LocalResources.current
     val toaster = LocalToaster.current
     val scope = rememberCoroutineScope()
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
         viewModel.onEvent(SettingsEvent.NotificationPermissionResult(it))
     }
-    val noApp = stringResource(R.string.no_app_available)
     val emailSubject = stringResource(R.string.email_subject_prayer_request)
     val shareTemplate = stringResource(R.string.share_text, "{url}")
 
-    fun launch(intent: Intent) {
-        try {
-            context.startActivity(intent)
-        } catch (_: ActivityNotFoundException) {
-            scope.launch { toaster.show(noApp) }
-        }
-    }
+    val launch = rememberSafeLauncher()
 
     androidx.compose.runtime.LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 SettingsEffect.RequestNotificationPermission ->
-                    if (Build.VERSION.SDK_INT >= 33 &&
-                        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
-                    ) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    if (!NotificationAccess.canPost(context)) {
+                        viewModel.onEvent(SettingsEvent.NotificationPermissionMissing(NotificationAccess.shouldShowRationale(context)))
+                    }
+                SettingsEffect.LaunchNotificationPermission ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                is SettingsEffect.NotificationsBlocked -> {
+                    scope.launch { toaster.show(resources.getString(effect.res)) }
+                    launch(NotificationAccess.settingsIntent(context))
+                }
                 is SettingsEffect.ShareLink -> launch(
                     Intent.createChooser(
                         Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, shareTemplate.replace("{url}", effect.url)),
@@ -102,7 +103,8 @@ fun SettingsScreen(
                 is SettingsEffect.SendEmail -> launch(
                     Intent(Intent.ACTION_SENDTO, "mailto:${effect.to}".toUri()).putExtra(Intent.EXTRA_SUBJECT, emailSubject),
                 )
-                SettingsEffect.OpenAppDetailsSettings -> launch(appDetailsIntent(context))
+                SettingsEffect.OpenNotificationSettings -> launch(NotificationAccess.settingsIntent(context))
+                SettingsEffect.OpenExactAlarmSettings -> ExactAlarmPermission.requestIntent(context)?.let(launch)
                 SettingsEffect.OpenDownloads -> onOpenDownloads()
                 SettingsEffect.OpenNotifications -> onOpenNotifications()
                 SettingsEffect.Exit -> onExit()
@@ -124,9 +126,6 @@ fun SettingsScreen(
     }
 }
 
-private fun appDetailsIntent(context: Context) =
-    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, "package:${context.packageName}".toUri())
-
 @Composable
 fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (SettingsEvent) -> Unit) {
     val c = PrayerTheme.colors
@@ -135,7 +134,7 @@ fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (Settin
     val cardMod = Modifier.fillMaxWidth().background(c.surface, cardShape).border(1.dp, c.border, cardShape).padding(horizontal = 16.dp)
     Column(Modifier.fillMaxSize().background(c.background)) {
         TopBar(onBack = onBack, center = {
-            Text(stringResource(R.string.settings), style = t.body15Semi, color = c.ink, modifier = Modifier.padding(end = 48.dp))
+            AppText(stringResource(R.string.settings), style = t.bodyLargeStrong, color = c.ink, modifier = Modifier.padding(end = 48.dp))
         })
         Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
             LazyColumn(
@@ -151,9 +150,9 @@ fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (Settin
                             PrayerInput(
                                 value = state.name,
                                 onValueChange = { onEvent(SettingsEvent.SetName(it)) },
-                                height = 44.dp,
+                                height = PrayerDimens.inputDefault,
                                 radius = 12.dp,
-                                textStyle = t.input16,
+                                textStyle = t.input,
                                 placeholder = stringResource(R.string.name_ph),
                                 maxLength = SettingsViewModel.MAX_NAME,
                             )
@@ -167,7 +166,7 @@ fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (Settin
                             options = listOf("English", "བོད་ཡིག"),
                             selectedIndex = if (state.language == AppLanguage.BO) 1 else 0,
                             onSelect = { onEvent(SettingsEvent.SetLanguage(if (it == 1) AppLanguage.BO else AppLanguage.EN)) },
-                            textStyleFor = { if (it == 1) t.langOption(AppLanguage.BO) else t.langOption(AppLanguage.EN) },
+                            textStyleFor = { t.leadStrong },
                         )
                     }
                 }
@@ -178,8 +177,32 @@ fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (Settin
                             options = listOf(stringResource(R.string.system_default), stringResource(R.string.light), stringResource(R.string.dark)),
                             selectedIndex = Appearance.entries.indexOf(state.appearance),
                             onSelect = { onEvent(SettingsEvent.SetAppearance(Appearance.entries[it])) },
-                            textStyleFor = { t.body14Semi },
+                            textStyleFor = { t.bodyStrong },
                         )
+                    }
+                }
+                item {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        SectionLabel(stringResource(R.string.text_size))
+                        val sizeNames = AppTextSize.entries.map { option ->
+                            stringResource(
+                                when (option) {
+                                    AppTextSize.SMALL -> R.string.text_size_small
+                                    AppTextSize.DEFAULT -> R.string.text_size_default
+                                    AppTextSize.LARGE -> R.string.text_size_large
+                                    AppTextSize.LARGEST -> R.string.text_size_largest
+                                },
+                            )
+                        }
+                        val glyph = stringResource(if (state.language == AppLanguage.BO) R.string.text_size_glyph_tibetan else R.string.text_size_glyph_latin)
+                        SegmentedControl(
+                            options = AppTextSize.entries.map { glyph },
+                            selectedIndex = AppTextSize.entries.indexOf(state.appTextSize),
+                            onSelect = { onEvent(SettingsEvent.SetAppTextSize(AppTextSize.entries[it])) },
+                            textStyleFor = { t.textSizeSample(AppTextSize.entries[it]) },
+                            contentDescriptionFor = { sizeNames[it] },
+                        )
+                        AppText(sizeNames[AppTextSize.entries.indexOf(state.appTextSize)], style = t.caption, color = c.textMuted)
                     }
                 }
                 item {
@@ -194,13 +217,15 @@ fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (Settin
                             trailing = SettingsTrailing.Chevron, onClick = { onEvent(SettingsEvent.OpenReading) })
                         SettingsRow(R.drawable.ic_bell, stringResource(R.string.reminders), sub = stringResource(R.string.reminders_sub),
                             trailing = SettingsTrailing.Switch(state.remindersEnabled) { onEvent(SettingsEvent.ToggleReminders) })
+                        val actionable = state.reminderStatus == ReminderStatus.NOTIFICATIONS_OFF || state.reminderStatus == ReminderStatus.EXACT_ALARMS_OFF
+                        SettingsRow(R.drawable.ic_info, stringResource(R.string.reminder_status), sub = reminderStatusText(state.reminderStatus),
+                            trailing = if (actionable) SettingsTrailing.Chevron else SettingsTrailing.None,
+                            onClick = if (actionable) ({ onEvent(SettingsEvent.FixReminderStatus) }) else null)
                         SettingsRow(R.drawable.ic_screen, stringResource(R.string.keep_screen_on),
                             trailing = SettingsTrailing.Switch(state.keepScreenOn) { onEvent(SettingsEvent.ToggleKeepScreenOn) })
                         SettingsRow(R.drawable.ic_download, stringResource(R.string.downloaded),
                             sub = stringResource(R.string.downloaded_sub, TibetanNumerals.formatCount(state.downloadedCount, state.language), state.storageLabel ?: "0 MB"),
-                            trailing = SettingsTrailing.Chevron, onClick = { onEvent(SettingsEvent.OpenDownloads) })
-                        SettingsRow(R.drawable.ic_info, stringResource(R.string.reminders_help), sub = stringResource(R.string.reminders_help_sub),
-                            trailing = SettingsTrailing.Chevron, onClick = { onEvent(SettingsEvent.RemindersHelp) }, showDivider = false)
+                            trailing = SettingsTrailing.Chevron, onClick = { onEvent(SettingsEvent.OpenDownloads) }, showDivider = false)
                     }
                 }
                 item {
@@ -222,8 +247,8 @@ fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (Settin
                             onClick = { onEvent(SettingsEvent.ToggleAbout) }, showDivider = !state.aboutOpen)
                         if (state.aboutOpen) {
                             Column(Modifier.padding(bottom = 14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(stringResource(R.string.about_text), style = t.about13, color = c.textMuted)
-                                Text(stringResource(R.string.fonts_credit), style = t.caption12, color = c.textSubtle)
+                                AppText(stringResource(R.string.about_text), style = t.bodySmall, color = c.textMuted)
+                                AppText(stringResource(R.string.fonts_credit), style = t.bodySmall, color = c.textSubtle)
                             }
                         }
                         SettingsRow(R.drawable.ic_mail, stringResource(R.string.contact_email), sub = Links.DEV_EMAIL,
@@ -238,7 +263,7 @@ fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (Settin
                 item {
                     Column(Modifier.fillMaxWidth().navigationBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         FlagStrip(FlagSize.Tiny)
-                        Text(stringResource(R.string.version_line, state.versionName), style = t.caption12Medium, color = c.textSubtle)
+                        AppText(stringResource(R.string.version_line, state.versionName), style = t.bodySmallMedium, color = c.textSubtle)
                     }
                 }
             }
@@ -246,3 +271,13 @@ fun SettingsContent(state: SettingsUiState, onBack: () -> Unit, onEvent: (Settin
     }
 }
 
+
+@Composable
+private fun reminderStatusText(status: ReminderStatus) = stringResource(
+    when (status) {
+        ReminderStatus.OFF -> R.string.reminder_status_off
+        ReminderStatus.WORKING -> R.string.reminder_status_working
+        ReminderStatus.NOTIFICATIONS_OFF -> R.string.reminder_status_notifications_off
+        ReminderStatus.EXACT_ALARMS_OFF -> R.string.reminder_status_exact_off
+    },
+)

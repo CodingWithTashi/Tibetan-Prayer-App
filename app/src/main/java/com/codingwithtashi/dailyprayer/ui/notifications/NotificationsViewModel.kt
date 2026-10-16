@@ -30,9 +30,16 @@ data class NotificationItem(
 /** `null` until the first emission so the screen can avoid flashing the empty state. */
 data class NotificationsUiState(val items: List<NotificationItem>? = null)
 
+/** User actions on the Notifications screen. */
 sealed interface NotificationsEvent {
-    /** Show the "deleted" toast; Undo calls [NotificationsViewModel.undoDelete]. */
-    data class Deleted(val notification: AppNotification) : NotificationsEvent
+    data class Delete(val item: NotificationItem) : NotificationsEvent
+    data class UndoDelete(val notification: AppNotification) : NotificationsEvent
+}
+
+/** One-shot effects the Notifications screen shows. */
+sealed interface NotificationsEffect {
+    /** Show the "deleted" toast; Undo sends [NotificationsEvent.UndoDelete]. */
+    data class Deleted(val notification: AppNotification) : NotificationsEffect
 }
 
 @HiltViewModel
@@ -41,22 +48,29 @@ class NotificationsViewModel @Inject constructor(
     private val clock: AppClock,
 ) : ViewModel() {
 
-    private val eventChannel = Channel<NotificationsEvent>(Channel.BUFFERED)
-    val events: Flow<NotificationsEvent> = eventChannel.receiveAsFlow()
+    private val effectChannel = Channel<NotificationsEffect>(Channel.BUFFERED)
+    val effects: Flow<NotificationsEffect> = effectChannel.receiveAsFlow()
 
     val state: StateFlow<NotificationsUiState> = repository.observeAll()
         .onEach { list -> if (list.any { !it.isRead }) repository.markAllRead() }
         .map { list -> NotificationsUiState(list.map { NotificationItem(it, timeLabel(it.receivedAt)) }) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), NotificationsUiState())
 
-    fun delete(item: NotificationItem) {
-        viewModelScope.launch {
-            repository.delete(item.id)
-            eventChannel.send(NotificationsEvent.Deleted(item.notification))
+    fun onEvent(event: NotificationsEvent) {
+        when (event) {
+            is NotificationsEvent.Delete -> delete(event.item)
+            is NotificationsEvent.UndoDelete -> undoDelete(event.notification)
         }
     }
 
-    fun undoDelete(notification: AppNotification) {
+    private fun delete(item: NotificationItem) {
+        viewModelScope.launch {
+            repository.delete(item.id)
+            effectChannel.send(NotificationsEffect.Deleted(item.notification))
+        }
+    }
+
+    private fun undoDelete(notification: AppNotification) {
         viewModelScope.launch { repository.restore(notification) }
     }
 

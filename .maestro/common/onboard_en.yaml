@@ -1,0 +1,35 @@
+# Shared sub-flow: fresh install state -> onboarded in English with the default morning routine.
+# Used by every flow that needs an onboarded app. Production id is never touched: stage app only.
+appId: com.codingwithtashi.dailyprayer.stage
+---
+# Clear data and pre-grant the notification permission so no system dialog appears.
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+# Step 1: language.
+- extendedWaitUntil:
+    visible: "App language"
+    timeout: 15000
+- tapOn: "English"
+- tapOn: "Continue"
+# Step 2: name (field is auto-focused).
+- extendedWaitUntil:
+    visible: "What should we call you?"
+    timeout: 5000
+- inputText: "Tashi"
+- hideKeyboard
+- tapOn: "Continue"
+# Step 3: routine (the first three prayers are pre-selected).
+- extendedWaitUntil:
+    visible: "Start praying"
+    timeout: 5000
+- tapOn: "Start praying"
+# Exact-alarm explanation appears only when "Alarms & reminders" is not allowed; decline it.
+- tapOn:
+    text: "Cancel"
+    optional: true
+# Landed on Today.
+- extendedWaitUntil:
+    visible: "Today's practice"
+    timeout: 10000

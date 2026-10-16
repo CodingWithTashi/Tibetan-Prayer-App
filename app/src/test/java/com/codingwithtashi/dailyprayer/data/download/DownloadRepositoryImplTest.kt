@@ -9,7 +9,8 @@ import com.codingwithtashi.dailyprayer.data.model.DownloadState
 import com.codingwithtashi.dailyprayer.data.model.Prayer
 import com.codingwithtashi.dailyprayer.data.repository.DownloadRepositoryImpl
 import com.codingwithtashi.dailyprayer.data.repository.PrayerRepository
-import com.codingwithtashi.dailyprayer.ui.routine.testPrayer
+import com.codingwithtashi.dailyprayer.playback.AudioCache
+import com.codingwithtashi.dailyprayer.ui.testPrayer
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.every
@@ -50,6 +51,7 @@ class DownloadRepositoryImplTest {
     private val downloader = FakeDownloader()
     private val prayer = MutableStateFlow<Prayer?>(testPrayer(1, hasAudio = true))
     private var online = true
+    private var cached = false
     private lateinit var repo: DownloadRepositoryImpl
 
     @Before fun setUp() {
@@ -65,6 +67,7 @@ class DownloadRepositoryImplTest {
         val connectivity = object : ConnectivityChecker { override fun isOnline() = online }
         repo = DownloadRepositoryImpl(
             prayers, downloader, AudioFileStore(context), connectivity,
+            object : AudioCache { override fun isFullyCached(url: String) = cached },
             CoroutineScope(SupervisorJob() + dispatcher), dispatcher,
         )
     }
@@ -95,6 +98,14 @@ class DownloadRepositoryImplTest {
         online = false
         repo.download(1)
         assertThat(repo.stateNow()).isEqualTo(DownloadState.Failed(DownloadError.OFFLINE))
+    }
+
+    @Test fun offlineButCachedDownloads() = runTest {
+        online = false
+        cached = true
+        downloader.gate.complete(Unit)
+        repo.download(1)
+        assertThat(repo.stateNow()).isEqualTo(DownloadState.Downloaded)
     }
 
     @Test fun cancelReturnsToNotDownloaded() = runTest {

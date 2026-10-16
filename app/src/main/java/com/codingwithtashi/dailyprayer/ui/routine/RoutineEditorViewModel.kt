@@ -15,6 +15,7 @@ import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
 import com.codingwithtashi.dailyprayer.data.repository.PrayerRepository
 import com.codingwithtashi.dailyprayer.data.repository.RoutineRepository
 import com.codingwithtashi.dailyprayer.reminders.DaysMask
+import com.codingwithtashi.dailyprayer.reminders.NotificationPermissionPolicy
 import com.codingwithtashi.dailyprayer.ui.theme.CategoryKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.DayOfWeek
@@ -54,6 +55,7 @@ data class RoutineEditorUiState(
     val showTimePicker: Boolean = false,
     val showDiscardDialog: Boolean = false,
     val showExactAlarmPrompt: Boolean = false,
+    val showNotificationsOffDialog: Boolean = false,
     val allPrayers: List<EditorPrayer> = emptyList(),
     val isDirty: Boolean = false,
 ) {
@@ -82,15 +84,47 @@ sealed interface RoutineEditorEvent {
     data object Cancel : RoutineEditorEvent
     data object ConfirmDiscard : RoutineEditorEvent
     data object DismissDiscard : RoutineEditorEvent
+
+    /** The "Deleted" toast's Undo was tapped: restore [routine] (runs in the application scope). */
+    data class UndoDelete(val routine: Routine) : RoutineEditorEvent
+
+    /** The exact-alarm explanation dialog was closed. */
+    data object DismissExactAlarmPrompt : RoutineEditorEvent
+
+    /**
+     * Sent by the screen after a save with the reminder on (and on again after the permission dialog closes).
+     * [permissionMissing]: API 33+ and POST_NOTIFICATIONS not granted. [shouldShowRationale]: Android's
+     * answer for whether a request can still be made. [exactAlarmsAllowed]: exact alarms may be scheduled.
+     */
+    data class ContinueAfterSave(
+        val permissionMissing: Boolean,
+        val shouldShowRationale: Boolean,
+        val exactAlarmsAllowed: Boolean,
+    ) : RoutineEditorEvent
+
+    /** "Open settings" in the notifications-off dialog: opens the settings, then continues to the exact-alarm step. */
+    data object OpenNotificationSettings : RoutineEditorEvent
+
+    /** "Not now" in the notifications-off dialog. */
+    data object DismissNotificationsOff : RoutineEditorEvent
 }
 
 sealed interface RoutineEditorEffect {
     data class Toast(@StringRes val res: Int, val args: List<Any> = emptyList()) : RoutineEditorEffect
 
-    /** Saved; [reminderOn] drives the permission prompts, then the screen closes. */
+    /**
+     * Saved; when [reminderOn] (reminder set and reminders on globally) the screen reports the device state
+     * with [RoutineEditorEvent.ContinueAfterSave], otherwise it closes.
+     */
     data class Saved(val reminderOn: Boolean) : RoutineEditorEffect
 
-    /** Deleted; the screen shows the Undo toast, which calls [RoutineEditorViewModel.undoDelete]. */
+    /** The screen should show the runtime notification permission dialog. */
+    data object RequestNotificationPermission : RoutineEditorEffect
+
+    /** The screen should open this app's notification settings. The exact-alarm step or [Close] follows. */
+    data object OpenNotificationSettings : RoutineEditorEffect
+
+    /** Deleted; the screen shows the Undo toast, which sends [RoutineEditorEvent.UndoDelete]. */
     data class Deleted(val routine: Routine) : RoutineEditorEffect
     data object Close : RoutineEditorEffect
 }
@@ -108,6 +142,7 @@ private data class Ui(
     val showTimePicker: Boolean = false,
     val showDiscard: Boolean = false,
     val showExactAlarm: Boolean = false,
+    val showNotificationsOff: Boolean = false,
 )
 
 @HiltViewModel
@@ -116,6 +151,7 @@ class RoutineEditorViewModel @Inject constructor(
     private val routineRepository: RoutineRepository,
     prayerRepository: PrayerRepository,
     private val prefs: UserPreferencesRepository,
+    private val permissionPolicy: NotificationPermissionPolicy,
     @ApplicationScope private val appScope: CoroutineScope,
 ) : ViewModel() {
 
@@ -124,6 +160,7 @@ class RoutineEditorViewModel @Inject constructor(
     private val draft = MutableStateFlow(readDraft())
     private val original = MutableStateFlow<Draft?>(if (routineId == null) Draft() else null)
     private val ui = MutableStateFlow(Ui())
+    private var exactAlarmsAllowed = true
     private val effectChannel = Channel<RoutineEditorEffect>(Channel.BUFFERED)
     val effects: Flow<RoutineEditorEffect> = effectChannel.receiveAsFlow()
 
@@ -143,6 +180,7 @@ class RoutineEditorViewModel @Inject constructor(
             showTimePicker = u.showTimePicker,
             showDiscardDialog = u.showDiscard,
             showExactAlarmPrompt = u.showExactAlarm,
+            showNotificationsOffDialog = u.showNotificationsOff,
             allPrayers = all.map { it.toEditor() },
             isDirty = orig != null && orig != d,
         )
@@ -201,6 +239,18 @@ class RoutineEditorViewModel @Inject constructor(
                 send(RoutineEditorEffect.Close)
             }
             RoutineEditorEvent.DismissDiscard -> ui.update { it.copy(showDiscard = false) }
+            is RoutineEditorEvent.ContinueAfterSave -> continueAfterSave(event)
+            is RoutineEditorEvent.UndoDelete -> undoDelete(event.routine)
+            RoutineEditorEvent.DismissExactAlarmPrompt -> ui.update { it.copy(showExactAlarm = false) }
+            RoutineEditorEvent.OpenNotificationSettings -> {
+                ui.update { it.copy(showNotificationsOff = false) }
+                send(RoutineEditorEffect.OpenNotificationSettings)
+                promptExactAlarmOrClose()
+            }
+            RoutineEditorEvent.DismissNotificationsOff -> {
+                ui.update { it.copy(showNotificationsOff = false) }
+                promptExactAlarmOrClose()
+            }
         }
     }
 
@@ -234,7 +284,9 @@ class RoutineEditorViewModel @Inject constructor(
             effectChannel.send(
                 RoutineEditorEffect.Toast(R.string.saved_routine, listOf(name, DateFormats.time12(d.timeMinutes, AppLanguage.EN))),
             )
-            effectChannel.send(RoutineEditorEffect.Saved(d.reminder))
+            val globalOn = prefs.snapshot().remindersEnabled
+            if (d.reminder && !globalOn) effectChannel.send(RoutineEditorEffect.Toast(R.string.reminders_off_in_settings))
+            effectChannel.send(RoutineEditorEffect.Saved(d.reminder && globalOn))
         }
     }
 
@@ -248,27 +300,32 @@ class RoutineEditorViewModel @Inject constructor(
     }
 
     /** Runs in the application scope: the editor (and this ViewModel) is gone by the time Undo is tapped. */
-    fun undoDelete(routine: Routine) {
+    private fun undoDelete(routine: Routine) {
         appScope.launch { routineRepository.restore(routine) }
     }
 
-    /** True the first time a reminder is saved while notifications are not yet allowed (API 33+ caller checks the OS). */
-    suspend fun shouldAskNotificationPermission(): Boolean {
-        if (prefs.snapshot().notificationPermissionAsked) return false
-        prefs.setNotificationPermissionAsked(true)
-        return true
+    /**
+     * Permission follow-ups after saving a reminder, in order: notification permission (request it while
+     * Android allows, else offer the settings), then the exact-alarm explanation, then close. Choosing "Open settings"
+     * or "Not now" in the notifications-off dialog also continues to the exact-alarm step before closing. Saving is never blocked.
+     */
+    private fun continueAfterSave(event: RoutineEditorEvent.ContinueAfterSave) {
+        exactAlarmsAllowed = event.exactAlarmsAllowed
+        if (!event.permissionMissing) {
+            promptExactAlarmOrClose()
+            return
+        }
+        viewModelScope.launch {
+            if (permissionPolicy.claimRequest(event.shouldShowRationale)) {
+                effectChannel.send(RoutineEditorEffect.RequestNotificationPermission)
+            } else {
+                ui.update { it.copy(showNotificationsOff = true) }
+            }
+        }
     }
 
-    /** Shows the exact-alarm explanation once; returns whether it is now showing. */
-    suspend fun promptExactAlarmOnce(): Boolean {
-        if (prefs.snapshot().exactAlarmPromptShown) return false
-        prefs.setExactAlarmPromptShown(true)
-        ui.update { it.copy(showExactAlarm = true) }
-        return true
-    }
-
-    fun dismissExactAlarmPrompt() {
-        ui.update { it.copy(showExactAlarm = false) }
+    private fun promptExactAlarmOrClose() {
+        if (exactAlarmsAllowed) send(RoutineEditorEffect.Close) else ui.update { it.copy(showExactAlarm = true) }
     }
 
     private fun canSave(d: Draft) = d.name.isNotBlank() && d.prayerIds.isNotEmpty()

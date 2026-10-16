@@ -1,0 +1,39 @@
+# Fresh install -> onboarding in Tibetan (bo) -> Today. Name step is skipped.
+appId: com.codingwithtashi.dailyprayer.stage
+tags:
+  - smoke
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+# Step 1: the language options are always shown in their own script.
+- extendedWaitUntil:
+    visible: "བོད་ཡིག"
+    timeout: 15000
+- tapOn: "བོད་ཡིག"
+# UI switches to Tibetan: "Continue" is now མུ་མཐུད།
+- extendedWaitUntil:
+    visible: "མུ་མཐུད།"
+    timeout: 10000
+- tapOn: "མུ་མཐུད།"
+# Step 2: skip the name (མཆོང་།).
+- extendedWaitUntil:
+    visible: "མཆོང་།"
+    timeout: 5000
+- tapOn: "མཆོང་།"
+# Step 3: start praying (འགོ་འཛུགས།).
+- extendedWaitUntil:
+    visible: "འགོ་འཛུགས།"
+    timeout: 5000
+- tapOn: "འགོ་འཛུགས།"
+# Exact-alarm dialog (only if not allowed): Cancel is འདོར།
+- tapOn:
+    text: "འདོར།"
+    optional: true
+# Tibetan tab labels on the main screen: Today (དེ་རིང་) and Library (དཔེ་མཛོད།).
+- extendedWaitUntil:
+    visible: "དེ་རིང་"
+    timeout: 10000
+- assertVisible: "དཔེ་མཛོད།"
+- assertVisible: "ཉན།"

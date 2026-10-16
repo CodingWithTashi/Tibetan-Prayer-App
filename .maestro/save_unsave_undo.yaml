@@ -1,0 +1,33 @@
+# Reader: save a prayer, unsave it, tap Undo in the toast, confirm it is saved again (and listed in Saved).
+appId: com.codingwithtashi.dailyprayer.stage
+---
+- runFlow: common/onboard_en.yaml
+- tapOn: "Library"
+- tapOn: "Refuge & Bodhicitta"
+# Save (heart in the reader top bar).
+- extendedWaitUntil:
+    visible: "Save prayer"
+    timeout: 10000
+- tapOn: "Save prayer"
+# The toast covers the top bar while it is up; wait for it to leave before the next heart tap.
+- extendedWaitUntil:
+    visible: "Remove from saved"
+    timeout: 5000
+- extendedWaitUntil:
+    notVisible: "Added to Saved"
+    timeout: 10000
+# Unsave -> toast with Undo.
+- tapOn: "Remove from saved"
+- extendedWaitUntil:
+    visible: "Removed from Saved"
+    timeout: 5000
+- assertVisible: "Save prayer"
+- tapOn: "Undo"
+# Undo restores the saved state.
+- extendedWaitUntil:
+    visible: "Remove from saved"
+    timeout: 5000
+# Confirm in the Saved tab.
+- tapOn: "Back"
+- tapOn: "Saved"
+- assertVisible: "Refuge & Bodhicitta"

@@ -1,6 +1,7 @@
 package com.codingwithtashi.dailyprayer.playback
 
 import com.codingwithtashi.dailyprayer.core.text.PrayerText
+import com.codingwithtashi.dailyprayer.data.model.Prayer
 import kotlin.math.floor
 import kotlin.math.max
 
@@ -17,6 +18,10 @@ object PlaybackLogic {
     /** True when "previous" should restart the current track instead of going back. */
     fun previousRestarts(positionMs: Long, currentIndex: Int): Boolean =
         positionMs > RESTART_THRESHOLD_MS || currentIndex <= 0
+
+    /** True when playback must be refused: offline and some prayer is neither downloaded nor fully cached. */
+    fun blockedOffline(prayers: List<Prayer>, online: Boolean, isCached: (String) -> Boolean): Boolean =
+        !online && prayers.any { !it.isDownloaded && !isCached(it.audioUrl) }
 
     fun verseIndex(
         text: PrayerText,

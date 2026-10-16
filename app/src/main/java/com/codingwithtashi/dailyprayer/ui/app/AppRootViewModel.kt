@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import com.codingwithtashi.dailyprayer.core.init.AppInitializer
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
 import com.codingwithtashi.dailyprayer.core.locale.AppLocale
+import com.codingwithtashi.dailyprayer.data.model.AppTextSize
 import com.codingwithtashi.dailyprayer.data.model.Appearance
 import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
 import javax.inject.Inject
@@ -17,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 
 sealed interface AppRootState {
     data object Loading : AppRootState
-    data class Ready(val onboarded: Boolean, val appearance: Appearance, val language: AppLanguage) : AppRootState
+    data class Ready(val onboarded: Boolean, val appearance: Appearance, val language: AppLanguage, val textSize: AppTextSize) : AppRootState
 }
 
 @HiltViewModel
@@ -32,10 +33,7 @@ class AppRootViewModel @Inject constructor(
                 AppRootState.Loading
             } else {
                 val language = if (AppCompatDelegate.getApplicationLocales().isEmpty) prefs.appLanguage else AppLocale.current()
-                AppRootState.Ready(prefs.onboarded, prefs.appearance, language)
+                AppRootState.Ready(prefs.onboarded, prefs.appearance, language, prefs.appTextSize)
             }
         }.stateIn(viewModelScope, SharingStarted.Eagerly, AppRootState.Loading)
-
-    /** Onboarding persists the pref itself; nothing to do here. */
-    fun onOnboardingFinished() = Unit
 }

@@ -23,6 +23,7 @@ import com.codingwithtashi.dailyprayer.core.notification.DeepLinks
 import com.codingwithtashi.dailyprayer.data.model.Appearance
 import com.codingwithtashi.dailyprayer.navigation.NavigationEventBus
 import com.codingwithtashi.dailyprayer.playback.PlayerController
+import com.codingwithtashi.dailyprayer.reminders.ReminderHealthMonitor
 import com.codingwithtashi.dailyprayer.ui.app.AppRoot
 import com.codingwithtashi.dailyprayer.ui.app.AppRootState
 import com.codingwithtashi.dailyprayer.ui.app.AppRootViewModel
@@ -35,10 +36,17 @@ class MainActivity : AppCompatActivity() {
 
     @Inject lateinit var navigationEvents: NavigationEventBus
     @Inject lateinit var playerController: PlayerController
+    @Inject lateinit var reminderHealth: ReminderHealthMonitor
 
     override fun onStart() {
         super.onStart()
         playerController.connect()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Returning from system settings lands here, so a fix made there clears the reminder warnings.
+        reminderHealth.refresh()
     }
 
     override fun onStop() {
@@ -81,6 +89,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun dispatchDeepLink(intent: Intent?) {
-        DeepLinks.parse(intent)?.let(navigationEvents::emit)
+        if (intent == null || DeepLinks.isReplay(intent)) return
+        val link = DeepLinks.parse(intent) ?: return
+        navigationEvents.emit(link)
+        setIntent(DeepLinks.stripped(intent))
     }
 }

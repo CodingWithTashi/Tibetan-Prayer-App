@@ -1,12 +1,15 @@
 package com.codingwithtashi.dailyprayer.ui.settings
 
+import com.codingwithtashi.dailyprayer.data.model.AppTextSize
+import com.codingwithtashi.dailyprayer.data.model.Appearance
 import com.codingwithtashi.dailyprayer.core.Links
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
-import com.codingwithtashi.dailyprayer.data.model.Appearance
-import com.codingwithtashi.dailyprayer.data.model.Routine
-import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
-import com.codingwithtashi.dailyprayer.data.prefs.UserPrefs
-import com.codingwithtashi.dailyprayer.reminders.ReminderScheduler
+import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.reminders.NotificationPermissionPolicy
+import com.codingwithtashi.dailyprayer.reminders.ReminderHealth
+import com.codingwithtashi.dailyprayer.ui.FakePrefs
+import com.codingwithtashi.dailyprayer.ui.FakeReminderHealthMonitor
+import com.codingwithtashi.dailyprayer.ui.RecordingScheduler
 import com.codingwithtashi.dailyprayer.ui.FakeDownloadRepository
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -26,33 +29,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-private class FakePrefs : UserPreferencesRepository {
-    val state = MutableStateFlow(UserPrefs())
-    override val prefs = state
-    override suspend fun snapshot() = state.value
-    override suspend fun setOnboarded(value: Boolean) = state.update { it.copy(onboarded = value) }
-    override suspend fun setUserName(name: String) = state.update { it.copy(userName = name) }
-    override suspend fun setAppLanguage(language: AppLanguage) = state.update { it.copy(appLanguage = language) }
-    override suspend fun setAppearance(appearance: Appearance) = state.update { it.copy(appearance = appearance) }
-    override suspend fun setTextSize(size: Int) = state.update { it.copy(textSize = size) }
-    override suspend fun setRecitationGoal(goal: Int) = state.update { it.copy(recitationGoal = goal) }
-    override suspend fun setRemindersEnabled(enabled: Boolean) = state.update { it.copy(remindersEnabled = enabled) }
-    override suspend fun setKeepScreenOn(enabled: Boolean) = state.update { it.copy(keepScreenOn = enabled) }
-    override suspend fun setLastReadPrayerId(id: Int?) = state.update { it.copy(lastReadPrayerId = id) }
-    override suspend fun setLegacyCleanupDone(done: Boolean) = state.update { it.copy(legacyCleanupDone = done) }
-    override suspend fun setExactAlarmPromptShown(shown: Boolean) = state.update { it.copy(exactAlarmPromptShown = shown) }
-    override suspend fun setNotificationPermissionAsked(asked: Boolean) = state.update { it.copy(notificationPermissionAsked = asked) }
-    override suspend fun setWelcomeNotificationInserted(inserted: Boolean) = state.update { it.copy(welcomeNotificationInserted = inserted) }
-    private fun MutableStateFlow<UserPrefs>.update(f: (UserPrefs) -> UserPrefs) { value = f(value) }
-}
-
-private class FakeScheduler : ReminderScheduler {
-    var rescheduled = 0
-    override suspend fun schedule(routine: Routine) = Unit
-    override fun cancel(routineId: Long) = Unit
-    override suspend fun rescheduleAll() { rescheduled++ }
-}
-
 private class FakeLocale : LocaleApplier() {
     val applied = mutableListOf<AppLanguage>()
     override fun apply(language: AppLanguage) { applied += language }
@@ -62,16 +38,17 @@ private class FakeLocale : LocaleApplier() {
 class SettingsViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private lateinit var prefs: FakePrefs
-    private lateinit var scheduler: FakeScheduler
+    private lateinit var scheduler: RecordingScheduler
     private lateinit var locale: FakeLocale
     private lateinit var vm: SettingsViewModel
     private lateinit var downloads: FakeDownloadRepository
+    private lateinit var health: FakeReminderHealthMonitor
 
     @Before fun setUp() {
         Dispatchers.setMain(dispatcher)
-        prefs = FakePrefs(); scheduler = FakeScheduler(); locale = FakeLocale()
-        downloads = FakeDownloadRepository()
-        vm = SettingsViewModel(prefs, scheduler, locale, downloads, CoroutineScope(dispatcher + SupervisorJob()))
+        prefs = FakePrefs(); scheduler = RecordingScheduler(); locale = FakeLocale()
+        downloads = FakeDownloadRepository(); health = FakeReminderHealthMonitor()
+        vm = SettingsViewModel(prefs, scheduler, health, locale, downloads, NotificationPermissionPolicy(prefs), CoroutineScope(dispatcher + SupervisorJob()))
     }
 
     @After fun tearDown() = Dispatchers.resetMain()
@@ -80,8 +57,8 @@ class SettingsViewModelTest {
 
     @Test fun nameIsClampedTo24AndPersistedDebounced() = runTest(dispatcher) {
         send(SettingsEvent.SetName("a".repeat(40)))
-        assertThat(vm.uiState.value.name).hasLength(24)
-        assertThat(vm.uiState.value.initial).isEqualTo("A")
+        assertThat(vm.state.value.name).hasLength(24)
+        assertThat(vm.state.value.initial).isEqualTo("A")
         vm.onEvent(SettingsEvent.SetName("Tashi"))
         advanceTimeBy(100)
         assertThat(prefs.state.value.userName).isEqualTo("a".repeat(24).trim())
@@ -89,13 +66,19 @@ class SettingsViewModelTest {
         assertThat(prefs.state.value.userName).isEqualTo("Tashi")
     }
 
-    @Test fun textSizeStaysWithin16To32InSteps() = runTest(dispatcher) {
+    @Test fun textSizeStaysWithin18To36InSteps() = runTest(dispatcher) {
         repeat(10) { send(SettingsEvent.SizeUp) }
-        assertThat(prefs.state.value.textSize).isEqualTo(32)
+        assertThat(prefs.state.value.textSize).isEqualTo(36)
         send(SettingsEvent.SizeDown)
-        assertThat(prefs.state.value.textSize).isEqualTo(30)
+        assertThat(prefs.state.value.textSize).isEqualTo(34)
         repeat(20) { send(SettingsEvent.SizeDown) }
-        assertThat(prefs.state.value.textSize).isEqualTo(16)
+        assertThat(prefs.state.value.textSize).isEqualTo(18)
+    }
+
+    @Test fun appTextSizePersists() = runTest(dispatcher) {
+        send(SettingsEvent.SetAppTextSize(AppTextSize.LARGE))
+        assertThat(prefs.state.value.appTextSize).isEqualTo(AppTextSize.LARGE)
+        assertThat(vm.state.value.appTextSize).isEqualTo(AppTextSize.LARGE)
     }
 
     @Test fun goalAndAppearancePersist() = runTest(dispatcher) {
@@ -103,7 +86,7 @@ class SettingsViewModelTest {
         send(SettingsEvent.SetAppearance(Appearance.DARK))
         assertThat(prefs.state.value.recitationGoal).isEqualTo(21)
         assertThat(prefs.state.value.appearance).isEqualTo(Appearance.DARK)
-        assertThat(vm.uiState.value.appearance).isEqualTo(Appearance.DARK)
+        assertThat(vm.state.value.appearance).isEqualTo(Appearance.DARK)
     }
 
     @Test fun languagePersistsAndAppliesLocale() = runTest(dispatcher) {
@@ -118,7 +101,7 @@ class SettingsViewModelTest {
         assertThat(prefs.state.value.remindersEnabled).isFalse()
         send(SettingsEvent.ToggleReminders)
         assertThat(prefs.state.value.remindersEnabled).isTrue()
-        assertThat(scheduler.rescheduled).isEqualTo(2)
+        assertThat(scheduler.rescheduledAll).isEqualTo(2)
         assertThat(vm.effects.first()).isEqualTo(SettingsEffect.RequestNotificationPermission)
     }
 
@@ -132,30 +115,95 @@ class SettingsViewModelTest {
         send(SettingsEvent.Share)
         send(SettingsEvent.EmailPrayerRequest)
         send(SettingsEvent.OpenDictionary)
-        send(SettingsEvent.RemindersHelp)
+        send(SettingsEvent.OpenGithub)
         val got = List(4) { vm.effects.first() }
         assertThat(got).containsExactly(
             SettingsEffect.ShareLink(Links.PLAY_STORE_URL),
-            SettingsEffect.SendEmail(Links.DEV_EMAIL, "Prayer Request"),
+            SettingsEffect.SendEmail(Links.DEV_EMAIL),
             SettingsEffect.OpenUrl(Links.DICTIONARY_URL),
-            SettingsEffect.OpenAppDetailsSettings,
+            SettingsEffect.OpenUrl(Links.GITHUB_URL),
         ).inOrder()
     }
 
     @Test fun deniedPermissionTurnsRemindersOff() = runTest(dispatcher) {
         send(SettingsEvent.NotificationPermissionResult(false))
         assertThat(prefs.state.value.remindersEnabled).isFalse()
-        assertThat(prefs.state.value.notificationPermissionAsked).isTrue()
     }
 
     @Test fun downloadedCountAndStorageComeFromDownloadRepository() = runTest(dispatcher) {
         advanceUntilIdle()
-        assertThat(vm.uiState.value.downloadedCount).isEqualTo(0)
-        assertThat(vm.uiState.value.storageLabel).isNull()
+        assertThat(vm.state.value.downloadedCount).isEqualTo(0)
+        assertThat(vm.state.value.storageLabel).isNull()
         downloads.count.value = 3
         downloads.bytes.value = 12_300_000L
         advanceUntilIdle()
-        assertThat(vm.uiState.value.downloadedCount).isEqualTo(3)
-        assertThat(vm.uiState.value.storageLabel).isEqualTo("12.3 MB")
+        assertThat(vm.state.value.downloadedCount).isEqualTo(3)
+        assertThat(vm.state.value.storageLabel).isEqualTo("12.3 MB")
+    }
+
+    @Test fun statusMapsOffWorkingNotificationsAndExact() = runTest(dispatcher) {
+        assertThat(vm.state.value.reminderStatus).isEqualTo(ReminderStatus.WORKING)
+        health.state.value = ReminderHealth(false, false); advanceUntilIdle()
+        assertThat(vm.state.value.reminderStatus).isEqualTo(ReminderStatus.NOTIFICATIONS_OFF)
+        health.state.value = ReminderHealth(true, false); advanceUntilIdle()
+        assertThat(vm.state.value.reminderStatus).isEqualTo(ReminderStatus.EXACT_ALARMS_OFF)
+        send(SettingsEvent.ToggleReminders)
+        assertThat(vm.state.value.reminderStatus).isEqualTo(ReminderStatus.OFF)
+    }
+
+    @Test fun fixStatusOpensMatchingSettings() = runTest(dispatcher) {
+        health.state.value = ReminderHealth(false, true); advanceUntilIdle()
+        send(SettingsEvent.FixReminderStatus)
+        assertThat(vm.effects.first()).isEqualTo(SettingsEffect.OpenNotificationSettings)
+        health.state.value = ReminderHealth(true, false); advanceUntilIdle()
+        send(SettingsEvent.FixReminderStatus)
+        assertThat(vm.effects.first()).isEqualTo(SettingsEffect.OpenExactAlarmSettings)
+    }
+
+    @Test fun fixStatusDoesNothingWhenWorkingOrOff() = runTest(dispatcher) {
+        send(SettingsEvent.FixReminderStatus)
+        send(SettingsEvent.Rate)
+        assertThat(vm.effects.first()).isEqualTo(SettingsEffect.OpenUrl(Links.PLAY_STORE_URL))
+    }
+
+    @Test fun exactAlarmGrantDoesNotReschedule() = runTest(dispatcher) {
+        // SystemEventsReceiver owns the reschedule on the permission-state broadcast.
+        health.state.value = ReminderHealth(true, false); advanceUntilIdle()
+        val before = scheduler.rescheduledAll
+        health.state.value = ReminderHealth(true, true); advanceUntilIdle()
+        assertThat(scheduler.rescheduledAll).isEqualTo(before)
+        assertThat(vm.state.value.reminderStatus).isEqualTo(ReminderStatus.WORKING)
+    }
+
+    @Test fun switchReschedulesOnApplicationScope() = runTest(dispatcher) {
+        val appDispatcher = StandardTestDispatcher(kotlinx.coroutines.test.TestCoroutineScheduler())
+        val isolated = SettingsViewModel(prefs, scheduler, health, locale, downloads, NotificationPermissionPolicy(prefs), CoroutineScope(appDispatcher + SupervisorJob()))
+        isolated.onEvent(SettingsEvent.ToggleReminders)
+        advanceUntilIdle()
+        assertThat(scheduler.rescheduledAll).isEqualTo(0)
+        appDispatcher.scheduler.advanceUntilIdle()
+        assertThat(scheduler.rescheduledAll).isEqualTo(1)
+        assertThat(prefs.state.value.remindersEnabled).isFalse()
+    }
+
+    @Test fun permissionMissingAndRequestableLaunchesPrompt() = runTest(dispatcher) {
+        send(SettingsEvent.NotificationPermissionMissing(shouldShowRationale = false))
+        assertThat(vm.effects.first()).isEqualTo(SettingsEffect.LaunchNotificationPermission)
+        // Marked when the dialog is launched, not when its result comes back.
+        assertThat(prefs.state.value.notificationPermissionAsked).isTrue()
+    }
+
+    @Test fun permissionMissingAfterPermanentDenialOpensSettingsWithMessage() = runTest(dispatcher) {
+        prefs.setNotificationPermissionAsked(true)
+        send(SettingsEvent.NotificationPermissionMissing(shouldShowRationale = false))
+        assertThat(vm.effects.first())
+            .isEqualTo(SettingsEffect.NotificationsBlocked(R.string.reminder_notifications_blocked_toast))
+        assertThat(prefs.state.value.remindersEnabled).isTrue()
+    }
+
+    @Test fun rationaleAllowsRequestEvenAfterAsking() = runTest(dispatcher) {
+        prefs.setNotificationPermissionAsked(true)
+        send(SettingsEvent.NotificationPermissionMissing(shouldShowRationale = true))
+        assertThat(vm.effects.first()).isEqualTo(SettingsEffect.LaunchNotificationPermission)
     }
 }

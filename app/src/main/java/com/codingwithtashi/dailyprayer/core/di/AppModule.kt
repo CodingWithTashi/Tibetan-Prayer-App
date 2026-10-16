@@ -12,7 +12,9 @@ import com.codingwithtashi.dailyprayer.data.repository.PrayerRepository
 import com.codingwithtashi.dailyprayer.data.repository.PrayerRepositoryImpl
 import com.codingwithtashi.dailyprayer.data.repository.RoutineRepository
 import com.codingwithtashi.dailyprayer.data.repository.RoutineRepositoryImpl
+import com.codingwithtashi.dailyprayer.reminders.DataStoreReminderStateStore
 import com.codingwithtashi.dailyprayer.reminders.ReminderSchedulerImpl
+import com.codingwithtashi.dailyprayer.reminders.ReminderStateStore
 import com.codingwithtashi.dailyprayer.reminders.ReminderScheduler
 import dagger.Binds
 import dagger.Module
@@ -29,8 +31,10 @@ abstract class AppModule {
     @Binds @Singleton abstract fun bindUserPreferences(impl: UserPreferencesRepositoryImpl): UserPreferencesRepository
     @Binds @Singleton abstract fun bindDownloadRepository(impl: DownloadRepositoryImpl): DownloadRepository
     @Binds abstract fun bindPlayerController(impl: com.codingwithtashi.dailyprayer.playback.PlayerController): com.codingwithtashi.dailyprayer.playback.PlayerControllerApi
-    @Binds abstract fun bindAudioDownloader(impl: com.codingwithtashi.dailyprayer.data.download.OkHttpAudioDownloader): com.codingwithtashi.dailyprayer.data.download.AudioDownloader
+    @Binds abstract fun bindAudioDownloader(impl: com.codingwithtashi.dailyprayer.data.download.CachingAudioDownloader): com.codingwithtashi.dailyprayer.data.download.AudioDownloader
     @Binds @Singleton abstract fun bindClock(impl: SystemAppClock): AppClock
 
+    @Binds @Singleton abstract fun bindErrorReporter(impl: com.codingwithtashi.dailyprayer.core.error.CrashlyticsErrorReporter): com.codingwithtashi.dailyprayer.core.error.ErrorReporter
     @Binds @Singleton abstract fun bindReminderScheduler(impl: ReminderSchedulerImpl): ReminderScheduler
+    @Binds @Singleton abstract fun bindReminderStateStore(impl: DataStoreReminderStateStore): ReminderStateStore
 }

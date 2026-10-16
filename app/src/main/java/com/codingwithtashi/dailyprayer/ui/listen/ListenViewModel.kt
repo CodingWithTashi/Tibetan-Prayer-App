@@ -69,6 +69,9 @@ sealed interface ListenEvent {
     data class PlayPause(val id: Int, val contextLabel: String) : ListenEvent
     data class DownloadToggle(val id: Int) : ListenEvent
 
+    /** The tab's filter changed. */
+    data class SetFilter(val value: ListenFilter) : ListenEvent
+
     /** The "Removed download" toast's Undo was tapped. */
     data class UndoRemove(val id: Int) : ListenEvent
 
@@ -101,10 +104,6 @@ class ListenViewModel @Inject constructor(
 
     private val effectChannel = Channel<ListenEffect>(Channel.BUFFERED)
     val effects: Flow<ListenEffect> = effectChannel.receiveAsFlow()
-
-    fun setFilter(value: ListenFilter) {
-        filter.value = value
-    }
 
     private val library: Flow<List<Pair<Prayer, Long>>> = prayers.observeWithAudio().mapLatest { list ->
         list.map { p -> p to (p.audioDurationMs ?: estimateMs(p.id)) }
@@ -173,6 +172,7 @@ class ListenViewModel @Inject constructor(
         when (event) {
             is ListenEvent.PlayPause -> player.playOrToggle(event.id, event.contextLabel)
             is ListenEvent.DownloadToggle -> toggleDownload(event.id)
+            is ListenEvent.SetFilter -> filter.value = event.value
             is ListenEvent.UndoRemove -> pendingRemoval.update { it - event.id }
             is ListenEvent.CommitRemove -> commitRemove(event.id)
         }

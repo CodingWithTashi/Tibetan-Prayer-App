@@ -43,7 +43,6 @@ class OnboardingFlowTest {
         runBlocking {
             initializer.startAndAwait()
             routines.getRoutines().forEach { routines.delete(it.id) }
-            prefs.setExactAlarmPromptShown(false)
             prefs.setOnboarded(false)
         }
     }

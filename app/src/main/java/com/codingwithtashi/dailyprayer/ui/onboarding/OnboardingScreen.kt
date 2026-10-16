@@ -6,8 +6,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -16,6 +16,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,13 +26,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.border
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -41,7 +42,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -65,12 +66,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowSizeClass
 import com.codingwithtashi.dailyprayer.R
-import androidx.compose.ui.platform.LocalContext
-import android.content.ActivityNotFoundException
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
 import com.codingwithtashi.dailyprayer.core.time.DateFormats
 import com.codingwithtashi.dailyprayer.reminders.ExactAlarmPermission
-import com.codingwithtashi.dailyprayer.ui.routine.ExactAlarmPromptDialog
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.FlagSize
 import com.codingwithtashi.dailyprayer.ui.components.FlagStrip
 import com.codingwithtashi.dailyprayer.ui.components.IconActionButton
@@ -82,30 +81,36 @@ import com.codingwithtashi.dailyprayer.ui.components.PillVariant
 import com.codingwithtashi.dailyprayer.ui.components.PrayerInput
 import com.codingwithtashi.dailyprayer.ui.components.PrayerTimePickerDialog
 import com.codingwithtashi.dailyprayer.ui.components.SectionLabel
-import com.codingwithtashi.dailyprayer.ui.components.TimeChip
 import com.codingwithtashi.dailyprayer.ui.components.TibetanText
+import com.codingwithtashi.dailyprayer.ui.components.TimeChip
 import com.codingwithtashi.dailyprayer.ui.components.contentWidth
+import com.codingwithtashi.dailyprayer.reminders.NotificationAccess
+import com.codingwithtashi.dailyprayer.ui.routine.ExactAlarmPromptDialog
+import com.codingwithtashi.dailyprayer.ui.routine.NotificationsOffDialog
 import com.codingwithtashi.dailyprayer.ui.theme.CategoryKey
+import com.codingwithtashi.dailyprayer.ui.components.rememberSafeLauncher
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import com.codingwithtashi.dailyprayer.ui.theme.motionDuration
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingScreen(onFinished: () -> Unit, viewModel: OnboardingViewModel = hiltViewModel()) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val toaster = LocalToaster.current
     val scope = rememberCoroutineScope()
     val finished by rememberUpdatedState(onFinished)
     val context = LocalContext.current
+    val launch = rememberSafeLauncher()
     var permissionPending by remember { mutableStateOf(false) }
     var showExactAlarm by remember { mutableStateOf(false) }
+    var showNotificationsOff by remember { mutableStateOf(false) }
 
-    // Flow: notification permission -> (optional, once) exact-alarm explanation -> Main.
+    // Flow: notification permission (or settings dialog) -> exact-alarm explanation when not allowed -> Main.
     fun continueAfterPermission() {
         scope.launch {
             if (viewModel.routineCreated && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                !ExactAlarmPermission.canScheduleExact(context) && viewModel.promptExactAlarmOnce()
+                !ExactAlarmPermission.canScheduleExact(context)
             ) {
                 showExactAlarm = true
             } else {
@@ -115,7 +120,6 @@ fun OnboardingScreen(onFinished: () -> Unit, viewModel: OnboardingViewModel = hi
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-        viewModel.onPermissionAsked()
         continueAfterPermission()
     }
 
@@ -132,15 +136,21 @@ fun OnboardingScreen(onFinished: () -> Unit, viewModel: OnboardingViewModel = hi
     }
 
     LaunchedEffect(viewModel) {
-        viewModel.effects.receiveAsFlow().collect { effect ->
+        viewModel.effects.collect { effect ->
             when (effect) {
                 OnboardingEffect.PickAtLeastOne -> scope.launch { toaster.show(pickMessage) }
                 OnboardingEffect.RequestNotificationPermission -> permissionPending = true
                 is OnboardingEffect.Welcome -> welcomeName = effect.name
                 OnboardingEffect.Finished ->
-                    if (permissionPending && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (permissionPending && !NotificationAccess.canPost(context)) {
                         permissionPending = false
-                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        scope.launch {
+                            if (viewModel.claimNotificationPermissionRequest(NotificationAccess.shouldShowRationale(context))) {
+                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                showNotificationsOff = true
+                            }
+                        }
                     } else {
                         continueAfterPermission()
                     }
@@ -152,13 +162,25 @@ fun OnboardingScreen(onFinished: () -> Unit, viewModel: OnboardingViewModel = hi
 
     OnboardingContent(state, morningPractice, viewModel::onEvent)
 
+    if (showNotificationsOff) {
+        NotificationsOffDialog(
+            onOpenSettings = {
+                showNotificationsOff = false
+                launch(NotificationAccess.settingsIntent(context))
+                continueAfterPermission()
+            },
+            onDismiss = {
+                showNotificationsOff = false
+                continueAfterPermission()
+            },
+        )
+    }
+
     if (showExactAlarm) {
         ExactAlarmPromptDialog(
             onOpenSettings = {
                 showExactAlarm = false
-                ExactAlarmPermission.requestIntent(context)?.let {
-                    try { context.startActivity(it) } catch (_: ActivityNotFoundException) { }
-                }
+                ExactAlarmPermission.requestIntent(context)?.let(launch)
                 finished()
             },
             onDismiss = {
@@ -255,10 +277,6 @@ private fun rememberCompactHeight(): Boolean =
     !currentWindowAdaptiveInfo().windowSizeClass.isHeightAtLeastBreakpoint(WindowSizeClass.HEIGHT_DP_MEDIUM_LOWER_BOUND)
 
 @Composable
-private fun titleStyle() =
-    if (PrayerTheme.language == AppLanguage.BO) PrayerTheme.type.tibetanTitle30 else PrayerTheme.type.displayMedium
-
-@Composable
 private fun StepLanguage(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Unit) {
     val c = PrayerTheme.colors
     val t = PrayerTheme.type
@@ -277,9 +295,9 @@ private fun StepLanguage(state: OnboardingUiState, onEvent: (OnboardingEvent) ->
         ) {
             FlagStrip(FlagSize.Large)
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                TibetanText("ཉིན་རེའི་ཁ་འདོན།", t.tibetanHero, color = c.accent)
-                Text("Daily Prayer", style = t.displayLarge, color = c.ink)
-                Text(stringResource(R.string.ob_intro), style = t.body16, color = c.textMuted, modifier = Modifier.padding(top = 6.dp))
+                TibetanText(stringResource(R.string.app_name_tibetan), t.tibetanHero, color = c.accent)
+                AppText(stringResource(R.string.app_name_english), style = t.wordmark, color = c.ink)
+                AppText(stringResource(R.string.ob_intro), style = t.lead, color = c.textMuted, modifier = Modifier.padding(top = 6.dp))
             }
         }
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -289,14 +307,14 @@ private fun StepLanguage(state: OnboardingUiState, onEvent: (OnboardingEvent) ->
                     label = stringResource(R.string.lang_english),
                     selected = state.language == AppLanguage.EN,
                     onClick = { onEvent(OnboardingEvent.SetLanguage(AppLanguage.EN)) },
-                    textStyle = t.body16Semi,
+                    textStyle = t.leadStrong,
                     modifier = Modifier.weight(1f),
                 )
                 LanguageOption(
                     label = stringResource(R.string.lang_tibetan),
                     selected = state.language == AppLanguage.BO,
                     onClick = { onEvent(OnboardingEvent.SetLanguage(AppLanguage.BO)) },
-                    textStyle = t.tibUiLangOption,
+                    textStyle = t.leadStrong,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -321,14 +339,14 @@ private fun StepName(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Uni
             .padding(start = 28.dp, end = 28.dp, top = 24.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        Text(stringResource(R.string.ob_name_q), style = titleStyle(), color = c.ink)
-        Text(stringResource(R.string.ob_name_sub), style = t.body15, color = c.textMuted)
+        AppText(stringResource(R.string.ob_name_q), style = PrayerTheme.type.headline, color = c.ink)
+        AppText(stringResource(R.string.ob_name_sub), style = t.bodyLarge, color = c.textMuted)
         PrayerInput(
             value = state.name,
             onValueChange = { onEvent(OnboardingEvent.SetName(it)) },
-            height = 56.dp,
+            height = PrayerDimens.inputXLarge,
             radius = 16.dp,
-            textStyle = t.input18,
+            textStyle = t.inputLarge,
             placeholder = stringResource(R.string.name_ph),
             maxLength = 24,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -346,7 +364,7 @@ private fun StepName(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Uni
                 },
                 variant = PillVariant.Text,
                 height = 40.dp,
-                textStyle = t.body14Semi,
+                textStyle = t.bodyStrong,
                 contentColor = c.textMuted,
             )
         }
@@ -364,14 +382,14 @@ private fun StepRoutine(state: OnboardingUiState, routineName: String, onEvent: 
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(stringResource(R.string.ob_routine_q), style = titleStyle(), color = c.ink)
-            Text(stringResource(R.string.ob_routine_sub), style = t.body15, color = c.textMuted)
+            AppText(stringResource(R.string.ob_routine_q), style = PrayerTheme.type.headline, color = c.ink)
+            AppText(stringResource(R.string.ob_routine_sub), style = t.bodyLarge, color = c.textMuted)
         }
         val shape = RoundedCornerShape(16.dp)
         Row(
             Modifier
                 .fillMaxWidth()
-                .height(56.dp)
+                .heightIn(min = PrayerDimens.remindRowMin)
                 .background(c.surface, shape)
                 .border(1.dp, c.border, shape)
                 .padding(start = 16.dp, end = 8.dp),
@@ -379,7 +397,7 @@ private fun StepRoutine(state: OnboardingUiState, routineName: String, onEvent: 
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Icon(painterResource(R.drawable.ic_bell), null, Modifier.size(20.dp), tint = c.accent)
-            Text(stringResource(R.string.remind_at), style = t.body15Semi, color = c.ink, modifier = Modifier.weight(1f))
+            AppText(stringResource(R.string.remind_at), style = t.bodyLargeStrong, color = c.ink, modifier = Modifier.weight(1f))
             TimeChip(DateFormats.time12(state.timeMinutes, state.language), onClick = { onEvent(OnboardingEvent.OpenTimePicker) })
         }
         LazyColumn(Modifier.weight(1f).fillMaxWidth()) {
@@ -408,7 +426,7 @@ private fun StepRoutine(state: OnboardingUiState, routineName: String, onEvent: 
                 onClick = { onEvent(OnboardingEvent.Finish(false)) },
                 variant = PillVariant.Text,
                 height = 36.dp,
-                textStyle = t.body14Semi,
+                textStyle = t.bodyStrong,
                 contentColor = c.textMuted,
             )
         }

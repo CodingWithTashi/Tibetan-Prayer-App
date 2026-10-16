@@ -1,0 +1,40 @@
+# Today -> start the morning routine -> reader -> counter -> Done · Next prayer ... -> Done · Finish -> complete.
+appId: com.codingwithtashi.dailyprayer.stage
+tags:
+  - smoke
+---
+- runFlow: common/onboard_en.yaml
+- tapOn: "Start · Morning practice"
+# Reader of the first prayer, with the counter bar.
+- extendedWaitUntil:
+    visible:
+      id: "counter_increment"
+    timeout: 10000
+- assertVisible: "Add one to count"
+# Tap the big plus a few times (haptic + live count).
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: "counter_increment"
+- assertVisible: "Reset count"
+# Walk through every prayer of the routine (3 by default). The pill reads "Done · Next prayer"
+# on all but the last, then "Done · Finish Morning practice". Loop ends when the reader is gone.
+- repeat:
+    while:
+      visible:
+        id: "counter_increment"
+    times: 10
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "reader_done"
+          timeout: 30000
+      - tapOn:
+          id: "reader_done"
+      - waitForAnimationToEnd
+# Completion toast and Today state.
+- assertVisible: "Morning practice complete. Well done."
+- extendedWaitUntil:
+    visible: "All done for today"
+    timeout: 10000

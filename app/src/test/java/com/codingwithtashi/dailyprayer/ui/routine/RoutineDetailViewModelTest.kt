@@ -1,8 +1,10 @@
 package com.codingwithtashi.dailyprayer.ui.routine
 
+import com.codingwithtashi.dailyprayer.ui.testRoutine
+import com.codingwithtashi.dailyprayer.ui.testPrayer
 import androidx.lifecycle.SavedStateHandle
 import com.codingwithtashi.dailyprayer.core.text.PrayerText
-import com.codingwithtashi.dailyprayer.data.FakeClock
+import com.codingwithtashi.dailyprayer.ui.FakeClock
 import com.codingwithtashi.dailyprayer.data.model.Routine
 import com.codingwithtashi.dailyprayer.data.model.RoutineCompletion
 import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
@@ -12,7 +14,10 @@ import com.codingwithtashi.dailyprayer.data.repository.RoutineRepository
 import com.codingwithtashi.dailyprayer.domain.StartLabel
 import com.codingwithtashi.dailyprayer.playback.PlaybackError
 import com.codingwithtashi.dailyprayer.ui.FakePlayerControllerApi
+import com.codingwithtashi.dailyprayer.reminders.ReminderHealth
+import com.codingwithtashi.dailyprayer.reminders.ReminderIssue
 import com.codingwithtashi.dailyprayer.ui.PlayCall
+import com.codingwithtashi.dailyprayer.ui.FakeReminderHealthMonitor
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.every
@@ -22,6 +27,7 @@ import java.time.LocalDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -41,6 +47,7 @@ class RoutineDetailViewModelTest {
     private val routines = mockk<RoutineRepository>()
     private val prayers = mockk<PrayerRepository>()
     private val userPrefs = mockk<UserPreferencesRepository>()
+    private val health = FakeReminderHealthMonitor()
 
     @Before fun setUp() {
         Dispatchers.setMain(dispatcher)
@@ -55,7 +62,7 @@ class RoutineDetailViewModelTest {
     private fun done(prayerId: Int) = RoutineCompletion(1, prayerId, LocalDate.of(2026, 3, 4), 0L)
 
     private fun TestScopeAlias.vm(): RoutineDetailViewModel {
-        val vm = RoutineDetailViewModel(SavedStateHandle(mapOf("routineId" to 1L)), routines, prayers, userPrefs, FakeClock(), player)
+        val vm = RoutineDetailViewModel(SavedStateHandle(mapOf("routineId" to 1L)), routines, prayers, userPrefs, health, FakeClock(), player)
         backgroundScope.launch(dispatcher) { vm.state.collect { } }
         return vm
     }
@@ -110,7 +117,7 @@ class RoutineDetailViewModelTest {
     }
 
     @Test fun audioQueueOnlyAudioPrayers() = runTest(dispatcher) {
-        routine.value = testRoutine(prayers = listOf(testPrayer(1, true), testPrayer(2), testPrayer(3, true)))
+        routine.value = testRoutine(prayers = listOf(testPrayer(1, hasAudio = true), testPrayer(2), testPrayer(3, hasAudio = true)))
         val vm = vm()
         assertThat(vm.state.value.hasAudio).isTrue()
         assertThat(vm.state.value.audioQueue).containsExactly(1, 3).inOrder()
@@ -129,7 +136,8 @@ class RoutineDetailViewModelTest {
     @Test fun listenPlaysAudioQueueWithRoutineContext() = runTest(dispatcher) {
         routine.value = testRoutine(prayers = listOf(testPrayer(1, hasAudio = true), testPrayer(2), testPrayer(3, hasAudio = true)))
         val vm = vm()
-        assertThat(vm.listen()).isNull()
+        vm.onEvent(RoutineDetailEvent.Listen)
+        assertThat(vm.effects.first()).isEqualTo(RoutineDetailEffect.OpenPlayer)
         assertThat(player.lastPlay).isEqualTo(PlayCall(listOf(1, 3), 0, "Morning", 1L))
     }
 
@@ -137,11 +145,62 @@ class RoutineDetailViewModelTest {
         routine.value = testRoutine(prayers = listOf(testPrayer(1, hasAudio = true)))
         val vm = vm()
         player.playResult = PlaybackError.OFFLINE
-        assertThat(vm.listen()).isEqualTo(PlaybackError.OFFLINE)
+        vm.onEvent(RoutineDetailEvent.Listen)
+        assertThat(vm.effects.first()).isEqualTo(RoutineDetailEffect.PlaybackFailed(PlaybackError.OFFLINE))
         routine.value = testRoutine(prayers = listOf(testPrayer(1)))
         player.lastPlay = null
-        assertThat(vm.listen()).isNull()
+        vm.onEvent(RoutineDetailEvent.Listen)
         assertThat(player.lastPlay).isNull()
+    }
+
+    @Test fun noNoticeWhenHealthy() = runTest(dispatcher) {
+        routine.value = testRoutine(reminder = true)
+        val s = vm().state.value
+        assertThat(s.reminderIssue).isNull()
+        assertThat(s.globalRemindersOff).isFalse()
+        assertThat(s.reminderOn).isTrue()
+    }
+
+    @Test fun notificationsOffWarnsAndDropsReminderOn() = runTest(dispatcher) {
+        health.state.value = ReminderHealth(false, true)
+        routine.value = testRoutine(reminder = true)
+        val s = vm().state.value
+        assertThat(s.reminderIssue).isEqualTo(ReminderIssue.NOTIFICATIONS_OFF)
+        assertThat(s.reminderOn).isFalse()
+    }
+
+    @Test fun exactOffWarnsButReminderStillOn() = runTest(dispatcher) {
+        health.state.value = ReminderHealth(true, false)
+        routine.value = testRoutine(reminder = true)
+        val s = vm().state.value
+        assertThat(s.reminderIssue).isEqualTo(ReminderIssue.EXACT_ALARMS_OFF)
+        assertThat(s.reminderOn).isTrue()
+    }
+
+    @Test fun globalOffShowsNoticeAndNoReminderOn() = runTest(dispatcher) {
+        prefs.value = UserPrefs(remindersEnabled = false)
+        routine.value = testRoutine(reminder = true)
+        val s = vm().state.value
+        assertThat(s.globalRemindersOff).isTrue()
+        assertThat(s.reminderIssue).isNull()
+        assertThat(s.reminderOn).isFalse()
+    }
+
+    @Test fun routineReminderOffNeverWarns() = runTest(dispatcher) {
+        health.state.value = ReminderHealth(false, false)
+        routine.value = testRoutine(reminder = false)
+        assertThat(vm().state.value.reminderIssue).isNull()
+        assertThat(vm().state.value.globalRemindersOff).isFalse()
+    }
+
+    @Test fun refreshClearsWarningAfterFix() = runTest(dispatcher) {
+        health.state.value = ReminderHealth(false, true)
+        routine.value = testRoutine(reminder = true)
+        val vm = vm()
+        assertThat(vm.state.value.reminderIssue).isEqualTo(ReminderIssue.NOTIFICATIONS_OFF)
+        health.state.value = ReminderHealth(true, true)
+        assertThat(vm.state.value.reminderIssue).isNull()
+        assertThat(vm.state.value.reminderOn).isTrue()
     }
 }
 

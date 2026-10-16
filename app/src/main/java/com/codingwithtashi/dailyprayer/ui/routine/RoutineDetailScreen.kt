@@ -1,6 +1,8 @@
 package com.codingwithtashi.dailyprayer.ui.routine
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,12 +13,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
+import com.codingwithtashi.dailyprayer.reminders.ExactAlarmPermission
+import com.codingwithtashi.dailyprayer.reminders.NotificationAccess
+import com.codingwithtashi.dailyprayer.reminders.ReminderIssue
+import com.codingwithtashi.dailyprayer.ui.components.rememberSafeLauncher
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.playback.PlaybackError
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
 import androidx.compose.ui.Alignment
@@ -53,11 +58,21 @@ fun RoutineDetailScreen(
     viewModel: RoutineDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
     val toaster = LocalToaster.current
     val offlineMessage = stringResource(R.string.offline_cannot_stream)
     val errorMessage = stringResource(R.string.playback_error)
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.refreshDate() }
+    val context = LocalContext.current
+    val launch = rememberSafeLauncher()
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { viewModel.onEvent(RoutineDetailEvent.RefreshDate) }
+    LaunchedEffect(viewModel) {
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                RoutineDetailEffect.OpenPlayer -> onOpenPlayer()
+                is RoutineDetailEffect.PlaybackFailed ->
+                    toaster.show(if (effect.error == PlaybackError.OFFLINE) offlineMessage else errorMessage)
+            }
+        }
+    }
     LaunchedEffect(state.status) { if (state.status == RoutineDetailStatus.GONE) onBack() }
     RoutineDetailContent(
         state = state,
@@ -65,15 +80,15 @@ fun RoutineDetailScreen(
         onEdit = { onEdit(routineId) },
         onOpenPrayer = { onOpenReader(it, routineId) },
         onStart = { state.startTarget?.let { onOpenReader(it, routineId) } },
-        onListen = {
-            scope.launch {
-                when (viewModel.listen()) {
-                    null -> onOpenPlayer()
-                    PlaybackError.OFFLINE -> toaster.show(offlineMessage)
-                    else -> toaster.show(errorMessage)
-                }
+        onFixReminder = {
+            val intent = when (state.reminderIssue) {
+                ReminderIssue.NOTIFICATIONS_OFF -> NotificationAccess.settingsIntent(context)
+                ReminderIssue.EXACT_ALARMS_OFF -> ExactAlarmPermission.requestIntent(context)
+                null -> null
             }
+            if (intent != null) launch(intent)
         },
+        onListen = { viewModel.onEvent(RoutineDetailEvent.Listen) },
     )
 }
 
@@ -85,6 +100,7 @@ fun RoutineDetailContent(
     onOpenPrayer: (Int) -> Unit,
     onStart: () -> Unit,
     onListen: () -> Unit,
+    onFixReminder: () -> Unit = {},
 ) {
     val c = PrayerTheme.colors
     val t = PrayerTheme.type
@@ -100,7 +116,7 @@ fun RoutineDetailContent(
                     height = 36.dp,
                     horizontalPadding = 14.dp,
                     modifier = Modifier.padding(end = 8.dp),
-                    textStyle = t.body13Semi,
+                    textStyle = t.bodyStrong,
                     contentColor = c.ink,
                 )
             },
@@ -113,9 +129,12 @@ fun RoutineDetailContent(
         ) {
             item(key = "head") {
                 Column(Modifier.contentWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(state.name, style = t.displayMedium, color = c.ink)
-                    Text(routineMeta(state), style = t.body14Medium, color = c.textMuted)
+                    AppText(state.name, style = t.headline, color = c.ink)
+                    AppText(routineMeta(state), style = t.bodyMedium, color = c.textMuted)
                 }
+            }
+            if (state.globalRemindersOff || state.reminderIssue != null) {
+                item(key = "reminderNotice") { ReminderNoticeCard(state.reminderIssue, onFixReminder, Modifier.contentWidth()) }
             }
             item(key = "progress") {
                 ProgressBarThin(state.progress.fraction, Modifier.contentWidth(), height = 6.dp, radius = 3.dp)
@@ -165,6 +184,39 @@ fun RoutineDetailContent(
                     )
                 }
             }
+        }
+    }
+}
+
+/** Compact warning under the meta line, with a button that opens the fixing settings screen. */
+@Composable
+private fun ReminderNoticeCard(issue: ReminderIssue?, onFix: () -> Unit, modifier: Modifier = Modifier) {
+    val c = PrayerTheme.colors
+    val t = PrayerTheme.type
+    val shape = RoundedCornerShape(14.dp)
+    val message = stringResource(
+        when (issue) {
+            null -> R.string.reminders_off_in_settings
+            ReminderIssue.NOTIFICATIONS_OFF -> R.string.reminder_warn_notifications_off
+            ReminderIssue.EXACT_ALARMS_OFF -> R.string.reminder_warn_exact_off
+        },
+    )
+    Row(
+        modifier.fillMaxWidth().background(c.surface, shape).border(1.dp, c.border, shape).padding(start = 14.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        AppText(message, style = t.bodyMedium, color = c.ink, modifier = Modifier.weight(1f))
+        if (issue != null) {
+            PillButton(
+                text = stringResource(if (issue == ReminderIssue.NOTIFICATIONS_OFF) R.string.reminder_fix_turn_on else R.string.reminder_fix_allow),
+                onClick = onFix,
+                variant = PillVariant.Outlined(),
+                height = 48.dp,
+                horizontalPadding = 16.dp,
+                textStyle = t.bodyStrong,
+                contentColor = c.accent,
+            )
         }
     }
 }

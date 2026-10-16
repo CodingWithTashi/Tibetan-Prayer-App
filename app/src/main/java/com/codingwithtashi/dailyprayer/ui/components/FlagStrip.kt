@@ -12,7 +12,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 
-/** The three flag-strip sizes of the prototype. */
+/** The three flag-strip sizes. */
 enum class FlagSize { Large, Small, Tiny }
 
 /** Five coloured flag swatches (decorative, no content description). Large also draws the rotated line. */

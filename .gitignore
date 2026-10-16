@@ -16,3 +16,4 @@ local.properties
 /app/production/
 /.idea/
 /docx/
+.kotlin/

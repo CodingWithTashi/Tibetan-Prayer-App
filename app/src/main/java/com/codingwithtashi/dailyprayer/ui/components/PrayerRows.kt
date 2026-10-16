@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.ui.theme.CategoryKey
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 
 private val RowVerticalPadding = 8.dp
@@ -54,10 +54,10 @@ fun LibraryRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        PrayerTile(syllable, category, 44.dp, 12.dp, t.tibetanTile14)
+        PrayerTile(syllable, category, 44.dp, 12.dp, t.tileGlyphSmall)
         Column(Modifier.weight(1f)) {
-            TibetanText(tib, t.tibetanList, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(en, style = t.caption12, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            TibetanText(tib, t.tibetanList, color = c.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            AppText(en, style = t.bodySmall, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         if (hasAudio) {
             Icon(painterResource(R.drawable.ic_headphones), stringResource(R.string.cd_has_audio), Modifier.size(18.dp), tint = c.textSubtle)
@@ -93,11 +93,11 @@ fun PickRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 14.dp),
     ) {
-        if (compact) PrayerTile(syllable, category, 40.dp, 11.dp, t.tibetanTile13)
-        else PrayerTile(syllable, category, 42.dp, 12.dp, t.tibetanTile14)
+        if (compact) PrayerTile(syllable, category, 40.dp, 11.dp, t.tileGlyphMini)
+        else PrayerTile(syllable, category, 42.dp, 12.dp, t.tileGlyphSmall)
         Column(Modifier.weight(1f)) {
-            TibetanText(tib, if (compact) t.tibetanListSmall else t.tibetanList, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(en, style = t.caption12, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            TibetanText(tib, if (compact) t.tibetanListSmall else t.tibetanList, color = c.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            AppText(en, style = t.bodySmall, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         SquareCheck(checked)
     }
@@ -132,10 +132,10 @@ fun RoutinePrayerRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        CheckCircle(26.dp, done, number = numberText)
+        CheckCircle(PrayerDimens.checkCircleLargeMin, done, number = numberText)
         Column(Modifier.weight(1f)) {
-            TibetanText(tib, t.tibetanList, color = if (done) c.textMuted else c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(enWithMinutes, style = t.caption12, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            TibetanText(tib, t.tibetanList, color = if (done) c.textMuted else c.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            AppText(enWithMinutes, style = t.bodySmall, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         Icon(painterResource(R.drawable.ic_chevron_right), null, Modifier.size(16.dp), tint = c.chevron)
     }
@@ -164,10 +164,10 @@ fun EditorPrayerRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        PrayerTile(syllable, category, 40.dp, 11.dp, t.tibetanTile13)
+        PrayerTile(syllable, category, 40.dp, 11.dp, t.tileGlyphMini)
         Column(Modifier.weight(1f).padding(vertical = RowVerticalPadding)) {
             TibetanText(tib, t.tibetanListSmall, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(en, style = t.caption12, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            AppText(en, style = t.bodySmall, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         if (canMoveUp) {
             IconActionButton(R.drawable.ic_arrow_up, stringResource(R.string.cd_move_up), onMoveUp, tint = c.textSubtle, iconSize = 18.dp)
@@ -214,9 +214,9 @@ fun SavedRowView(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
-            PrayerTile(syllable, category, 48.dp, 14.dp, t.tibetanTile15)
+            PrayerTile(syllable, category, 48.dp, 14.dp, t.tileGlyphMedium)
             Column(Modifier.weight(1f)) {
-                Text(label, style = t.body15Semi, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                AppText(label, style = t.bodyLargeStrong, color = c.ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 TibetanText(tib, t.tibetanCaption, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
@@ -248,9 +248,9 @@ fun SavedRowEdit(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        Box48(onOpen) { PrayerTile(syllable, category, 48.dp, 14.dp, t.tibetanTile15) }
+        Box48(onOpen) { PrayerTile(syllable, category, 48.dp, 14.dp, t.tileGlyphMedium) }
         Column(Modifier.weight(1f).padding(vertical = RowVerticalPadding), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            PrayerInput(name, onNameChange, 38.dp, 10.dp, t.input15, placeholder = namePlaceholder, maxLength = 28)
+            PrayerInput(name, onNameChange, PrayerDimens.inputCompact, 10.dp, t.input, placeholder = namePlaceholder, maxLength = 28)
             TibetanText(tib, t.tibetanCaptionSmall, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         IconActionButton(R.drawable.ic_trash, stringResource(R.string.cd_remove), onRemove, tint = c.danger, iconSize = 20.dp)
@@ -299,10 +299,10 @@ fun ListenRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            PrayerTile(syllable, category, 48.dp, 14.dp, t.tibetanTile15)
+            PrayerTile(syllable, category, 48.dp, 14.dp, t.tileGlyphMedium)
             Column(Modifier.weight(1f)) {
-                Text(en, style = t.body15Semi, color = if (isCurrent) c.accent else c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(meta, style = t.caption12, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                AppText(en, style = t.bodyLargeStrong, color = if (isCurrent) c.accent else c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                AppText(meta, style = t.bodySmall, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
         DownloadButton(downloadState, onDownloadToggle)

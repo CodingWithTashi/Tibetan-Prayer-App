@@ -1,8 +1,8 @@
 package com.codingwithtashi.dailyprayer.data.repository
 
 import androidx.test.core.app.ApplicationProvider
-import com.codingwithtashi.dailyprayer.data.FakeClock
-import com.codingwithtashi.dailyprayer.data.RecordingScheduler
+import com.codingwithtashi.dailyprayer.ui.FakeClock
+import com.codingwithtashi.dailyprayer.ui.RecordingScheduler
 import com.codingwithtashi.dailyprayer.data.inMemoryDb
 import com.codingwithtashi.dailyprayer.data.local.PrayerDatabase
 import com.codingwithtashi.dailyprayer.data.local.entity.PrayerEntity

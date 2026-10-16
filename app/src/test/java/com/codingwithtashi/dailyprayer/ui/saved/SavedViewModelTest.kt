@@ -2,8 +2,8 @@ package com.codingwithtashi.dailyprayer.ui.saved
 
 import com.codingwithtashi.dailyprayer.playback.PlayerState
 import com.codingwithtashi.dailyprayer.ui.FakePlayerControllerApi
-import com.codingwithtashi.dailyprayer.ui.library.FakeLibraryRepo
-import com.codingwithtashi.dailyprayer.ui.library.testPrayer
+import com.codingwithtashi.dailyprayer.ui.FakePrayerRepo
+import com.codingwithtashi.dailyprayer.ui.testPrayer
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,13 +24,13 @@ class SavedViewModelTest {
 
     @After fun tearDown() = Dispatchers.resetMain()
 
-    private fun setup(repo: FakeLibraryRepo): SavedViewModel {
+    private fun setup(repo: FakePrayerRepo): SavedViewModel {
         Dispatchers.setMain(dispatcher)
         return SavedViewModel(repo, player)
     }
 
     @Test fun labelFallsBackToEnglishTitle() = runTest(dispatcher) {
-        val repo = FakeLibraryRepo(listOf(testPrayer(1, "Tara", saved = true), testPrayer(2, "Guru", saved = true, label = "Mine"), testPrayer(3)))
+        val repo = FakePrayerRepo(listOf(testPrayer(1, "Tara", isSaved = true), testPrayer(2, "Guru", isSaved = true, savedLabel = "Mine"), testPrayer(3)))
         val vm = setup(repo)
         backgroundScope.launch { vm.state.collect {} }
         advanceTimeBy(1)
@@ -39,54 +39,54 @@ class SavedViewModelTest {
     }
 
     @Test fun renameClampsTo28AndPersistsDebounced() = runTest(dispatcher) {
-        val repo = FakeLibraryRepo(listOf(testPrayer(1, saved = true)))
+        val repo = FakePrayerRepo(listOf(testPrayer(1, isSaved = true)))
         val vm = setup(repo)
         backgroundScope.launch { vm.state.collect {} }
-        vm.setLabel(1, "x".repeat(40))
+        vm.onEvent(SavedEvent.SetLabel(1, "x".repeat(40)))
         advanceTimeBy(100)
-        assertThat(repo.prayers.value[0].savedLabel).isNull()
+        assertThat(repo.all.value[0].savedLabel).isNull()
         advanceTimeBy(300)
-        assertThat(repo.prayers.value[0].savedLabel).isEqualTo("x".repeat(28))
-        vm.setLabel(1, "   ")
+        assertThat(repo.all.value[0].savedLabel).isEqualTo("x".repeat(28))
+        vm.onEvent(SavedEvent.SetLabel(1, "   "))
         advanceTimeBy(400)
-        assertThat(repo.prayers.value[0].savedLabel).isNull()
+        assertThat(repo.all.value[0].savedLabel).isNull()
     }
 
     @Test fun exitingEditFlushesPendingLabel() = runTest(dispatcher) {
-        val repo = FakeLibraryRepo(listOf(testPrayer(1, saved = true)))
+        val repo = FakePrayerRepo(listOf(testPrayer(1, isSaved = true)))
         val vm = setup(repo)
         backgroundScope.launch { vm.state.collect {} }
-        vm.toggleEdit()
-        vm.setLabel(1, "Morning")
-        vm.toggleEdit()
+        vm.onEvent(SavedEvent.ToggleEdit)
+        vm.onEvent(SavedEvent.SetLabel(1, "Morning"))
+        vm.onEvent(SavedEvent.ToggleEdit)
         advanceTimeBy(1)
-        assertThat(repo.prayers.value[0].savedLabel).isEqualTo("Morning")
+        assertThat(repo.all.value[0].savedLabel).isEqualTo("Morning")
     }
 
     @Test fun removeThenUndoRestoresLabel() = runTest(dispatcher) {
-        val repo = FakeLibraryRepo(listOf(testPrayer(1, saved = true, label = "Mine")))
+        val repo = FakePrayerRepo(listOf(testPrayer(1, isSaved = true, savedLabel = "Mine")))
         val vm = setup(repo)
         backgroundScope.launch { vm.state.collect {} }
-        val events = mutableListOf<SavedEvent>()
-        backgroundScope.launch { vm.events.collect { events += it } }
-        vm.remove(1)
+        val effects = mutableListOf<SavedEffect>()
+        backgroundScope.launch { vm.effects.collect { effects += it } }
+        vm.onEvent(SavedEvent.Remove(1))
         advanceUntilIdle()
-        val e = events.single() as SavedEvent.Removed
-        assertThat(repo.prayers.value[0].isSaved).isFalse()
-        vm.undoRemove(e.id, e.previousLabel)
+        val e = effects.single() as SavedEffect.Removed
+        assertThat(repo.all.value[0].isSaved).isFalse()
+        vm.onEvent(SavedEvent.UndoRemove(e.id, e.previousLabel))
         advanceUntilIdle()
-        assertThat(repo.prayers.value[0].isSaved).isTrue()
-        assertThat(repo.prayers.value[0].savedLabel).isEqualTo("Mine")
+        assertThat(repo.all.value[0].isSaved).isTrue()
+        assertThat(repo.all.value[0].savedLabel).isEqualTo("Mine")
     }
 
     @Test fun playPauseDelegatesWithSavedContext() = runTest(dispatcher) {
-        val vm = setup(FakeLibraryRepo(listOf(testPrayer(1, saved = true))))
-        vm.playPause(1, "Saved")
+        val vm = setup(FakePrayerRepo(listOf(testPrayer(1, isSaved = true))))
+        vm.onEvent(SavedEvent.PlayPause(1, "Saved"))
         assertThat(player.calls).containsExactly("playOrToggle(1,Saved)")
     }
 
     @Test fun isPlayingFollowsPlayerState() = runTest(dispatcher) {
-        val vm = setup(FakeLibraryRepo(listOf(testPrayer(1, saved = true), testPrayer(2, saved = true))))
+        val vm = setup(FakePrayerRepo(listOf(testPrayer(1, isSaved = true), testPrayer(2, isSaved = true))))
         backgroundScope.launch { vm.state.collect {} }
         advanceTimeBy(1)
         assertThat(vm.state.value.items.map { it.isPlaying }).containsExactly(false, false)

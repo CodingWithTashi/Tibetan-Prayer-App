@@ -1,0 +1,36 @@
+# Now Playing: playback speed, repeat, queue sheet, close. Needs internet (streams the audio).
+appId: com.codingwithtashi.dailyprayer.stage
+tags:
+  - network
+---
+- runFlow: common/onboard_en.yaml
+- tapOn: "Listen"
+- tapOn: "Three Continuous Practices"
+- extendedWaitUntil:
+    visible:
+      id: "mini_player"
+    timeout: 30000
+- tapOn: "Now playing.*"
+- extendedWaitUntil:
+    visible: "Playing from"
+    timeout: 10000
+# Speed cycles from 1× to the next step.
+- assertVisible: "Playback speed 1×"
+- tapOn: "Playback speed.*"
+- assertNotVisible: "Playback speed 1×"
+# Repeat cycles Off -> ×3.
+- assertVisible: "Repeat Off"
+- tapOn: "Repeat.*"
+- assertVisible: "Repeat ×3"
+# Pause / play toggles the control description.
+- tapOn: "Pause"
+- assertVisible: "Play"
+- tapOn: "Play"
+# Queue sheet.
+- tapOn: "Queue"
+- assertVisible: "Three Continuous Practices"
+- back
+# Close Now Playing (chevron); mini player remains.
+- tapOn: "Close"
+- assertVisible:
+    id: "mini_player"

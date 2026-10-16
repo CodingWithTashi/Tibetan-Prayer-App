@@ -17,6 +17,9 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.isSpecified
 import androidx.core.os.ConfigurationCompat
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
 
@@ -74,37 +77,45 @@ private fun darkScheme() = darkColorScheme(
     inversePrimary = Color(0xFF7A1F24),
 )
 
-private fun materialTypography(): Typography {
+private fun TextStyle.scaled(scale: Float, family: FontFamily): TextStyle = copy(
+    fontFamily = family,
+    fontSize = if (fontSize.isSpecified) fontSize * scale else fontSize,
+    lineHeight = if (lineHeight.isSpecified) lineHeight * scale else lineHeight,
+)
+
+private fun materialTypography(textScale: Float): Typography {
     val d = Typography()
     val f = InstrumentSans
+    fun TextStyle.s() = scaled(textScale, f)
     return Typography(
-        displayLarge = d.displayLarge.copy(fontFamily = f), displayMedium = d.displayMedium.copy(fontFamily = f),
-        displaySmall = d.displaySmall.copy(fontFamily = f), headlineLarge = d.headlineLarge.copy(fontFamily = f),
-        headlineMedium = d.headlineMedium.copy(fontFamily = f), headlineSmall = d.headlineSmall.copy(fontFamily = f),
-        titleLarge = d.titleLarge.copy(fontFamily = f), titleMedium = d.titleMedium.copy(fontFamily = f),
-        titleSmall = d.titleSmall.copy(fontFamily = f), bodyLarge = d.bodyLarge.copy(fontFamily = f),
-        bodyMedium = d.bodyMedium.copy(fontFamily = f), bodySmall = d.bodySmall.copy(fontFamily = f),
-        labelLarge = d.labelLarge.copy(fontFamily = f), labelMedium = d.labelMedium.copy(fontFamily = f),
-        labelSmall = d.labelSmall.copy(fontFamily = f),
+        displayLarge = d.displayLarge.s(), displayMedium = d.displayMedium.s(),
+        displaySmall = d.displaySmall.s(), headlineLarge = d.headlineLarge.s(),
+        headlineMedium = d.headlineMedium.s(), headlineSmall = d.headlineSmall.s(),
+        titleLarge = d.titleLarge.s(), titleMedium = d.titleMedium.s(),
+        titleSmall = d.titleSmall.s(), bodyLarge = d.bodyLarge.s(),
+        bodyMedium = d.bodyMedium.s(), bodySmall = d.bodySmall.s(),
+        labelLarge = d.labelLarge.s(), labelMedium = d.labelMedium.s(),
+        labelSmall = d.labelSmall.s(),
     )
 }
 
 /**
  * Root theme: provides the colour/type/reader/language/motion locals, the ripple colour and the
- * Material 3 bridge (colour scheme, shapes).
+ * Material 3 bridge (colour scheme, shapes, typography). [textScale] is the app-wide Text size setting.
  */
 @Composable
 fun PrayerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     language: AppLanguage = AppLanguage.fromTag(ConfigurationCompat.getLocales(LocalConfiguration.current)[0]?.language),
     reduceMotion: Boolean = rememberReduceMotion(),
+    textScale: Float = 1f,
     content: @Composable () -> Unit,
 ) {
     val colors = if (darkTheme) PrayerColors.Dark else PrayerColors.Light
     val reader = if (darkTheme) ReaderPalette.Dark else ReaderPalette.Light
-    val type = remember { PrayerTypography() }
+    val type = remember(textScale) { PrayerTypography(textScale) }
     val scheme = remember(darkTheme) { if (darkTheme) darkScheme() else lightScheme() }
-    val m3Typography = remember { materialTypography() }
+    val m3Typography = remember(textScale) { materialTypography(textScale) }
     CompositionLocalProvider(
         LocalPrayerColors provides colors,
         LocalPrayerType provides type,

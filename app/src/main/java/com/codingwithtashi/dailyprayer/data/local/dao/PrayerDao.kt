@@ -101,9 +101,6 @@ abstract class PrayerDao {
     @Query("UPDATE prayers SET audio_duration_ms = :ms WHERE id = :id")
     abstract suspend fun updateAudioDuration(id: Int, ms: Long)
 
-    @Query("UPDATE prayers SET is_downloaded = 1, audio_path = :path WHERE id = :id")
-    abstract suspend fun markDownloaded(id: Int, path: String)
-
     @Query(
         "UPDATE prayers SET is_downloaded = 1, audio_path = :path, " +
             "audio_duration_ms = COALESCE(:durationMs, audio_duration_ms) WHERE id = :id",

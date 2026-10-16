@@ -1,34 +1,24 @@
 package com.codingwithtashi.dailyprayer.ui.reader
 
 import androidx.lifecycle.SavedStateHandle
-import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
-import com.codingwithtashi.dailyprayer.core.text.PrayerText
-import com.codingwithtashi.dailyprayer.core.time.AppClock
 import com.codingwithtashi.dailyprayer.data.model.Appearance
-import com.codingwithtashi.dailyprayer.data.model.Prayer
-import com.codingwithtashi.dailyprayer.data.model.PrayerCategory
+import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
 import com.codingwithtashi.dailyprayer.data.model.Routine
-import com.codingwithtashi.dailyprayer.data.model.RoutineCompletion
-import com.codingwithtashi.dailyprayer.data.model.RoutineDraft
 import com.codingwithtashi.dailyprayer.data.prefs.UserPrefs
-import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
-import com.codingwithtashi.dailyprayer.data.repository.PrayerRepository
-import com.codingwithtashi.dailyprayer.data.repository.RoutineRepository
 import com.codingwithtashi.dailyprayer.playback.PlaybackError
 import com.codingwithtashi.dailyprayer.playback.PlayerState
+import com.codingwithtashi.dailyprayer.ui.FakeClock
 import com.codingwithtashi.dailyprayer.ui.FakePlayerControllerApi
+import com.codingwithtashi.dailyprayer.ui.FakePrayerRepo
+import com.codingwithtashi.dailyprayer.ui.FakePrefs
+import com.codingwithtashi.dailyprayer.ui.FakeRoutineRepo
+import com.codingwithtashi.dailyprayer.ui.testPrayer
 import com.google.common.truth.Truth.assertThat
 import java.time.DayOfWeek
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -39,74 +29,7 @@ import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Test
 
-private fun prayer(id: Int, count: Int = 0, saved: Boolean = false) = Prayer(
-    id = id, slug = "s$id", title = "བོད$id", titleEn = "Prayer $id", content = "c$id", category = PrayerCategory.DAILY,
-    sortOrder = id, audioUrl = "", hasAudio = true, isDownloaded = false, audioPath = null, audioDurationMs = null,
-    isSaved = saved, savedLabel = null, savedAt = null, count = count, lastReadProgress = 0f, lastReadAt = null, syllable = "བ",
-)
-
-private class RPrayers(initial: List<Prayer>) : PrayerRepository {
-    val all = MutableStateFlow(initial)
-    val progress = mutableListOf<Float>()
-    private fun edit(id: Int, f: (Prayer) -> Prayer) { all.value = all.value.map { if (it.id == id) f(it) else it } }
-    override fun observeAll() = all
-    override fun observeSaved() = all.map { l -> l.filter { it.isSaved } }
-    override fun observeWithAudio() = all
-    override fun observe(id: Int) = all.map { l -> l.firstOrNull { it.id == id } }
-    override suspend fun get(id: Int) = all.value.firstOrNull { it.id == id }
-    override suspend fun getByIds(ids: List<Int>) = ids.mapNotNull { get(it) }
-    override fun observeContinueReading(): Flow<Prayer?> = MutableStateFlow(null)
-    override suspend fun setSaved(id: Int, saved: Boolean) = edit(id) { it.copy(isSaved = saved) }
-    override suspend fun setSavedLabel(id: Int, label: String?) = Unit
-    override suspend fun setCount(id: Int, count: Int) = edit(id) { it.copy(count = count) }
-    override suspend fun incrementCount(id: Int): Int { edit(id) { it.copy(count = it.count + 1) }; return get(id)!!.count }
-    override suspend fun decrementCount(id: Int): Int { edit(id) { it.copy(count = maxOf(0, it.count - 1)) }; return get(id)!!.count }
-    override suspend fun setReadProgress(id: Int, progress: Float) { this.progress += progress }
-    override suspend fun text(id: Int) = PrayerText(listOf("v"), listOf("p1", "p2"), 60, 3)
-    override suspend fun updateAudioDuration(id: Int, ms: Long) = Unit
-    override suspend fun upsertRemote(title: String, content: String, audioUrl: String?, titleEn: String?, category: String?) = 0
-}
-
-private class RRoutines(routine: Routine?) : RoutineRepository {
-    val routine = MutableStateFlow(routine)
-    val done = mutableListOf<Pair<Long, Int>>()
-    override fun observeRoutines() = this.routine.map { listOfNotNull(it) }
-    override fun observeRoutine(id: Long) = this.routine
-    override suspend fun getRoutine(id: Long) = routine.value
-    override suspend fun getRoutines() = listOfNotNull(routine.value)
-    override suspend fun save(draft: RoutineDraft) = 1L
-    override suspend fun delete(id: Long) = Unit
-    override suspend fun restore(routine: Routine) = Unit
-    override fun observeCompletions(date: LocalDate): Flow<List<RoutineCompletion>> = MutableStateFlow(emptyList())
-    override fun observeCompletionDates(): Flow<Set<LocalDate>> = MutableStateFlow(emptySet())
-    override suspend fun markDone(routineId: Long, prayerId: Int, date: LocalDate?) { done += routineId to prayerId }
-}
-
-private class RPrefs(initial: UserPrefs = UserPrefs(recitationGoal = 3)) : UserPreferencesRepository {
-    val state = MutableStateFlow(initial)
-    var lastReadSets = 0
-    override val prefs: Flow<UserPrefs> = state
-    override suspend fun snapshot() = state.value
-    override suspend fun setOnboarded(value: Boolean) = Unit
-    override suspend fun setUserName(name: String) = Unit
-    override suspend fun setAppLanguage(language: AppLanguage) { state.value = state.value.copy(appLanguage = language) }
-    override suspend fun setAppearance(appearance: Appearance) { state.value = state.value.copy(appearance = appearance) }
-    override suspend fun setTextSize(size: Int) { state.value = state.value.copy(textSize = size) }
-    override suspend fun setRecitationGoal(goal: Int) { state.value = state.value.copy(recitationGoal = goal) }
-    override suspend fun setRemindersEnabled(enabled: Boolean) = Unit
-    override suspend fun setKeepScreenOn(enabled: Boolean) = Unit
-    override suspend fun setLastReadPrayerId(id: Int?) { lastReadSets++; state.value = state.value.copy(lastReadPrayerId = id) }
-    override suspend fun setLegacyCleanupDone(done: Boolean) = Unit
-    override suspend fun setExactAlarmPromptShown(shown: Boolean) = Unit
-    override suspend fun setNotificationPermissionAsked(asked: Boolean) = Unit
-    override suspend fun setWelcomeNotificationInserted(inserted: Boolean) = Unit
-}
-
-private object TestClock : AppClock {
-    override fun now(): Instant = Instant.EPOCH
-    override fun today(): LocalDate = LocalDate.of(2026, 1, 1)
-    override fun zone(): ZoneId = ZoneId.of("UTC")
-}
+private fun prayer(id: Int) = testPrayer(id, hasAudio = true)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ReaderViewModelTest {
@@ -116,9 +39,9 @@ class ReaderViewModelTest {
 
     private class Env(
         val vm: ReaderViewModel,
-        val prayers: RPrayers,
-        val routines: RRoutines,
-        val prefs: RPrefs,
+        val prayers: FakePrayerRepo,
+        val routines: FakeRoutineRepo,
+        val prefs: FakePrefs,
         val effects: MutableList<ReaderEffect>,
         val player: FakePlayerControllerApi,
     )
@@ -127,21 +50,21 @@ class ReaderViewModelTest {
         prayerId: Int = 2,
         routineId: Long? = null,
         routinePrayers: List<Int> = listOf(1, 2, 3),
-        prefs: RPrefs = RPrefs(),
+        prefs: FakePrefs = FakePrefs(UserPrefs(recitationGoal = 3)),
     ): Env {
         Dispatchers.setMain(dispatcher)
-        val prayers = RPrayers((1..3).map { prayer(it) })
+        val prayers = FakePrayerRepo((1..3).map { prayer(it) })
         val routine = routineId?.let {
             Routine(it, "Morning", 480, DayOfWeek.entries.toSet(), true, routinePrayers.map { id -> prayer(id) }, 0L)
         }
-        val routines = RRoutines(routine)
+        val routines = FakeRoutineRepo(listOfNotNull(routine))
         val handle = SavedStateHandle(buildMap {
             put("prayerId", prayerId)
             if (routineId != null) put("routineId", routineId)
         })
         val appScope = CoroutineScope(dispatcher + SupervisorJob())
         val player = FakePlayerControllerApi()
-        val vm = ReaderViewModel(handle, prayers, routines, prefs, TestClock, appScope, player)
+        val vm = ReaderViewModel(handle, prayers, routines, prefs, FakeClock(), appScope, player)
         val effects = mutableListOf<ReaderEffect>()
         backgroundScope.launch { vm.state.collect {} }
         appScope.launch { vm.effects.collect { effects += it } }
@@ -269,14 +192,14 @@ class ReaderViewModelTest {
     }
 
     @Test fun textSizeBounds() = runTest(dispatcher) {
-        val e = setup(prefs = RPrefs(UserPrefs(textSize = 30)))
+        val e = setup(prefs = FakePrefs(UserPrefs(textSize = 34)))
         advanceUntilIdle()
         e.send(ReaderEvent.SizeUp); advanceUntilIdle()
-        assertThat(e.vm.state.value.textSizeSp).isEqualTo(32)
+        assertThat(e.vm.state.value.textSizeSp).isEqualTo(36)
         e.send(ReaderEvent.SizeUp); advanceUntilIdle()
-        assertThat(e.vm.state.value.textSizeSp).isEqualTo(32)
+        assertThat(e.vm.state.value.textSizeSp).isEqualTo(36)
         repeat(12) { e.send(ReaderEvent.SizeDown); advanceUntilIdle() }
-        assertThat(e.vm.state.value.textSizeSp).isEqualTo(16)
+        assertThat(e.vm.state.value.textSizeSp).isEqualTo(18)
     }
 
     @Test fun appearanceAndGoalPersist() = runTest(dispatcher) {
@@ -288,7 +211,7 @@ class ReaderViewModelTest {
     }
 
     @Test fun tibetanDigitsInBo() = runTest(dispatcher) {
-        val e = setup(routineId = 9, prefs = RPrefs(UserPrefs(appLanguage = AppLanguage.BO, recitationGoal = 108)))
+        val e = setup(routineId = 9, prefs = FakePrefs(UserPrefs(appLanguage = AppLanguage.BO, recitationGoal = 108)))
         advanceUntilIdle()
         e.send(ReaderEvent.Inc); advanceUntilIdle()
         val s = e.vm.state.value

@@ -1,0 +1,41 @@
+# Listen tab -> stream a prayer -> mini player / Now Playing -> download -> downloaded state -> remove.
+# Needs internet (streams and downloads audio from the network).
+appId: com.codingwithtashi.dailyprayer.stage
+tags:
+  - network
+---
+- runFlow: common/onboard_en.yaml
+- tapOn: "Listen"
+- assertVisible: "Three Continuous Practices"
+# Tap the row to stream it.
+- tapOn: "Three Continuous Practices"
+- extendedWaitUntil:
+    visible:
+      id: "mini_player"
+    timeout: 30000
+- assertVisible: "Pause"
+# Open Now Playing from the mini player (its description starts with "Now playing").
+- tapOn: "Now playing.*"
+- extendedWaitUntil:
+    visible: "Playing from"
+    timeout: 10000
+- assertVisible: "Streaming"
+- tapOn: "Close"
+# Start the download of the first row, wait until it finishes.
+- tapOn:
+    text: "Download for offline listening"
+    index: 0
+- extendedWaitUntil:
+    visible: "Remove download"
+    timeout: 120000
+- assertVisible: "Downloaded · 1"
+# Cleanup so the flow is repeatable: remove the download; the toast offers Undo, let it lapse.
+- tapOn:
+    text: "Remove download"
+    index: 0
+- extendedWaitUntil:
+    visible: "Removed download"
+    timeout: 5000
+- extendedWaitUntil:
+    notVisible: "Removed download"
+    timeout: 15000

@@ -45,9 +45,18 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "true"
         }
         debug {
             isMinifyEnabled = false
+            manifestPlaceholders["crashlyticsCollectionEnabled"] = "false"
+        }
+    }
+
+    // Per-app language switching: ship every language in the base APK instead of Play language splits.
+    bundle {
+        language {
+            enableSplit = false
         }
     }
 
@@ -137,14 +146,13 @@ dependencies {
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.session)
     implementation(libs.media3.common)
+    implementation(libs.media3.datasource)
+    implementation(libs.media3.database)
 
     // Kotlin libs
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.guava)
-
-    // Network
-    implementation(libs.okhttp)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
@@ -161,6 +169,8 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.room.testing)
     testImplementation(libs.androidx.junit)
+    testImplementation(composeBom)
+    testImplementation(libs.compose.ui.test.junit4)
 
     // Instrumented tests
     androidTestImplementation(libs.androidx.junit)

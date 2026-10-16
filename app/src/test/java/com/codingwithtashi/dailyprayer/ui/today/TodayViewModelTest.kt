@@ -1,5 +1,11 @@
 package com.codingwithtashi.dailyprayer.ui.today
 
+import com.codingwithtashi.dailyprayer.ui.testPrayer
+import com.codingwithtashi.dailyprayer.ui.FakeClock
+import com.codingwithtashi.dailyprayer.ui.FakeRoutineRepo
+import com.codingwithtashi.dailyprayer.ui.FakePrefs
+import com.codingwithtashi.dailyprayer.ui.FakePrayerRepo
+import com.codingwithtashi.dailyprayer.ui.FakeNotificationRepo
 import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
 import com.codingwithtashi.dailyprayer.data.model.Routine
 import com.codingwithtashi.dailyprayer.data.model.RoutineCompletion
@@ -26,7 +32,7 @@ class TodayViewModelTest {
     private val prayers = FakePrayerRepo((1..6).map { testPrayer(it, titleEn = if (it == 1) "The Heart Sutra" else "Prayer $it") })
     private val routines = FakeRoutineRepo()
     private val notifications = FakeNotificationRepo()
-    private val clock = FixedClock(today)
+    private val clock = FakeClock(today)
 
     @Before fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
     @After fun tearDown() = Dispatchers.resetMain()
@@ -41,8 +47,8 @@ class TodayViewModelTest {
     private fun completion(rid: Long, pid: Int) = RoutineCompletion(rid, pid, today, 0L)
 
     private fun TestScope.state(vm: TodayViewModel): TodayUiState {
-        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.uiState.collect { } }
-        return vm.uiState.value
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { vm.state.collect { } }
+        return vm.state.value
     }
 
     @Test fun noRoutinesGivesAddRoutineCta() = runTest {
@@ -92,11 +98,11 @@ class TodayViewModelTest {
         val s0 = state(vm)
         assertThat(s0.continueReading).isNull()
         prayers.continueReading.value = testPrayer(1, progress = 0.03f)
-        assertThat(vm.uiState.value.continueReading).isNull()
+        assertThat(vm.state.value.continueReading).isNull()
         prayers.continueReading.value = testPrayer(1, progress = 0.5f)
-        assertThat(vm.uiState.value.continueReading?.pct).isEqualTo("50%")
+        assertThat(vm.state.value.continueReading?.pct).isEqualTo("50%")
         prayers.continueReading.value = testPrayer(1, progress = 0.97f)
-        assertThat(vm.uiState.value.continueReading).isNull()
+        assertThat(vm.state.value.continueReading).isNull()
     }
 
     @Test fun savedTilesCappedAtFourWithLabelRule() = runTest {
@@ -109,7 +115,7 @@ class TodayViewModelTest {
         val s = state(vm())
         assertThat(s.hasSaved).isTrue()
         assertThat(s.savedTiles).hasSize(4)
-        assertThat(s.savedTiles.map { it.label }.take(2)).containsExactly("Heart Sutra", "My Tara").inOrder()
+        assertThat(s.savedTiles.map { it.label }.take(2)).containsExactly("Heart Sutra of Wisdom", "My Tara").inOrder()
     }
 
     @Test fun noSavedMeansEmpty() = runTest {
@@ -146,9 +152,9 @@ class TodayViewModelTest {
         val vm = vm()
         assertThat(state(vm).routines.single().done).isTrue()
         clock.date = today.plusDays(1)
-        vm.refresh()
-        assertThat(vm.uiState.value.date).isEqualTo(today.plusDays(1))
-        assertThat(vm.uiState.value.routines.single().done).isFalse()
+        vm.onEvent(TodayEvent.Refresh)
+        assertThat(vm.state.value.date).isEqualTo(today.plusDays(1))
+        assertThat(vm.state.value.routines.single().done).isFalse()
     }
 
     @Test fun toggleLanguageSwitchesPrefs() = runTest {

@@ -1,13 +1,14 @@
 package com.codingwithtashi.dailyprayer.data.seed
 
 import androidx.test.core.app.ApplicationProvider
-import com.codingwithtashi.dailyprayer.data.FakeClock
+import com.codingwithtashi.dailyprayer.ui.FakeClock
 import com.codingwithtashi.dailyprayer.data.inMemoryDb
 import com.codingwithtashi.dailyprayer.data.local.PrayerDatabase
 import com.codingwithtashi.dailyprayer.data.local.entity.PrayerEntity
 import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepositoryImpl
 import com.codingwithtashi.dailyprayer.data.tempDataStore
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -36,6 +37,22 @@ class PrayerSeederTest {
         assertThat(rows).hasSize(24)
         assertThat(rows.map { it.slug }.toSet()).hasSize(24)
         assertThat(db.notificationDao().count()).isEqualTo(1)
+    }
+
+    /** Onboarding's "Start a morning practice" list resolves these slugs against the seeded rows. */
+    @Test fun everyOnboardingCandidateIsSeeded() = runTest {
+        seeder.seed()
+        val bySlug = db.prayerDao().getAllOnce().associateBy { it.slug }
+        assertThat(OnboardingDefaults.CANDIDATE_SLUGS).hasSize(7)
+        assertThat(OnboardingDefaults.CANDIDATE_SLUGS.toSet()).hasSize(7)
+        OnboardingDefaults.CANDIDATE_SLUGS.forEach { slug ->
+            val row = bySlug[slug]
+            assertWithMessage(slug).that(row).isNotNull()
+            assertWithMessage(slug).that(row!!.title).isNotEmpty()
+            assertWithMessage(slug).that(row.titleEn).isNotEmpty()
+            assertWithMessage(slug).that(row.content).isNotEmpty()
+        }
+        assertThat(OnboardingDefaults.CANDIDATE_SLUGS).containsAtLeastElementsIn(OnboardingDefaults.DEFAULT_PICK_SLUGS)
     }
 
     @Test fun secondRunChangesNothing() = runTest {
@@ -73,7 +90,7 @@ class PrayerSeederTest {
     @Test fun validateAudioFilesClearsMissingFiles() = runTest {
         seeder.seed()
         val id = db.prayerDao().getAllOnce().first().id
-        db.prayerDao().markDownloaded(id, "/nonexistent/file.mp3")
+        db.prayerDao().markDownloadedWithDuration(id, "/nonexistent/file.mp3", null)
         seeder.validateAudioFiles()
         val row = db.prayerDao().get(id)!!
         assertThat(row.isDownloaded).isFalse()

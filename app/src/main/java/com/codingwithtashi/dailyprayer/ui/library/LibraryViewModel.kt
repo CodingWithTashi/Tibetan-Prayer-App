@@ -32,6 +32,12 @@ data class LibraryUiState(
     val categories: List<PrayerCategory?> = DefaultChips,
 )
 
+/** User actions on the Library tab. */
+sealed interface LibraryEvent {
+    data class SetQuery(val query: String) : LibraryEvent
+    data class SetCategory(val category: PrayerCategory?) : LibraryEvent
+}
+
 private val DefaultChips: List<PrayerCategory?> = listOf(
     null, PrayerCategory.DAILY, PrayerCategory.SUTRA, PrayerCategory.LIFE, PrayerCategory.PRAISE, PrayerCategory.ASPIRE,
 )
@@ -56,12 +62,11 @@ class LibraryViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), LibraryUiState())
 
-    fun setQuery(query: String) {
-        savedStateHandle[KEY_QUERY] = query
-    }
-
-    fun setCategory(category: PrayerCategory?) {
-        savedStateHandle[KEY_CATEGORY] = category?.key
+    fun onEvent(event: LibraryEvent) {
+        when (event) {
+            is LibraryEvent.SetQuery -> savedStateHandle[KEY_QUERY] = event.query
+            is LibraryEvent.SetCategory -> savedStateHandle[KEY_CATEGORY] = event.category?.key
+        }
     }
 
     private fun matches(p: Prayer, cat: PrayerCategory?, q: String): Boolean =

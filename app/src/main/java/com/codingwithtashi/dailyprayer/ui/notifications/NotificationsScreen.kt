@@ -25,7 +25,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.core.notification.DeepLinks
+import com.codingwithtashi.dailyprayer.navigation.NavigationEventsViewModel
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.EmptyState
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
 import com.codingwithtashi.dailyprayer.ui.components.TopBar
@@ -62,16 +64,20 @@ fun NotificationsScreen(onBack: () -> Unit, viewModel: NotificationsViewModel = 
     val message = stringResource(R.string.notification_deleted)
     val undo = stringResource(R.string.undo)
     LaunchedEffect(viewModel) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is NotificationsEvent.Deleted -> launch {
-                    toaster.show(message, undo) { viewModel.undoDelete(event.notification) }
+        viewModel.effects.collect { effect ->
+            when (effect) {
+                is NotificationsEffect.Deleted -> launch {
+                    toaster.show(message, undo) { viewModel.onEvent(NotificationsEvent.UndoDelete(effect.notification)) }
                 }
             }
         }
     }
     val context = LocalContext.current
-    NotificationsContent(state, onBack, viewModel::delete) { openLink(context, it) }
+    val bus = hiltViewModel<NavigationEventsViewModel>().bus
+    NotificationsContent(state, onBack, { viewModel.onEvent(NotificationsEvent.Delete(it)) }) { link ->
+        val inApp = DeepLinks.parseLink(link)
+        if (inApp != null) bus.emit(inApp) else openLink(context, link)
+    }
 }
 
 private fun openLink(context: Context, url: String) {
@@ -92,7 +98,7 @@ internal fun NotificationsContent(
     val c = PrayerTheme.colors
     val t = PrayerTheme.type
     Column(Modifier.fillMaxSize().background(c.background)) {
-        TopBar(onBack = onBack, center = { Text(stringResource(R.string.notifications), style = t.body15Semi, color = c.ink) })
+        TopBar(onBack = onBack, center = { AppText(stringResource(R.string.notifications), style = t.bodyLargeStrong, color = c.ink) })
         val items = state.items
         Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.TopCenter) {
             when {
@@ -155,10 +161,10 @@ private fun NotificationRow(item: NotificationItem, showDivider: Boolean, onDele
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
-                Text(n.title, style = t.body15Semi, color = c.ink, modifier = Modifier.weight(1f))
-                Text(item.timeLabel, style = t.caption12, color = c.textMuted, maxLines = 1)
+                AppText(n.title, style = t.bodyLargeStrong, color = c.ink, modifier = Modifier.weight(1f))
+                AppText(item.timeLabel, style = t.bodySmall, color = c.textMuted, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
-            Text(n.content, style = t.body14, color = c.textMuted, overflow = TextOverflow.Ellipsis)
+            AppText(n.content, style = t.body, color = c.textMuted, overflow = TextOverflow.Ellipsis)
             if (!n.link.isNullOrBlank()) {
                 Box(
                     Modifier
@@ -167,7 +173,7 @@ private fun NotificationRow(item: NotificationItem, showDivider: Boolean, onDele
                         .padding(end = 16.dp),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    Text(stringResource(R.string.more), style = t.body13Semi, color = c.accent)
+                    AppText(stringResource(R.string.more), style = t.bodyStrong, color = c.accent)
                 }
             }
         }

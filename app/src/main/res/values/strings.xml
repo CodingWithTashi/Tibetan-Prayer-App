@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Daily Prayer</string>
+    <string name="app_name_tibetan" translatable="false">ཉིན་རེའི་ཁ་འདོན།</string>
+    <string name="app_name_english" translatable="false">Daily Prayer</string>
     <string name="tab_today">Today</string>
     <string name="tab_library">Library</string>
     <string name="tab_saved">Saved</string>
@@ -52,7 +54,17 @@
     <string name="new_routine">New routine</string>
     <string name="edit_routine">Edit routine</string>
     <string name="reading">Reading</string>
-    <string name="text_size_n">Text size %1$s</string>
+    <string name="text_size_n">Prayer text %1$s</string>
+    <string name="text_size">Text size</string>
+    <string name="text_size_small">Small</string>
+    <string name="text_size_default">Default</string>
+    <string name="text_size_large">Large</string>
+    <string name="text_size_largest">Largest</string>
+    <string name="text_size_glyph_latin" translatable="false">A</string>
+    <string name="text_size_glyph_tibetan" translatable="false">ཀ</string>
+    <string name="reader_settings_glyph" translatable="false">Aa</string>
+    <string name="lang_pill_en" translatable="false">EN</string>
+    <string name="lang_pill_bo" translatable="false">བོད</string>
     <string name="appearance">Appearance</string>
     <string name="system_default">System</string>
     <string name="light">Light</string>
@@ -97,8 +109,6 @@
     <string name="reminders_sub">Notifications for your routines</string>
     <string name="keep_screen_on">Keep screen on while reading</string>
     <string name="downloaded_sub">%1$s prayers · %2$s</string>
-    <string name="reminders_help">Reminders not arriving?</string>
-    <string name="reminders_help_sub">Check battery and notification settings</string>
     <string name="share_app">Share the app</string>
     <string name="rate_app">Rate Daily Prayer</string>
     <string name="about">About</string>
@@ -211,4 +221,18 @@
     <string name="cd_repeat">Repeat</string>
     <string name="cd_seek">Seek</string>
     <string name="cd_verse">Verse %1$s of %2$s</string>
+    <string name="reminder_status">Reminder status</string>
+    <string name="reminder_status_off">Off</string>
+    <string name="reminder_status_working">Working</string>
+    <string name="reminder_status_notifications_off">Notifications are off · Turn on</string>
+    <string name="reminder_status_exact_off">Times may drift · Allow exact time</string>
+    <string name="reminder_notifications_blocked_toast">Notifications are blocked. Turn them on in settings.</string>
+    <string name="reminder_warn_notifications_off">Reminder won\'t sound — notifications are off</string>
+    <string name="reminder_warn_exact_off">Reminder may be late — exact time is off</string>
+    <string name="reminders_off_in_settings">Reminders are off in Settings</string>
+    <string name="reminder_fix_turn_on">Turn on</string>
+    <string name="reminder_fix_allow">Allow</string>
+    <string name="notifications_off_title">Notifications are off</string>
+    <string name="notifications_off_body">Reminders can\'t be shown until notifications are allowed for this app.</string>
+    <string name="not_now">Not now</string>
 </resources>

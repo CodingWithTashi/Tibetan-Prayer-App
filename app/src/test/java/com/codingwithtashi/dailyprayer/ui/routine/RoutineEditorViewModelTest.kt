@@ -1,10 +1,13 @@
 package com.codingwithtashi.dailyprayer.ui.routine
 
+import com.codingwithtashi.dailyprayer.ui.testRoutine
+import com.codingwithtashi.dailyprayer.ui.testPrayer
 import androidx.lifecycle.SavedStateHandle
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.data.model.RoutineDraft
 import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
 import com.codingwithtashi.dailyprayer.data.prefs.UserPrefs
+import com.codingwithtashi.dailyprayer.reminders.NotificationPermissionPolicy
 import com.codingwithtashi.dailyprayer.data.repository.PrayerRepository
 import com.codingwithtashi.dailyprayer.data.repository.RoutineRepository
 import com.google.common.truth.Truth.assertThat
@@ -48,7 +51,7 @@ class RoutineEditorViewModelTest {
         if (existing) coEvery { routines.getRoutine(1) } returns testRoutine()
         return RoutineEditorViewModel(
             handle ?: if (existing) SavedStateHandle(mapOf("routineId" to 1L)) else SavedStateHandle(),
-            routines, prayers, prefs, CoroutineScope(dispatcher),
+            routines, prayers, prefs, NotificationPermissionPolicy(prefs), CoroutineScope(dispatcher),
         )
     }
 
@@ -135,7 +138,7 @@ class RoutineEditorViewModelTest {
         vm.onEvent(RoutineEditorEvent.Delete)
         val effect = vm.effects.first() as RoutineEditorEffect.Deleted
         coVerify { routines.delete(1) }
-        vm.undoDelete(effect.routine)
+        vm.onEvent(RoutineEditorEvent.UndoDelete(effect.routine))
         coVerify { routines.restore(testRoutine()) }
     }
 
@@ -172,12 +175,89 @@ class RoutineEditorViewModelTest {
         assertThat(second.state.value.prayers.map { it.id }).containsExactly(2)
     }
 
-    @Test fun exactAlarmPromptShownOnlyOnce() = runTest(dispatcher) {
+    private fun after(permissionMissing: Boolean = false, rationale: Boolean = false, exactAllowed: Boolean = true) =
+        RoutineEditorEvent.ContinueAfterSave(permissionMissing, rationale, exactAllowed)
+
+    @Test fun exactAlarmPromptShownOnEveryReminderSaveWhileNotAllowed() = runTest(dispatcher) {
         val vm = newVm(); observe(vm)
-        assertThat(vm.promptExactAlarmOnce()).isTrue()
+        repeat(2) {
+            vm.onEvent(after(exactAllowed = false))
+            assertThat(vm.state.value.showExactAlarmPrompt).isTrue()
+            vm.onEvent(RoutineEditorEvent.DismissExactAlarmPrompt)
+            assertThat(vm.state.value.showExactAlarmPrompt).isFalse()
+        }
+    }
+
+    @Test fun closesWhenNothingToAsk() = runTest(dispatcher) {
+        val vm = newVm(); observe(vm)
+        vm.onEvent(after())
+        assertThat(vm.effects.first()).isEqualTo(RoutineEditorEffect.Close)
+    }
+
+    @Test fun requestsPermissionWhenNeverAsked() = runTest(dispatcher) {
+        val vm = newVm(); observe(vm)
+        vm.onEvent(after(permissionMissing = true))
+        assertThat(vm.effects.first()).isEqualTo(RoutineEditorEffect.RequestNotificationPermission)
+        coVerify { prefs.setNotificationPermissionAsked(true) }
+        assertThat(vm.state.value.showNotificationsOffDialog).isFalse()
+    }
+
+    @Test fun requestsPermissionWhenRationaleEvenIfAsked() = runTest(dispatcher) {
+        coEvery { prefs.snapshot() } returns UserPrefs(notificationPermissionAsked = true)
+        val vm = newVm(); observe(vm)
+        vm.onEvent(after(permissionMissing = true, rationale = true))
+        assertThat(vm.effects.first()).isEqualTo(RoutineEditorEffect.RequestNotificationPermission)
+    }
+
+    @Test fun permanentlyDeniedShowsSettingsDialogThenExactPrompt() = runTest(dispatcher) {
+        coEvery { prefs.snapshot() } returns UserPrefs(notificationPermissionAsked = true)
+        val vm = newVm(); observe(vm)
+        vm.onEvent(after(permissionMissing = true, exactAllowed = false))
+        assertThat(vm.state.value.showNotificationsOffDialog).isTrue()
+        assertThat(vm.state.value.showExactAlarmPrompt).isFalse()
+        vm.onEvent(RoutineEditorEvent.DismissNotificationsOff)
+        assertThat(vm.state.value.showNotificationsOffDialog).isFalse()
         assertThat(vm.state.value.showExactAlarmPrompt).isTrue()
-        coVerify { prefs.setExactAlarmPromptShown(true) }
-        coEvery { prefs.snapshot() } returns UserPrefs(exactAlarmPromptShown = true)
-        assertThat(vm.promptExactAlarmOnce()).isFalse()
+    }
+
+    @Test fun openSettingsFromDialogEmitsEffect() = runTest(dispatcher) {
+        coEvery { prefs.snapshot() } returns UserPrefs(notificationPermissionAsked = true)
+        val vm = newVm(); observe(vm)
+        vm.onEvent(after(permissionMissing = true))
+        vm.onEvent(RoutineEditorEvent.OpenNotificationSettings)
+        assertThat(vm.state.value.showNotificationsOffDialog).isFalse()
+        assertThat(vm.effects.first()).isEqualTo(RoutineEditorEffect.OpenNotificationSettings)
+        // Exact alarms allowed: the flow ends after the settings are opened.
+        assertThat(vm.effects.first()).isEqualTo(RoutineEditorEffect.Close)
+    }
+
+    @Test fun openSettingsFromDialogContinuesToExactAlarmPromptBeforeClosing() = runTest(dispatcher) {
+        coEvery { prefs.snapshot() } returns UserPrefs(notificationPermissionAsked = true)
+        val vm = newVm(); observe(vm)
+        vm.onEvent(after(permissionMissing = true, exactAllowed = false))
+        vm.onEvent(RoutineEditorEvent.OpenNotificationSettings)
+        assertThat(vm.effects.first()).isEqualTo(RoutineEditorEffect.OpenNotificationSettings)
+        assertThat(vm.state.value.showNotificationsOffDialog).isFalse()
+        assertThat(vm.state.value.showExactAlarmPrompt).isTrue()
+    }
+
+    @Test fun globalRemindersOffToastsAndSkipsPrompts() = runTest(dispatcher) {
+        coEvery { prefs.snapshot() } returns UserPrefs(remindersEnabled = false)
+        val vm = newVm(); observe(vm)
+        vm.onEvent(RoutineEditorEvent.SetName("Morning"))
+        vm.onEvent(RoutineEditorEvent.TogglePick(1))
+        vm.onEvent(RoutineEditorEvent.Save)
+        val effects = listOf(vm.effects.first(), vm.effects.first(), vm.effects.first())
+        assertThat(effects[1]).isEqualTo(RoutineEditorEffect.Toast(R.string.reminders_off_in_settings))
+        assertThat(effects[2]).isEqualTo(RoutineEditorEffect.Saved(false))
+    }
+
+    @Test fun reminderOnAndGlobalOnSavesWithReminderOn() = runTest(dispatcher) {
+        val vm = newVm(); observe(vm)
+        vm.onEvent(RoutineEditorEvent.SetName("Morning"))
+        vm.onEvent(RoutineEditorEvent.TogglePick(1))
+        vm.onEvent(RoutineEditorEvent.Save)
+        val effects = listOf(vm.effects.first(), vm.effects.first())
+        assertThat(effects[1]).isEqualTo(RoutineEditorEffect.Saved(true))
     }
 }

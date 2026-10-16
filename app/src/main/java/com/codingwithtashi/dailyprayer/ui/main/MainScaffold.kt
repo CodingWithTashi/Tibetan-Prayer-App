@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codingwithtashi.dailyprayer.R
-import com.codingwithtashi.dailyprayer.navigation.ListenFilter
 import com.codingwithtashi.dailyprayer.navigation.MainTab
 import com.codingwithtashi.dailyprayer.ui.components.MiniPlayer
 import com.codingwithtashi.dailyprayer.ui.components.MiniPlayerUi
@@ -86,39 +85,45 @@ fun MainScaffold(
     }
     MainScaffoldContent(
         tab = tab,
-        listenFilter = filter,
         miniPlayer = miniPlayer,
         onSelectTab = viewModel::selectTab,
-        onListenFilterChange = viewModel::setListenFilter,
-        onOpenSettings = onOpenSettings,
-        onOpenNotifications = onOpenNotifications,
-        onOpenRoutine = onOpenRoutine,
-        onNewRoutine = onNewRoutine,
-        onOpenReader = onOpenReader,
-        onOpenPlayer = onOpenPlayer,
         onMiniPlayerOpen = onOpenPlayer,
         onMiniPlayerPlayPause = viewModel::onMiniPlayerPlayPause,
         onMiniPlayerClose = viewModel::onMiniPlayerClose,
+        tabContent = { current, listState, modifier ->
+            when (current) {
+                MainTab.TODAY -> TodayTab(
+                    listState = listState,
+                    onOpenSettings = onOpenSettings,
+                    onOpenNotifications = onOpenNotifications,
+                    onOpenRoutine = onOpenRoutine,
+                    onNewRoutine = onNewRoutine,
+                    onOpenReader = onOpenReader,
+                    onSeeAllSaved = { viewModel.selectTab(MainTab.SAVED) },
+                    onOpenPlayer = onOpenPlayer,
+                    modifier = modifier,
+                )
+                MainTab.LIBRARY -> LibraryTab(listState, { onOpenReader(it, null) }, modifier)
+                MainTab.SAVED -> SavedTab(listState, { onOpenReader(it, null) }, { viewModel.selectTab(MainTab.LIBRARY) }, modifier)
+                MainTab.LISTEN -> ListenTab(listState, filter, viewModel::setListenFilter, onOpenPlayer, modifier)
+            }
+        },
     )
 }
 
-/** Stateless scaffold: bottom bar on compact width, navigation rail from 600dp. */
+/**
+ * Stateless scaffold: bottom bar on compact width, navigation rail from 600dp. [tabContent] draws
+ * the selected tab (the real, ViewModel-backed tabs at runtime; stateless content in previews).
+ */
 @Composable
 internal fun MainScaffoldContent(
     tab: MainTab,
-    listenFilter: ListenFilter,
     miniPlayer: MiniPlayerUi?,
     onSelectTab: (MainTab) -> Unit,
-    onListenFilterChange: (ListenFilter) -> Unit,
-    onOpenSettings: () -> Unit,
-    onOpenNotifications: () -> Unit,
-    onOpenRoutine: (Long) -> Unit,
-    onNewRoutine: () -> Unit,
-    onOpenReader: (prayerId: Int, routineId: Long?) -> Unit,
-    onOpenPlayer: () -> Unit,
     onMiniPlayerOpen: () -> Unit,
     onMiniPlayerPlayPause: () -> Unit,
     onMiniPlayerClose: () -> Unit,
+    tabContent: @Composable (tab: MainTab, listState: LazyListState, modifier: Modifier) -> Unit,
 ) {
     val compact = rememberIsCompactWidth()
     val scope = rememberCoroutineScope()
@@ -138,23 +143,7 @@ internal fun MainScaffoldContent(
     val content: @Composable () -> Unit = {
         Crossfade(targetState = tab, animationSpec = fade, label = "tab") { current ->
             val state = listStates.getValue(current)
-            val modifier = Modifier.fillMaxSize()
-            when (current) {
-                MainTab.TODAY -> TodayTab(
-                    listState = state,
-                    onOpenSettings = onOpenSettings,
-                    onOpenNotifications = onOpenNotifications,
-                    onOpenRoutine = onOpenRoutine,
-                    onNewRoutine = onNewRoutine,
-                    onOpenReader = onOpenReader,
-                    onSeeAllSaved = { onSelectTab(MainTab.SAVED) },
-                    onOpenPlayer = onOpenPlayer,
-                    modifier = modifier,
-                )
-                MainTab.LIBRARY -> LibraryTab(state, { onOpenReader(it, null) }, modifier)
-                MainTab.SAVED -> SavedTab(state, { onOpenReader(it, null) }, { onSelectTab(MainTab.LIBRARY) }, modifier)
-                MainTab.LISTEN -> ListenTab(state, listenFilter, onListenFilterChange, onOpenPlayer, modifier)
-            }
+            tabContent(current, state, Modifier.fillMaxSize())
         }
     }
     val mini: @Composable () -> Unit = {

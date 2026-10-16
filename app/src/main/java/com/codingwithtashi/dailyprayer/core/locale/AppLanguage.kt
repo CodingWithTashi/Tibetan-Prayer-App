@@ -12,6 +12,15 @@ enum class AppLanguage(val tag: String) {
     val usesTibetanDigits: Boolean get() = this == BO
 
     companion object {
+        /**
+         * Language to persist so notifications match the UI: the per-app locale [appLocaleTag] when it
+         * is a shipped language different from [stored], else null (nothing to change).
+         */
+        fun syncTarget(appLocaleTag: String?, stored: AppLanguage): AppLanguage? {
+            val fromLocale = entries.firstOrNull { appLocaleTag != null && appLocaleTag.startsWith(it.tag, ignoreCase = true) }
+            return fromLocale?.takeIf { it != stored }
+        }
+
         fun fromTag(tag: String?): AppLanguage =
             entries.firstOrNull { tag != null && tag.startsWith(it.tag, ignoreCase = true) } ?: EN
     }

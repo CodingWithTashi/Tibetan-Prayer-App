@@ -1,8 +1,6 @@
 package com.codingwithtashi.dailyprayer.ui.routine
 
 import android.Manifest
-import android.content.ActivityNotFoundException
-import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,21 +15,20 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,17 +40,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.core.text.TibetanNumerals
 import com.codingwithtashi.dailyprayer.core.time.DateFormats
 import com.codingwithtashi.dailyprayer.reminders.ExactAlarmPermission
+import com.codingwithtashi.dailyprayer.reminders.NotificationAccess
+import com.codingwithtashi.dailyprayer.ui.components.AppText
+import com.codingwithtashi.dailyprayer.ui.components.ConfirmDialog
 import com.codingwithtashi.dailyprayer.ui.components.DashedBox
 import com.codingwithtashi.dailyprayer.ui.components.DayChip
 import com.codingwithtashi.dailyprayer.ui.components.EditorPrayerRow
@@ -63,15 +64,14 @@ import com.codingwithtashi.dailyprayer.ui.components.PillButton
 import com.codingwithtashi.dailyprayer.ui.components.PillVariant
 import com.codingwithtashi.dailyprayer.ui.components.PrayerInput
 import com.codingwithtashi.dailyprayer.ui.components.PrayerTimePickerDialog
+import com.codingwithtashi.dailyprayer.ui.components.rememberSafeLauncher
 import com.codingwithtashi.dailyprayer.ui.components.SectionLabel
 import com.codingwithtashi.dailyprayer.ui.components.SheetHandle
 import com.codingwithtashi.dailyprayer.ui.components.TimeChip
 import com.codingwithtashi.dailyprayer.ui.components.ToggleSwitch
 import com.codingwithtashi.dailyprayer.ui.components.contentWidth
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Icon
-import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -90,16 +90,22 @@ fun RoutineEditorScreen(
     val toaster = LocalToaster.current
     // Toasts outlive this screen (Saved / Deleted pop it immediately).
     val toastScope = remember { CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate) }
-    val scope = rememberCoroutineScope()
 
-    fun afterPermissions() {
-        scope.launch {
-            if (!ExactAlarmPermission.canScheduleExact(context) && viewModel.promptExactAlarmOnce()) return@launch
-            onClose()
-        }
+    fun continueAfterSave() {
+        viewModel.onEvent(
+            RoutineEditorEvent.ContinueAfterSave(
+                permissionMissing = !NotificationAccess.canPost(context),
+                shouldShowRationale = NotificationAccess.shouldShowRationale(context),
+                exactAlarmsAllowed = ExactAlarmPermission.canScheduleExact(context),
+            ),
+        )
     }
 
-    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { afterPermissions() }
+    // The result is read back from the OS state in continueAfterSave, so a denial moves on to the exact-alarm step.
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        continueAfterSave()
+    }
+    val launch = rememberSafeLauncher()
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
@@ -109,19 +115,15 @@ fun RoutineEditorScreen(
                     toastScope.launch { toaster.show(msg) }
                 }
                 is RoutineEditorEffect.Saved -> {
-                    if (!effect.reminderOn) {
-                        onClose()
-                    } else {
-                        val needsPermission = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED &&
-                            viewModel.shouldAskNotificationPermission()
-                        if (needsPermission) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS) else afterPermissions()
-                    }
+                    if (effect.reminderOn) continueAfterSave() else onClose()
                 }
+                RoutineEditorEffect.RequestNotificationPermission ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                RoutineEditorEffect.OpenNotificationSettings -> launch(NotificationAccess.settingsIntent(context))
                 is RoutineEditorEffect.Deleted -> {
                     val msg = resources.getString(R.string.routine_deleted)
                     val undo = resources.getString(R.string.undo)
-                    toastScope.launch { toaster.show(msg, undo) { viewModel.undoDelete(effect.routine) } }
+                    toastScope.launch { toaster.show(msg, undo) { viewModel.onEvent(RoutineEditorEvent.UndoDelete(effect.routine)) } }
                     onDeleted()
                 }
                 RoutineEditorEffect.Close -> onClose()
@@ -133,17 +135,22 @@ fun RoutineEditorScreen(
 
     RoutineEditorContent(state = state, onEvent = viewModel::onEvent)
 
+    if (state.showNotificationsOffDialog) {
+        NotificationsOffDialog(
+            onOpenSettings = { viewModel.onEvent(RoutineEditorEvent.OpenNotificationSettings) },
+            onDismiss = { viewModel.onEvent(RoutineEditorEvent.DismissNotificationsOff) },
+        )
+    }
+
     if (state.showExactAlarmPrompt) {
         ExactAlarmPromptDialog(
             onOpenSettings = {
-                viewModel.dismissExactAlarmPrompt()
-                ExactAlarmPermission.requestIntent(context)?.let {
-                    try { context.startActivity(it) } catch (_: ActivityNotFoundException) { }
-                }
+                viewModel.onEvent(RoutineEditorEvent.DismissExactAlarmPrompt)
+                ExactAlarmPermission.requestIntent(context)?.let(launch)
                 onClose()
             },
             onDismiss = {
-                viewModel.dismissExactAlarmPrompt()
+                viewModel.onEvent(RoutineEditorEvent.DismissExactAlarmPrompt)
                 onClose()
             },
         )
@@ -158,25 +165,25 @@ fun RoutineEditorContent(state: RoutineEditorUiState, onEvent: (RoutineEditorEve
     val lang = PrayerTheme.language
     Column(Modifier.fillMaxSize().background(c.background)) {
         Row(
-            Modifier.fillMaxWidth().statusBarsPadding().height(52.dp).padding(horizontal = 12.dp),
+            Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = PrayerDimens.topBarMin).padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             PillButton(
                 stringResource(R.string.cancel), { onEvent(RoutineEditorEvent.Cancel) },
                 variant = PillVariant.Text, height = 44.dp, horizontalPadding = 8.dp,
-                textStyle = t.body15Semi, contentColor = c.textMuted,
+                textStyle = t.bodyLargeStrong, contentColor = c.textMuted,
             )
             Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                Text(
+                AppText(
                     stringResource(if (state.isNew) R.string.new_routine else R.string.edit_routine),
-                    style = t.body15Semi, color = c.ink, maxLines = 1,
+                    style = t.bodyLargeStrong, color = c.ink, maxLines = 1, overflow = TextOverflow.Ellipsis,
                 )
             }
             PillButton(
                 stringResource(R.string.save), { onEvent(RoutineEditorEvent.Save) },
-                variant = PillVariant.Filled, height = 36.dp, horizontalPadding = 16.dp, radius = 18.dp,
-                textStyle = t.body14Semi,
+                variant = PillVariant.Filled, height = 36.dp, horizontalPadding = 16.dp,
+                textStyle = t.bodyStrong,
                 containerColor = if (state.canSave) Color.Unspecified else c.border,
                 contentColor = if (state.canSave) Color.Unspecified else c.textSubtle,
             )
@@ -193,7 +200,7 @@ fun RoutineEditorContent(state: RoutineEditorUiState, onEvent: (RoutineEditorEve
                     PrayerInput(
                         value = state.name,
                         onValueChange = { onEvent(RoutineEditorEvent.SetName(it)) },
-                        height = 52.dp, radius = 14.dp, textStyle = t.input16,
+                        height = PrayerDimens.inputLarge, radius = 14.dp, textStyle = t.input,
                         placeholder = stringResource(R.string.routine_ph),
                         maxLength = RoutineEditorUiState.MAX_NAME,
                     )
@@ -214,19 +221,19 @@ fun RoutineEditorContent(state: RoutineEditorUiState, onEvent: (RoutineEditorEve
                         }
                     }
                     DashedBox(
-                        Modifier.fillMaxWidth().height(50.dp).clickable(role = Role.Button) { onEvent(RoutineEditorEvent.OpenPicker) },
+                        Modifier.fillMaxWidth().heightIn(min = PrayerDimens.dashedBoxMin).clickable(role = Role.Button) { onEvent(RoutineEditorEvent.OpenPicker) },
                         radius = 14.dp,
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Icon(painterResource(R.drawable.ic_plus), null, Modifier.size(16.dp), tint = c.accent)
-                            Text(stringResource(R.string.add_prayers), style = t.body14Semi, color = c.accent)
+                            AppText(stringResource(R.string.add_prayers), style = t.bodyStrong, color = c.accent)
                         }
                     }
                     if (!state.isNew) {
                         PillButton(
                             stringResource(R.string.delete_routine), { onEvent(RoutineEditorEvent.Delete) },
                             modifier = Modifier.fillMaxWidth(), variant = PillVariant.Text, height = 48.dp,
-                            textStyle = t.body14Semi, contentColor = c.danger,
+                            textStyle = t.bodyStrong, contentColor = c.danger,
                         )
                     }
                 }
@@ -243,20 +250,15 @@ fun RoutineEditorContent(state: RoutineEditorUiState, onEvent: (RoutineEditorEve
     }
     if (state.showPicker) PrayerPickerSheet(state, onEvent)
     if (state.showDiscardDialog) {
-        AlertDialog(
-            onDismissRequest = { onEvent(RoutineEditorEvent.DismissDiscard) },
-            containerColor = c.surface,
-            title = { Text(stringResource(R.string.discard_changes_q), style = t.sheetTitle, color = c.ink) },
-            confirmButton = {
-                TextButton({ onEvent(RoutineEditorEvent.ConfirmDiscard) }) {
-                    Text(stringResource(R.string.discard), style = t.body14Semi, color = c.danger)
-                }
-            },
-            dismissButton = {
-                TextButton({ onEvent(RoutineEditorEvent.DismissDiscard) }) {
-                    Text(stringResource(R.string.cancel), style = t.body14Semi, color = c.textMuted)
-                }
-            },
+        ConfirmDialog(
+            title = stringResource(R.string.discard_changes_q),
+            body = null,
+            confirmLabel = stringResource(R.string.discard),
+            dismissLabel = stringResource(R.string.cancel),
+            onConfirm = { onEvent(RoutineEditorEvent.ConfirmDiscard) },
+            onDismiss = { onEvent(RoutineEditorEvent.DismissDiscard) },
+            confirmColor = c.danger,
+            titleStyle = t.sheetTitle,
         )
     }
 }
@@ -273,7 +275,7 @@ private fun ScheduleCard(state: RoutineEditorUiState, onEvent: (RoutineEditorEve
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(Modifier.fillMaxWidth().heightIn(min = 40.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.time), style = t.body15Semi, color = c.ink, modifier = Modifier.weight(1f))
+            AppText(stringResource(R.string.time), style = t.bodyLargeStrong, color = c.ink, modifier = Modifier.weight(1f))
             TimeChip(DateFormats.time12(state.timeMinutes, PrayerTheme.language), { onEvent(RoutineEditorEvent.OpenTimePicker) })
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -289,8 +291,8 @@ private fun ScheduleCard(state: RoutineEditorUiState, onEvent: (RoutineEditorEve
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Column(Modifier.weight(1f)) {
-                Text(stringResource(R.string.reminder), style = t.body15Semi, color = c.ink)
-                Text(stringResource(R.string.reminder_sub), style = t.caption12, color = c.textMuted)
+                AppText(stringResource(R.string.reminder), style = t.bodyLargeStrong, color = c.ink)
+                AppText(stringResource(R.string.reminder_sub), style = t.bodySmall, color = c.textMuted)
             }
             ToggleSwitch(state.reminder, null)
         }
@@ -316,10 +318,10 @@ private fun PrayerPickerSheet(state: RoutineEditorUiState, onEvent: (RoutineEdit
     ) {
         Column(Modifier.heightIn(max = 620.dp)) {
             Row(Modifier.fillMaxWidth().padding(start = 20.dp, top = 12.dp, end = 20.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text(stringResource(R.string.add_prayers), style = t.sheetTitle, color = c.ink, modifier = Modifier.weight(1f))
+                AppText(stringResource(R.string.add_prayers), style = t.sheetTitle, color = c.ink, modifier = Modifier.weight(1f))
                 PillButton(
                     stringResource(R.string.done), { close() },
-                    height = 36.dp, horizontalPadding = 16.dp, radius = 18.dp, textStyle = t.body14Semi,
+                    height = 36.dp, horizontalPadding = 16.dp, textStyle = t.bodyStrong,
                 )
             }
             LazyColumn(Modifier.weight(1f, fill = false), contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 30.dp)) {

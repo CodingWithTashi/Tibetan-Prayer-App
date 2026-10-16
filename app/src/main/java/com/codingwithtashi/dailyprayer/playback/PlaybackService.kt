@@ -13,9 +13,11 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.datasource.HttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import com.codingwithtashi.dailyprayer.MainActivity
+import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.core.di.ApplicationScope
 import com.codingwithtashi.dailyprayer.core.notification.DeepLinks
 import com.codingwithtashi.dailyprayer.data.repository.PrayerRepository
@@ -33,6 +35,7 @@ class PlaybackService : MediaSessionService() {
 
     @Inject lateinit var prayerRepository: PrayerRepository
     @Inject lateinit var routineRepository: RoutineRepository
+    @Inject lateinit var audioCache: Media3AudioCache
     @Inject @ApplicationScope lateinit var appScope: CoroutineScope
 
     private var session: MediaSession? = null
@@ -51,6 +54,7 @@ class PlaybackService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
         player = ExoPlayer.Builder(this)
+            .setMediaSourceFactory(DefaultMediaSourceFactory(audioCache.playerDataSourceFactory()))
             .setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -78,6 +82,7 @@ class PlaybackService : MediaSessionService() {
                     prayers = prayerRepository,
                     repeat = repeat,
                     scope = appScope,
+                    artist = getString(R.string.app_name),
                     onRepeatChanged = ::publishExtras,
                     onControllerDisconnected = ::scheduleIdleStop,
                 ),
@@ -193,6 +198,7 @@ class PlaybackService : MediaSessionService() {
                     markDone(player.currentMediaItem)
                     scheduleIdleStop()
                 }
+                else -> Unit
             }
         }
 

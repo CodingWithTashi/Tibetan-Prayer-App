@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,7 +35,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -49,7 +49,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -63,12 +64,14 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.playback.RepeatMode
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.IconActionButton
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
 import com.codingwithtashi.dailyprayer.ui.components.Overline
 import com.codingwithtashi.dailyprayer.ui.components.SheetHandle
 import com.codingwithtashi.dailyprayer.ui.components.SmallPill
 import com.codingwithtashi.dailyprayer.ui.theme.NowPlayingPalette as P
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import com.codingwithtashi.dailyprayer.ui.theme.SystemBarIcons
 import com.codingwithtashi.dailyprayer.ui.theme.motionDuration
@@ -113,7 +116,8 @@ fun NowPlayingScreen(onClose: () -> Unit, viewModel: NowPlayingViewModel = hiltV
 fun NowPlayingContent(state: NowPlayingUiState, onEvent: (NowPlayingEvent) -> Unit) {
     SystemBarIcons(darkBackground = true)
     BackHandler { onEvent(NowPlayingEvent.Close) }
-    val wide = LocalConfiguration.current.screenWidthDp >= WIDE_BREAKPOINT_DP
+    val widthDp = with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+    val wide = widthDp >= WIDE_BREAKPOINT_DP.dp
     Column(Modifier.fillMaxSize().background(P.bg)) {
         PlayerTopBar(state.contextLabel, onEvent)
         if (wide) {
@@ -137,13 +141,13 @@ fun NowPlayingContent(state: NowPlayingUiState, onEvent: (NowPlayingEvent) -> Un
 @Composable
 private fun PlayerTopBar(contextLabel: String, onEvent: (NowPlayingEvent) -> Unit) {
     Row(
-        Modifier.fillMaxWidth().statusBarsPadding().height(52.dp).padding(horizontal = 8.dp),
+        Modifier.fillMaxWidth().statusBarsPadding().heightIn(min = PrayerDimens.topBarMin).padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconActionButton(R.drawable.ic_chevron_down, stringResource(R.string.cd_close), { onEvent(NowPlayingEvent.Close) }, tint = P.text, iconSize = 24.dp)
         Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             Overline(stringResource(R.string.playing_from), color = P.overline)
-            Text(contextLabel, style = PrayerTheme.type.body13Semi, color = P.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            AppText(contextLabel, style = PrayerTheme.type.bodyStrong, color = P.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         IconActionButton(R.drawable.ic_queue, stringResource(R.string.cd_queue), { onEvent(NowPlayingEvent.OpenQueue) }, tint = P.text, iconSize = 20.dp)
     }
@@ -162,14 +166,14 @@ private fun PlayerHeader(state: NowPlayingUiState, onEvent: (NowPlayingEvent) ->
             Box(
                 Modifier.fillMaxSize().border(1.dp, P.artInnerBorder, RoundedCornerShape(11.dp)),
                 contentAlignment = Alignment.Center,
-            ) { Text(prayer.syllable, style = t.tibetanTile22, color = P.artSyllable) }
+            ) { AppText(prayer.syllable, style = t.tileGlyphHero, color = P.artSyllable) }
         }
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(prayer.titleEn, style = t.playerTitle19, color = P.text)
-            Text(prayer.title, style = t.tibetanList, color = P.tib, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(
+            AppText(prayer.titleEn, style = t.playerTitle, color = P.text)
+            AppText(prayer.title, style = t.tibetanList, color = P.tib, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            AppText(
                 stringResource(if (state.isDownloaded) R.string.downloaded else R.string.streaming),
-                style = t.caption12Medium,
+                style = t.bodySmallMedium,
                 color = if (state.isDownloaded) P.downloaded else P.time,
             )
         }
@@ -230,7 +234,7 @@ private fun VersesPane(state: NowPlayingUiState, onEvent: (NowPlayingEvent) -> U
                 }
                 val color by animateColorAsState(target, tween(motionDuration(400)), label = "verse")
                 val description = stringResource(R.string.cd_verse, state.count(i + 1), state.count(state.verseCount)) + ". " + verse
-                Text(
+                AppText(
                     verse,
                     style = PrayerTheme.type.tibetanVerse,
                     color = color,
@@ -295,8 +299,8 @@ private fun PlayerControls(state: NowPlayingUiState, onEvent: (NowPlayingEvent) 
                 },
             )
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(state.posLabel, style = t.caption12Medium, color = P.time)
-                Text(state.durLabel, style = t.caption12Medium, color = P.time)
+                AppText(state.posLabel, style = t.bodySmallMedium, color = P.time)
+                AppText(state.durLabel, style = t.bodySmallMedium, color = P.time)
             }
         }
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
@@ -304,7 +308,7 @@ private fun PlayerControls(state: NowPlayingUiState, onEvent: (NowPlayingEvent) 
                 onClick = { onEvent(NowPlayingEvent.CycleSpeed) },
                 contentDescription = "$cdSpeed ${state.speedLabel}",
                 borderColor = P.pillBorder,
-            ) { Text(state.speedLabel, style = t.caption12Semi, color = P.text, maxLines = 1) }
+            ) { AppText(state.speedLabel, style = t.bodySmallStrong, color = P.text, maxLines = 1) }
             IconActionButton(R.drawable.ic_skip_prev, stringResource(R.string.cd_previous), { onEvent(NowPlayingEvent.Prev) }, tint = P.text, iconSize = 30.dp)
             val playCd = stringResource(if (state.isPlaying) R.string.cd_pause else R.string.cd_play)
             Box(
@@ -339,7 +343,7 @@ private fun PlayerControls(state: NowPlayingUiState, onEvent: (NowPlayingEvent) 
             ) {
                 Icon(painterResource(R.drawable.ic_repeat), null, tint = repeatColor, modifier = Modifier.size(13.dp))
                 Spacer(Modifier.width(4.dp))
-                Text(repeatText, style = t.caption12Semi, color = repeatColor, maxLines = 1)
+                AppText(repeatText, style = t.bodySmallStrong, color = repeatColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
         }
     }
@@ -353,12 +357,12 @@ private fun QueueSheet(state: NowPlayingUiState, onEvent: (NowPlayingEvent) -> U
         onDismissRequest = { onEvent(NowPlayingEvent.CloseQueue) },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = P.sheet,
-        scrimColor = Color.Black.copy(alpha = 0.45f),
+        scrimColor = P.queueScrim,
         shape = RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp),
         dragHandle = { SheetHandle(color = P.pillBorder) },
     ) {
         Column(Modifier.navigationBarsPadding()) {
-            Text(
+            AppText(
                 stringResource(R.string.queue),
                 style = t.sheetTitle,
                 color = P.text,
@@ -379,17 +383,17 @@ private fun QueueSheet(state: NowPlayingUiState, onEvent: (NowPlayingEvent) -> U
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Text(
+                        AppText(
                             state.count(q.index + 1),
-                            style = t.body13Semi,
+                            style = t.bodyStrong,
                             color = if (q.isCurrent) P.verseCurrent else P.time,
-                            modifier = Modifier.width(22.dp),
+                            modifier = Modifier.widthIn(min = PrayerDimens.queueNumberMin),
                         )
                         Column(Modifier.weight(1f)) {
-                            Text(q.en, style = t.body15Semi, color = if (q.isCurrent) P.verseCurrent else P.text)
-                            Text(q.tib, style = t.tibetanCaption, color = P.time)
+                            AppText(q.en, style = t.bodyLargeStrong, color = if (q.isCurrent) P.verseCurrent else P.text)
+                            AppText(q.tib, style = t.tibetanCaption, color = P.time)
                         }
-                        Text(q.durLabel, style = t.caption12Medium, color = P.time)
+                        AppText(q.durLabel, style = t.bodySmallMedium, color = P.time)
                     }
                     Box(Modifier.fillMaxWidth().height(1.dp).background(P.queueDivider))
                     }

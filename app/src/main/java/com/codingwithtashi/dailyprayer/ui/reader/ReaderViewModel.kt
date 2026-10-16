@@ -11,14 +11,12 @@ import com.codingwithtashi.dailyprayer.core.time.AppClock
 import com.codingwithtashi.dailyprayer.data.model.Appearance
 import com.codingwithtashi.dailyprayer.data.model.Prayer
 import com.codingwithtashi.dailyprayer.data.model.PrayerCategory
+import com.codingwithtashi.dailyprayer.data.prefs.ReaderTextSize
 import com.codingwithtashi.dailyprayer.data.prefs.UserPreferencesRepository
 import com.codingwithtashi.dailyprayer.data.repository.PrayerRepository
 import com.codingwithtashi.dailyprayer.data.repository.RoutineRepository
 import com.codingwithtashi.dailyprayer.playback.PlaybackError
 import com.codingwithtashi.dailyprayer.playback.PlayerControllerApi
-import com.codingwithtashi.dailyprayer.ui.settings.MAX_TEXT_SIZE
-import com.codingwithtashi.dailyprayer.ui.settings.MIN_TEXT_SIZE
-import com.codingwithtashi.dailyprayer.ui.settings.TEXT_SIZE_STEP
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlin.math.abs
@@ -55,7 +53,7 @@ data class ReaderUiState(
     val category: PrayerCategory = PrayerCategory.OTHER,
     val estMinutes: Int = 1,
     val routineCtx: RoutineCtx? = null,
-    val textSizeSp: Int = 22,
+    val textSizeSp: Int = ReaderTextSize.DEFAULT,
     val appearance: Appearance = Appearance.SYSTEM,
     val goal: Int = 108,
     val count: Int = 0,
@@ -204,8 +202,8 @@ class ReaderViewModel @Inject constructor(
             ReaderEvent.DoneFinish -> done(finish = true)
             is ReaderEvent.ScrollProgress -> onScroll(event.pct)
             ReaderEvent.Flush -> flushProgress(appScope)
-            ReaderEvent.SizeUp -> setSize(state.value.textSizeSp + TEXT_SIZE_STEP)
-            ReaderEvent.SizeDown -> setSize(state.value.textSizeSp - TEXT_SIZE_STEP)
+            ReaderEvent.SizeUp -> setSize(state.value.textSizeSp + ReaderTextSize.STEP)
+            ReaderEvent.SizeDown -> setSize(state.value.textSizeSp - ReaderTextSize.STEP)
             is ReaderEvent.SetAppearance -> viewModelScope.launch { prefs.setAppearance(event.appearance) }
             is ReaderEvent.SetGoal -> viewModelScope.launch { prefs.setRecitationGoal(event.goal) }
         }
@@ -231,7 +229,7 @@ class ReaderViewModel @Inject constructor(
     }
 
     private fun setSize(size: Int) {
-        viewModelScope.launch { prefs.setTextSize(size.coerceIn(MIN_TEXT_SIZE, MAX_TEXT_SIZE)) }
+        viewModelScope.launch { prefs.setTextSize(size) }
     }
 
     private fun toggleSave() {

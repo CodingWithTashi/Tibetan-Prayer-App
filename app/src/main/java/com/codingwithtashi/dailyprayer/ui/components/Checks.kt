@@ -8,13 +8,13 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,11 +28,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.R
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import com.codingwithtashi.dailyprayer.ui.theme.motionDuration
 
 /**
- * Round done indicator: filled accent with a check when [checked]; otherwise a 2dp ring that
+ * Round done indicator: [size] is the minimum diameter (it grows with its number); filled accent with a check when [checked]; otherwise a 2dp ring that
  * shows [number] (routine step) when given. Decorative; the parent row carries the semantics.
  */
 @Composable
@@ -42,16 +43,16 @@ fun CheckCircle(size: Dp, checked: Boolean, modifier: Modifier = Modifier, numbe
     val ring by animateColorAsState(if (checked) c.accent else c.borderStrong, tween(motionDuration(200)), label = "checkRing")
     Box(
         modifier = modifier
-            .size(size)
+            .sizeIn(minWidth = size, minHeight = size)
             .clip(CircleShape)
             .background(bg)
             .border(2.dp, ring, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         if (checked) {
-            Icon(painterResource(R.drawable.ic_check), null, Modifier.size(if (size > 24.dp) 12.dp else 11.dp), tint = c.onAccent)
+            Icon(painterResource(R.drawable.ic_check), null, Modifier.size(if (size > PrayerDimens.checkCircleSmallMin) 12.dp else 11.dp), tint = c.onAccent)
         } else if (number != null) {
-            Text(number, style = PrayerTheme.type.caption12Semi, color = c.accent, maxLines = 1)
+            AppText(number, style = PrayerTheme.type.bodySmallStrong, color = c.accent, maxLines = 1)
         }
     }
 }

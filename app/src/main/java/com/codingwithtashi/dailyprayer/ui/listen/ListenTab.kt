@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,6 +25,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.navigation.ListenFilter
+import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.FilterChipPill
 import com.codingwithtashi.dailyprayer.ui.components.ListenRow
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
@@ -50,7 +50,7 @@ fun ListenTab(
     val failed = stringResource(R.string.download_failed)
     val removed = stringResource(R.string.removed_download)
     val undo = stringResource(R.string.undo)
-    LaunchedEffect(filter) { viewModel.setFilter(filter) }
+    LaunchedEffect(filter) { viewModel.onEvent(ListenEvent.SetFilter(filter)) }
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
@@ -113,9 +113,9 @@ internal fun ListenContent(
                         state.filter == ListenFilter.DOWNLOADED,
                         { onFilterChange(ListenFilter.DOWNLOADED) },
                     )
-                    Text(
+                    AppText(
                         state.storageLabel.orEmpty(),
-                        style = t.caption12Medium,
+                        style = t.bodySmallMedium,
                         color = c.textMuted,
                         textAlign = TextAlign.End,
                         maxLines = 1,
@@ -126,9 +126,9 @@ internal fun ListenContent(
             }
             if (state.items.isEmpty() && state.filter == ListenFilter.DOWNLOADED) {
                 item {
-                    Text(
+                    AppText(
                         stringResource(R.string.no_downloads),
-                        style = t.body14,
+                        style = t.body,
                         color = c.textMuted,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth().padding(vertical = 40.dp, horizontal = 12.dp),

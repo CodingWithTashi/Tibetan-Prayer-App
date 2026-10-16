@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.codingwithtashi.dailyprayer.R
-import com.codingwithtashi.dailyprayer.core.locale.AppLanguage
+import com.codingwithtashi.dailyprayer.data.model.AppTextSize
 
 /** Jomolhari, the Tibetan face (single weight). */
 val Jomolhari = FontFamily(Font(R.font.jomolhari_regular, FontWeight.Normal))
@@ -38,143 +38,147 @@ val InstrumentSans = FontFamily(
 private val NoFontPadding = PlatformTextStyle(includeFontPadding = false)
 private val CenterTrimNone = LineHeightStyle(LineHeightStyle.Alignment.Center, LineHeightStyle.Trim.None)
 
-private fun style(
-    family: FontFamily,
-    size: Int,
-    weight: FontWeight = FontWeight.Normal,
-    line: Int? = null,
-    letterSpacing: TextUnit = TextUnit.Unspecified,
-    fontStyle: FontStyle? = null,
-    paragraph: Boolean = false,
-    lineExact: Float? = null,
-): TextStyle = TextStyle(
-    fontFamily = family,
-    fontSize = size.sp,
-    fontWeight = weight,
-    fontStyle = fontStyle,
-    lineHeight = when {
-        lineExact != null -> TextUnit(lineExact, TextUnitType.Sp)
-        line != null -> line.sp
-        else -> TextUnit.Unspecified
-    },
-    letterSpacing = letterSpacing,
-    platformStyle = NoFontPadding,
-    lineHeightStyle = CenterTrimNone,
-    lineBreak = if (paragraph) LineBreak.Paragraph else LineBreak.Simple,
-)
+private fun scaled(size: Int, scale: Float): TextUnit = (size * scale).sp
 
 private val W4 = FontWeight.Normal
 private val W5 = FontWeight.Medium
 private val W6 = FontWeight.SemiBold
 
-/** Every named text style of the design system (plan Part H3). */
+/**
+ * Every named text style of the design system, named by role (Instrument Sans for UI, Cormorant
+ * Garamond for display, Jomolhari for Tibetan). All sizes are in sp, so the system font scale still
+ * applies; [textScale] is the app-wide Text size setting and multiplies both font size and line height.
+ */
 @Immutable
-class PrayerTypography {
-    // Cormorant Garamond
-    val displayLarge = style(CormorantGaramond, 38, W6, 40)
-    val displayMedium = style(CormorantGaramond, 32, W6, 35)
-    val titleLarge = style(CormorantGaramond, 30, W6, 33)
-    val greeting = style(CormorantGaramond, 28, W6, 32)
-    val sheetTitle = style(CormorantGaramond, 22, W6, 26)
-    val sectionTitle = style(CormorantGaramond, 21, W6, 25)
-    val statNumber = style(CormorantGaramond, 20, W6, 20)
-    val readerSubtitle = style(CormorantGaramond, 19, W5, 23, fontStyle = FontStyle.Italic)
-    val aaGlyph = style(CormorantGaramond, 17, W6)
+class PrayerTypography(val textScale: Float = 1f) {
+    private fun style(
+        family: FontFamily,
+        size: Int,
+        weight: FontWeight = FontWeight.Normal,
+        line: Int? = null,
+        letterSpacing: TextUnit = TextUnit.Unspecified,
+        fontStyle: FontStyle? = null,
+        paragraph: Boolean = false,
+        lineExact: Float? = null,
+        features: String? = null,
+    ): TextStyle = TextStyle(
+        fontFamily = family,
+        fontSize = scaled(size, textScale),
+        fontWeight = weight,
+        fontStyle = fontStyle,
+        lineHeight = when {
+            lineExact != null -> TextUnit(lineExact * textScale, TextUnitType.Sp)
+            line != null -> scaled(line, textScale)
+            else -> TextUnit.Unspecified
+        },
+        letterSpacing = letterSpacing,
+        fontFeatureSettings = features,
+        platformStyle = NoFontPadding,
+        lineHeightStyle = CenterTrimNone,
+        lineBreak = if (paragraph) LineBreak.Paragraph else LineBreak.Simple,
+    )
 
-    // Jomolhari (Tibetan)
-    val tibetanHero = style(Jomolhari, 30, line = 48, paragraph = true)
-    val tibetanReaderTitle = style(Jomolhari, 32, line = 51, paragraph = true)
-    val tibetanTitle30 = style(Jomolhari, 30, line = 40, paragraph = true)
-    val tibetanList = style(Jomolhari, 17, line = 26, paragraph = true)
-    val tibetanListSmall = style(Jomolhari, 16, line = 24, paragraph = true)
-    val tibetanCaption = style(Jomolhari, 15, line = 22, paragraph = true)
-    val tibetanCaptionSmall = style(Jomolhari, 11, line = 16, paragraph = true)
-    val tibetanTile13 = style(Jomolhari, 13)
-    val tibetanTile14 = style(Jomolhari, 14)
-    val tibetanTile15 = style(Jomolhari, 15)
-    val tibetanTile16 = style(Jomolhari, 16)
-    val tibetanTile19 = style(Jomolhari, 19)
-    val tibetanTile22 = style(Jomolhari, 22)
-    val tibetanVerse = style(Jomolhari, 20, line = 38, paragraph = true)
-    val tibetanEndMark = style(Jomolhari, 22)
-    val tibUiTab = style(Jomolhari, 13)
-    val tibUiPill = style(Jomolhari, 16)
-    val tibUiDay = style(Jomolhari, 12)
-    val tibUiLangOption = style(Jomolhari, 20)
+    // Cormorant Garamond: display and headings
+    /** App wordmark. */
+    val wordmark = style(CormorantGaramond, 40, W6, 44)
+    val headline = style(CormorantGaramond, 34, W6, 38)
+    /** Screen title (Library, Saved, Listen...). */
+    val title = style(CormorantGaramond, 32, W6, 36)
+    val greeting = style(CormorantGaramond, 32, W6, 36)
+    val greetingCompact = style(CormorantGaramond, 28, W6, 32)
+    val sheetTitle = style(CormorantGaramond, 24, W6, 30)
+    val sectionTitle = style(CormorantGaramond, 24, W6, 30)
 
-    /** Jomolhari 10sp, used for the Today week-day labels in Tibetan. */
-    val tibetanDay10 = style(Jomolhari, 10)
+    /** Stat numbers use lining figures so "0" reads as zero. */
+    val statNumber = style(CormorantGaramond, 28, W6, 30, features = "lnum")
+    val readerSubtitle = style(CormorantGaramond, 20, W5, 26, fontStyle = FontStyle.Italic)
+    val aaGlyph = style(CormorantGaramond, 20, W6)
+
+    // Jomolhari (Tibetan); line heights are at least 1.5x the size
+    val tibetanHero = style(Jomolhari, 32, line = 52, paragraph = true)
+    val tibetanReaderTitle = style(Jomolhari, 34, line = 54, paragraph = true)
+    val tibetanList = style(Jomolhari, 20, line = 32, paragraph = true)
+    val tibetanListSmall = style(Jomolhari, 19, line = 30, paragraph = true)
+    val tibetanCaption = style(Jomolhari, 17, line = 27, paragraph = true)
+    val tibetanCaptionSmall = style(Jomolhari, 14, line = 22, paragraph = true)
+
+    // Tibetan glyphs inside tiles, smallest to largest
+    val tileGlyphMini = style(Jomolhari, 15)
+    val tileGlyphSmall = style(Jomolhari, 16)
+    val tileGlyphMedium = style(Jomolhari, 17)
+    val tileGlyphLarge = style(Jomolhari, 18)
+    val tileGlyphXL = style(Jomolhari, 21)
+    val tileGlyphHero = style(Jomolhari, 24)
+
+    /** Smallest size a tile glyph auto-shrinks to before it would overflow its tile. */
+    val tileGlyphMinSize: TextUnit = 13.sp
+    val tibetanVerse = style(Jomolhari, 24, line = 44, paragraph = true)
+    val tibetanEndMark = style(Jomolhari, 26)
 
     /** Reader paragraph style: line height is size x 2.05. */
     fun tibetanReaderBody(sizeSp: Int): TextStyle =
         style(Jomolhari, sizeSp, paragraph = true, lineExact = sizeSp * 2.05f)
 
-    /** Tibetan section label (14sp) and overline (12sp): Jomolhari is illegible at the Latin label sizes. */
-    val tibetanLabel14 = style(Jomolhari, 14, line = 20, paragraph = true)
-    val tibetanOverline12 = style(Jomolhari, 12, line = 18, paragraph = true)
-
     // Instrument Sans: uppercase labels
-    val overline10 = style(InstrumentSans, 10, W6, letterSpacing = 0.14.em)
-    val label11 = style(InstrumentSans, 11, W6, letterSpacing = 0.12.em)
-    val label11Wide = style(InstrumentSans, 11, W6, letterSpacing = 0.14.em)
-    val label11Narrow = style(InstrumentSans, 11, W6, letterSpacing = 0.10.em)
-    val label12 = style(InstrumentSans, 12, W6, letterSpacing = 0.10.em)
+    val overline = style(InstrumentSans, 13, W6, letterSpacing = 0.12.em)
+    val label = style(InstrumentSans, 14, W6, letterSpacing = 0.10.em)
 
     // Captions
-    val caption10 = style(InstrumentSans, 10, W5)
-    val caption11 = style(InstrumentSans, 11, W5)
-    val body11Semi = style(InstrumentSans, 11, W6)
-    val caption12 = style(InstrumentSans, 12, W4, 16)
-    val caption12Medium = style(InstrumentSans, 12, W5)
-    val caption12Semi = style(InstrumentSans, 12, W6)
+    val caption = style(InstrumentSans, 13, W5)
+    val captionStrong = style(InstrumentSans, 13, W6)
+    val bodySmall = style(InstrumentSans, 14, W4, 21)
+    val bodySmallMedium = style(InstrumentSans, 14, W5)
+    val bodySmallStrong = style(InstrumentSans, 14, W6)
 
     // Body
-    val body13 = style(InstrumentSans, 13, W4)
-    val body13Medium = style(InstrumentSans, 13, W5)
-    val body13Semi = style(InstrumentSans, 13, W6)
-    val body14 = style(InstrumentSans, 14, W4, 21)
-    val body14Medium = style(InstrumentSans, 14, W5)
-    val body14Semi = style(InstrumentSans, 14, W6)
-    val body15 = style(InstrumentSans, 15, W4, 22)
-    val body15Semi = style(InstrumentSans, 15, W6)
-    val body16 = style(InstrumentSans, 16, W4, 24)
-    val body16Semi = style(InstrumentSans, 16, W6)
+    val body = style(InstrumentSans, 16, W4, 24)
+    val bodyMedium = style(InstrumentSans, 16, W5)
+    val bodyStrong = style(InstrumentSans, 16, W6)
+    /** Row titles and 48-52dp buttons. */
+    val bodyLarge = style(InstrumentSans, 17, W4, 25)
+    val bodyLargeStrong = style(InstrumentSans, 17, W6)
+    val lead = style(InstrumentSans, 18, W4, 26)
+    val leadStrong = style(InstrumentSans, 18, W6)
 
     // Inputs and misc
-    val input15 = style(InstrumentSans, 15, W4)
-    val input16 = style(InstrumentSans, 16, W4)
-    val input18 = style(InstrumentSans, 18, W4)
-    val counter18 = style(InstrumentSans, 18, W6)
-    val playerTitle19 = style(InstrumentSans, 19, W6, 23)
-    val avatar15 = style(InstrumentSans, 15, W6)
-    val avatar22 = style(InstrumentSans, 22, W6)
-    val about13 = style(InstrumentSans, 13, W4, 21)
+    val input = style(InstrumentSans, 17, W4)
+    val inputLarge = style(InstrumentSans, 20, W4)
+    val counter = style(InstrumentSans, 22, W6)
+    val playerTitle = style(InstrumentSans, 22, W6, 28)
+    val avatarSmall = style(InstrumentSans, 17, W6)
+    val avatarLarge = style(InstrumentSans, 26, W6)
 
-    // ---- Language-dependent UI label helpers (Tibetan UI renders these in Jomolhari) ----
+    /** "A" / "ཀ" glyph for the Text size selector, at 14/17/20/24sp for SMALL..LARGEST (Tibetan is handled by AppText). */
+    fun textSizeSample(option: AppTextSize): TextStyle {
+        val size = when (option) {
+            AppTextSize.SMALL -> 14
+            AppTextSize.DEFAULT -> 17
+            AppTextSize.LARGE -> 20
+            AppTextSize.LARGEST -> 24
+        }
+        return style(InstrumentSans, size, W6)
+    }
 
-    /** Bottom bar / rail label: 600 when selected, 500 otherwise; Jomolhari 13sp in Tibetan. */
-    fun tab(language: AppLanguage, selected: Boolean): TextStyle =
-        if (language == AppLanguage.BO) tibUiTab else if (selected) body11Semi else caption11
-
-    /** Language pill label. */
-    fun pill(language: AppLanguage): TextStyle =
-        if (language == AppLanguage.BO) tibUiPill else body13Semi
-
-    /** Week-day chip label. */
-    fun day(language: AppLanguage): TextStyle =
-        if (language == AppLanguage.BO) tibUiDay else body13Semi
-
-    /** Language option / segmented-control label. */
-    fun langOption(language: AppLanguage): TextStyle =
-        if (language == AppLanguage.BO) tibUiLangOption else body16Semi
-
-    /** Week-day caption on Today: 10sp Sans, Jomolhari in Tibetan. */
-    fun weekDay(language: AppLanguage): TextStyle =
-        if (language == AppLanguage.BO) tibetanDay10 else caption10
-
-    /** Screen title (Library, Saved, Listen...): Cormorant, Jomolhari 30sp in Tibetan. */
-    fun screenTitle(language: AppLanguage): TextStyle =
-        if (language == AppLanguage.BO) tibetanTitle30 else titleLarge
+    /** Every token by name, for the gallery preview and tests. */
+    val all: Map<String, TextStyle> by lazy {
+        mapOf(
+            "wordmark" to wordmark, "headline" to headline, "title" to title, "greeting" to greeting,
+            "greetingCompact" to greetingCompact, "sheetTitle" to sheetTitle, "sectionTitle" to sectionTitle,
+            "statNumber" to statNumber, "readerSubtitle" to readerSubtitle, "aaGlyph" to aaGlyph,
+            "tibetanHero" to tibetanHero, "tibetanReaderTitle" to tibetanReaderTitle,
+            "tibetanList" to tibetanList, "tibetanListSmall" to tibetanListSmall, "tibetanCaption" to tibetanCaption,
+            "tibetanCaptionSmall" to tibetanCaptionSmall, "tileGlyphMini" to tileGlyphMini,
+            "tileGlyphSmall" to tileGlyphSmall, "tileGlyphMedium" to tileGlyphMedium, "tileGlyphLarge" to tileGlyphLarge,
+            "tileGlyphXL" to tileGlyphXL, "tileGlyphHero" to tileGlyphHero, "tibetanVerse" to tibetanVerse,
+            "tibetanEndMark" to tibetanEndMark,
+            "overline" to overline, "label" to label, "caption" to caption, "captionStrong" to captionStrong,
+            "bodySmall" to bodySmall, "bodySmallMedium" to bodySmallMedium, "bodySmallStrong" to bodySmallStrong,
+            "body" to body, "bodyMedium" to bodyMedium, "bodyStrong" to bodyStrong, "bodyLarge" to bodyLarge,
+            "bodyLargeStrong" to bodyLargeStrong, "lead" to lead, "leadStrong" to leadStrong, "input" to input,
+            "inputLarge" to inputLarge, "counter" to counter, "playerTitle" to playerTitle,
+            "avatarSmall" to avatarSmall, "avatarLarge" to avatarLarge,
+        )
+    }
 }
 
 /** Current typography. */

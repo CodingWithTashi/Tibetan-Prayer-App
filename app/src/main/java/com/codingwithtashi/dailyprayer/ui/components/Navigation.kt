@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -26,7 +27,6 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 import com.codingwithtashi.dailyprayer.ui.theme.motionDuration
 
@@ -48,7 +49,6 @@ data class TabSpec(@StringRes val label: Int, @DrawableRes val icon: Int)
 @Composable
 private fun TabItem(spec: TabSpec, selected: Boolean, onClick: () -> Unit, modifier: Modifier) {
     val c = PrayerTheme.colors
-    val language = PrayerTheme.language
     val tint by animateColorAsState(if (selected) c.accent else c.textMuted, tween(motionDuration(200)), label = "tabTint")
     val pill by animateColorAsState(if (selected) c.surfaceWarm else Color.Transparent, tween(motionDuration(200)), label = "tabPill")
     Column(
@@ -58,14 +58,14 @@ private fun TabItem(spec: TabSpec, selected: Boolean, onClick: () -> Unit, modif
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         Box(
-            Modifier.size(56.dp, 30.dp).clip(RoundedCornerShape(15.dp)).background(pill),
+            Modifier.size(PrayerDimens.tabPillWidth, PrayerDimens.tabPillHeight).clip(RoundedCornerShape(16.dp)).background(pill),
             contentAlignment = Alignment.Center,
         ) {
             Icon(painterResource(spec.icon), contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
         }
-        Text(
+        AppText(
             stringResource(spec.label),
-            style = PrayerTheme.type.tab(language, selected),
+            style = if (selected) PrayerTheme.type.captionStrong else PrayerTheme.type.caption,
             color = tint,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -74,7 +74,7 @@ private fun TabItem(spec: TabSpec, selected: Boolean, onClick: () -> Unit, modif
     }
 }
 
-/** Compact-width bottom tab bar: 80dp plus the navigation-bar inset, surface fill, 1dp top border. */
+/** Compact-width bottom tab bar: at least 80dp (grows with text) plus the navigation-bar inset, surface fill, 1dp top border. */
 @Composable
 fun PrayerBottomBar(
     tabs: List<TabSpec>,
@@ -85,7 +85,8 @@ fun PrayerBottomBar(
     val c = PrayerTheme.colors
     Box(modifier.fillMaxWidth().background(c.surface).topBorder(c.border).navigationBarsPadding()) {
         Row(
-            Modifier.fillMaxWidth().height(80.dp).padding(start = 8.dp, top = 8.dp, end = 8.dp).selectableGroup(),
+            Modifier.fillMaxWidth().heightIn(min = PrayerDimens.bottomBarMin).height(IntrinsicSize.Min)
+                .padding(start = 8.dp, top = 8.dp, end = 8.dp).selectableGroup(),
         ) {
             tabs.forEachIndexed { i, tab ->
                 TabItem(tab, i == selected, { onSelect(i) }, Modifier.weight(1f).fillMaxHeight())

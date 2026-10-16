@@ -1,0 +1,25 @@
+# Edit the morning routine's reminder: drop the weekend, save. Handles the exact-alarm dialog if it shows.
+appId: com.codingwithtashi.dailyprayer.stage
+---
+- runFlow: common/onboard_en.yaml
+- tapOn: "Morning practice"
+- tapOn: "Edit"
+- extendedWaitUntil:
+    visible: "Edit routine"
+    timeout: 10000
+# Day chips are described by weekday name; every day starts selected. Turn Saturday and Sunday off.
+- scrollUntilVisible:
+    element: "Saturday"
+- tapOn: "Saturday"
+- tapOn: "Sunday"
+# Reminder switch should be on (Role.Switch row labelled "Reminder").
+- assertVisible: "Reminder"
+- tapOn: "Save"
+# If "Alarms & reminders" is not allowed the app explains it first; decline (or the tap is a no-op).
+- tapOn:
+    text: "Cancel"
+    optional: true
+# Saved toast e.g. "Saved · Morning practice Mon–Fri" (text format comes from saved_routine).
+- extendedWaitUntil:
+    visible: "Saved · .*"
+    timeout: 8000

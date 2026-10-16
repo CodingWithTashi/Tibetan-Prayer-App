@@ -42,9 +42,20 @@ data class SavedUiState(
     val editing: Boolean = false,
 )
 
+/** User actions on the Saved tab. */
 sealed interface SavedEvent {
-    /** Show the "removed" toast; Undo calls [SavedViewModel.undoRemove]. */
-    data class Removed(val id: Int, val previousLabel: String?) : SavedEvent
+    data object ToggleEdit : SavedEvent
+    /** Plays `[id]` (or toggles it when already current); [contextLabel] is the "Saved" tab name. */
+    data class PlayPause(val id: Int, val contextLabel: String) : SavedEvent
+    data class SetLabel(val id: Int, val text: String) : SavedEvent
+    data class Remove(val id: Int) : SavedEvent
+    data class UndoRemove(val id: Int, val previousLabel: String?) : SavedEvent
+}
+
+/** One-shot effects the Saved tab shows. */
+sealed interface SavedEffect {
+    /** Show the "removed" toast; Undo sends [SavedEvent.UndoRemove]. */
+    data class Removed(val id: Int, val previousLabel: String?) : SavedEffect
 }
 
 @HiltViewModel
@@ -56,8 +67,8 @@ class SavedViewModel @Inject constructor(
     private val editing = MutableStateFlow(false)
     private val drafts = MutableStateFlow<Map<Int, String>>(emptyMap())
     private val saveJobs = mutableMapOf<Int, Job>()
-    private val eventChannel = Channel<SavedEvent>(Channel.BUFFERED)
-    val events: Flow<SavedEvent> = eventChannel.receiveAsFlow()
+    private val effectChannel = Channel<SavedEffect>(Channel.BUFFERED)
+    val effects: Flow<SavedEffect> = effectChannel.receiveAsFlow()
 
     private val playing = player.state.map { it.currentPrayerId to it.isPlaying }.distinctUntilChanged()
 
@@ -68,17 +79,22 @@ class SavedViewModel @Inject constructor(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SavedUiState())
 
-    fun toggleEdit() {
+    fun onEvent(event: SavedEvent) {
+        when (event) {
+            SavedEvent.ToggleEdit -> toggleEdit()
+            is SavedEvent.PlayPause -> player.playOrToggle(event.id, event.contextLabel)
+            is SavedEvent.SetLabel -> setLabel(event.id, event.text)
+            is SavedEvent.Remove -> remove(event.id)
+            is SavedEvent.UndoRemove -> undoRemove(event.id, event.previousLabel)
+        }
+    }
+
+    private fun toggleEdit() {
         if (editing.value) flushPending()
         editing.value = !editing.value
     }
 
-    /** Plays `[id]` (or toggles it when already current); [contextLabel] is the "Saved" tab name. */
-    fun playPause(id: Int, contextLabel: String) {
-        player.playOrToggle(id, contextLabel)
-    }
-
-    fun setLabel(id: Int, text: String) {
+    private fun setLabel(id: Int, text: String) {
         val clamped = text.take(MAX_LABEL)
         drafts.update { it + (id to clamped) }
         saveJobs[id]?.cancel()
@@ -88,18 +104,18 @@ class SavedViewModel @Inject constructor(
         }
     }
 
-    fun remove(id: Int) {
+    private fun remove(id: Int) {
         viewModelScope.launch {
             // Any unsaved draft is dropped with the row; Undo restores the persisted label.
             saveJobs.remove(id)?.cancel()
             drafts.update { it - id }
             val prayer = repository.get(id) ?: return@launch
             repository.setSaved(id, false)
-            eventChannel.send(SavedEvent.Removed(id, prayer.savedLabel))
+            effectChannel.send(SavedEffect.Removed(id, prayer.savedLabel))
         }
     }
 
-    fun undoRemove(id: Int, previousLabel: String?) {
+    private fun undoRemove(id: Int, previousLabel: String?) {
         viewModelScope.launch {
             repository.setSaved(id, true)
             repository.setSavedLabel(id, previousLabel)

@@ -1,5 +1,6 @@
 package com.codingwithtashi.dailyprayer.ui.components
 
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,12 +8,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
@@ -27,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.codingwithtashi.dailyprayer.R
 import com.codingwithtashi.dailyprayer.ui.theme.CategoryKey
 import com.codingwithtashi.dailyprayer.ui.theme.NowPlayingPalette
+import com.codingwithtashi.dailyprayer.ui.theme.PrayerDimens
 import com.codingwithtashi.dailyprayer.ui.theme.PrayerTheme
 
 /** UI state of the mini player. [subtitle] is the preformatted "Verse i / n" line. */
@@ -40,7 +40,7 @@ data class MiniPlayerUi(
 )
 
 /**
- * Mini player card (h62, r16, darkCard): the tile and titles open Now Playing; play/pause and
+ * Mini player card (min h68, r16, darkCard): the tile and titles open Now Playing; play/pause and
  * close are separate buttons; a 2dp gold progress bar sits at the bottom. Margin 10/10/8 is built in.
  */
 @Composable
@@ -57,34 +57,37 @@ fun MiniPlayer(
     val openDescription = "${stringResource(R.string.now_playing)}, ${state.title}, ${state.subtitle}"
     Box(
         modifier
+            .testTag("mini_player")
             .padding(start = 10.dp, end = 10.dp, bottom = 8.dp)
             .fillMaxWidth()
-            .height(62.dp)
+            .heightIn(min = PrayerDimens.miniPlayerMin)
             .clip(shape)
             .background(c.darkCard)
             .border(1.dp, c.darkCardBorder, shape),
     ) {
         Row(
-            Modifier.fillMaxWidth().fillMaxHeight().padding(start = 10.dp, end = 6.dp),
+            // heightIn, not fillMaxHeight: MainScaffold measures the card before the weighted tab content,
+            // so filling the height would take the whole screen and push the bottom bar off it.
+            Modifier.fillMaxWidth().heightIn(min = PrayerDimens.miniPlayerMin).padding(start = 10.dp, end = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(
                 Modifier
                     .weight(1f)
-                    .fillMaxHeight()
+                    .heightIn(min = PrayerDimens.miniPlayerMin)
                     .clickable(role = Role.Button, onClick = onOpen)
                     .semantics(mergeDescendants = true) { contentDescription = openDescription },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 PrayerTile(
-                    state.syllable, CategoryKey.DAILY, 42.dp, 10.dp, t.tibetanTile13,
+                    state.syllable, CategoryKey.DAILY, PrayerDimens.miniPlayerTile, 10.dp, t.tileGlyphMini,
                     containerColor = c.accentSolid, contentColor = NowPlayingPalette.miniSyllable,
                 )
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(state.title, style = t.body14Semi, color = c.darkCardText, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(state.subtitle, style = t.caption12, color = NowPlayingPalette.miniSub, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    AppText(state.title, style = t.bodyStrong, color = c.darkCardText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    AppText(state.subtitle, style = t.bodySmall, color = NowPlayingPalette.miniSub, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
             IconActionButton(

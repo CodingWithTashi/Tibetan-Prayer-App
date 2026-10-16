@@ -7,8 +7,8 @@ import com.codingwithtashi.dailyprayer.playback.PlaybackError
 import com.codingwithtashi.dailyprayer.playback.PlayerState
 import com.codingwithtashi.dailyprayer.playback.RepeatMode
 import com.codingwithtashi.dailyprayer.ui.FakePlayerControllerApi
-import com.codingwithtashi.dailyprayer.ui.routine.testPrayer
-import com.codingwithtashi.dailyprayer.ui.today.FakePrefs
+import com.codingwithtashi.dailyprayer.ui.testPrayer
+import com.codingwithtashi.dailyprayer.ui.FakePrefs
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -109,8 +109,8 @@ class NowPlayingViewModelTest {
         assertThat(q.map { it.index }).containsExactly(0, 1, 2).inOrder()
         assertThat(q.map { it.isCurrent }).containsExactly(false, true, false).inOrder()
         assertThat(q.map { it.durLabel }).containsExactly("1:40", "1:20", "1:05").inOrder()
-        assertThat(q[0].en).isEqualTo("En 1")
-        assertThat(q[0].tib).isEqualTo("tib1")
+        assertThat(q[0].en).isEqualTo("Prayer 1")
+        assertThat(q[0].tib).isEqualTo("བོད1")
     }
 
     @Test fun controlsDelegateToPlayer() = runTest(dispatcher) {

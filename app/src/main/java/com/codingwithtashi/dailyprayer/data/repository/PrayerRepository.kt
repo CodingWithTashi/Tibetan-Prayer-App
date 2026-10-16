@@ -24,10 +24,10 @@ interface PrayerRepository {
     suspend fun updateAudioDuration(id: Int, ms: Long)
 
     /** Marks the prayer's audio as downloaded at [path]; [durationMs] (if known) is stored too. */
-    suspend fun setDownloaded(id: Int, path: String, durationMs: Long?) = Unit
+    suspend fun setDownloaded(id: Int, path: String, durationMs: Long?)
 
     /** Clears the downloaded flag and path. */
-    suspend fun clearDownloaded(id: Int) = Unit
+    suspend fun clearDownloaded(id: Int)
     suspend fun upsertRemote(
         title: String,
         content: String,
