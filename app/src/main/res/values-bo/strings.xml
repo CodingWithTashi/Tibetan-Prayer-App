@@ -310,4 +310,7 @@
     <string name="notifications_off_body">མཉེན་ཆས་འདིར་བརྡ་ཐོ་ཆོག་མཆན་མ་སྤྲད་ན་དྲན་སྐུལ་མཐོང་མི་ཐུབ།</string>
     <!-- (AI) review -->
     <string name="not_now">ད་ལྟ་མིན།</string>
+    <string name="dismiss">ཕྱིར་འཐེན།</string>
+    <string name="update_ready">གསར་བཅོས་ཕབ་ལེན་ཟིན།</string>
+    <string name="update_restart">བསྐྱར་འགོ།</string>
 </resources>

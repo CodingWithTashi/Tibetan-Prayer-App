@@ -24,6 +24,7 @@ import com.codingwithtashi.dailyprayer.ui.components.rememberSafeLauncher
 import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.playback.PlaybackError
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
+import com.codingwithtashi.dailyprayer.ui.components.toastAnchor
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -155,6 +156,7 @@ fun RoutineDetailContent(
         Row(
             Modifier
                 .fillMaxWidth()
+                .toastAnchor()
                 .background(c.surface)
                 .drawBehind {
                     drawRect(c.border, Offset.Zero, Size(size.width, 1.dp.toPx()))

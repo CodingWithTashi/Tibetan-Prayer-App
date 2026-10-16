@@ -235,4 +235,7 @@
     <string name="notifications_off_title">Notifications are off</string>
     <string name="notifications_off_body">Reminders can\'t be shown until notifications are allowed for this app.</string>
     <string name="not_now">Not now</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="update_ready">Update downloaded</string>
+    <string name="update_restart">Restart</string>
 </resources>

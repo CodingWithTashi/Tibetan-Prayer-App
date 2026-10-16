@@ -67,6 +67,7 @@ import com.codingwithtashi.dailyprayer.playback.RepeatMode
 import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.IconActionButton
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
+import com.codingwithtashi.dailyprayer.ui.components.toastAnchor
 import com.codingwithtashi.dailyprayer.ui.components.Overline
 import com.codingwithtashi.dailyprayer.ui.components.SheetHandle
 import com.codingwithtashi.dailyprayer.ui.components.SmallPill
@@ -85,6 +86,10 @@ import com.codingwithtashi.dailyprayer.playback.PlaybackError
 
 private const val WIDE_BREAKPOINT_DP = 840
 private const val AUTO_FOLLOW_RESUME_MS = 5_000L
+
+// Verse timing is estimated from the audio length and drifts from the chanting, so auto-scroll and the
+// playing-verse highlight stay off until real per-verse timestamps exist.
+private const val FOLLOW_AUDIO = false
 
 /** Always-dark full-screen player. */
 @Composable
@@ -190,33 +195,35 @@ private fun PlayerHeader(state: NowPlayingUiState, onEvent: (NowPlayingEvent) ->
 @Composable
 private fun VersesPane(state: NowPlayingUiState, onEvent: (NowPlayingEvent) -> Unit, modifier: Modifier) {
     val listState = rememberLazyListState()
-    val reduceMotion = PrayerTheme.reduceMotion
-    var autoFollow by remember { mutableStateOf(true) }
+    if (FOLLOW_AUDIO) {
+        val reduceMotion = PrayerTheme.reduceMotion
+        var autoFollow by remember { mutableStateOf(true) }
 
-    // A user drag pauses following; 5 s after it ends following resumes. Programmatic scrolls
-    // never produce drag interactions, so they cannot trip this.
-    LaunchedEffect(listState) {
-        var resume: Job? = null
-        listState.interactionSource.interactions.collect { interaction ->
-            when (interaction) {
-                is DragInteraction.Start -> {
-                    resume?.cancel()
-                    autoFollow = false
-                }
-                is DragInteraction.Stop, is DragInteraction.Cancel -> {
-                    resume?.cancel()
-                    resume = launch {
-                        delay(AUTO_FOLLOW_RESUME_MS)
-                        autoFollow = true
+        // A user drag pauses following; 5 s after it ends following resumes. Programmatic scrolls
+        // never produce drag interactions, so they cannot trip this.
+        LaunchedEffect(listState) {
+            var resume: Job? = null
+            listState.interactionSource.interactions.collect { interaction ->
+                when (interaction) {
+                    is DragInteraction.Start -> {
+                        resume?.cancel()
+                        autoFollow = false
+                    }
+                    is DragInteraction.Stop, is DragInteraction.Cancel -> {
+                        resume?.cancel()
+                        resume = launch {
+                            delay(AUTO_FOLLOW_RESUME_MS)
+                            autoFollow = true
+                        }
                     }
                 }
             }
         }
-    }
-    LaunchedEffect(state.verseIndex, autoFollow, state.verses.size) {
-        if (autoFollow && state.verses.isNotEmpty()) {
-            val target = max(0, state.verseIndex - 1)
-            if (reduceMotion) listState.scrollToItem(target) else listState.animateScrollToItem(target)
+        LaunchedEffect(state.verseIndex, autoFollow, state.verses.size) {
+            if (autoFollow && state.verses.isNotEmpty()) {
+                val target = max(0, state.verseIndex - 1)
+                if (reduceMotion) listState.scrollToItem(target) else listState.animateScrollToItem(target)
+            }
         }
     }
 
@@ -228,6 +235,7 @@ private fun VersesPane(state: NowPlayingUiState, onEvent: (NowPlayingEvent) -> U
         ) {
             itemsIndexed(state.verses) { i, verse ->
                 val target = when {
+                    !FOLLOW_AUDIO -> P.verseFuture
                     i == state.verseIndex -> P.verseCurrent
                     i < state.verseIndex -> P.versePast
                     else -> P.verseFuture
@@ -248,7 +256,7 @@ private fun VersesPane(state: NowPlayingUiState, onEvent: (NowPlayingEvent) -> U
                         .padding(vertical = 6.dp)
                         .semantics {
                             contentDescription = description
-                            selected = i == state.verseIndex
+                            selected = FOLLOW_AUDIO && i == state.verseIndex
                         },
                 )
             }
@@ -274,7 +282,7 @@ private fun PlayerControls(state: NowPlayingUiState, onEvent: (NowPlayingEvent) 
     val cdRepeat = stringResource(R.string.cd_repeat)
     val offLabel = stringResource(R.string.repeat_off)
     Column(
-        Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 28.dp, end = 28.dp, top = 6.dp, bottom = 40.dp),
+        Modifier.fillMaxWidth().toastAnchor().navigationBarsPadding().padding(start = 28.dp, end = 28.dp, top = 6.dp, bottom = 40.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

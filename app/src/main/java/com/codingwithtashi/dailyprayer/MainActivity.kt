@@ -5,6 +5,7 @@ import android.graphics.Color as AndroidColor
 import android.os.Bundle
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -20,6 +21,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import com.codingwithtashi.dailyprayer.core.notification.DeepLinks
+import com.codingwithtashi.dailyprayer.core.update.InAppUpdater
 import com.codingwithtashi.dailyprayer.data.model.Appearance
 import com.codingwithtashi.dailyprayer.navigation.NavigationEventBus
 import com.codingwithtashi.dailyprayer.playback.PlayerController
@@ -37,6 +39,11 @@ class MainActivity : AppCompatActivity() {
     @Inject lateinit var navigationEvents: NavigationEventBus
     @Inject lateinit var playerController: PlayerController
     @Inject lateinit var reminderHealth: ReminderHealthMonitor
+    @Inject lateinit var inAppUpdater: InAppUpdater
+
+    private val updateLauncher = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+        inAppUpdater.onFlowResult(it.resultCode)
+    }
 
     override fun onStart() {
         super.onStart()
@@ -47,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         // Returning from system settings lands here, so a fix made there clears the reminder warnings.
         reminderHealth.refresh()
+        inAppUpdater.onResume(updateLauncher)
     }
 
     override fun onStop() {
@@ -61,7 +69,10 @@ class MainActivity : AppCompatActivity() {
             statusBarStyle = SystemBarStyle.auto(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.auto(AndroidColor.TRANSPARENT, AndroidColor.TRANSPARENT),
         )
-        if (savedInstanceState == null) dispatchDeepLink(intent)
+        if (savedInstanceState == null) {
+            dispatchDeepLink(intent)
+            inAppUpdater.checkForUpdate(updateLauncher)
+        }
         setContent {
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             when (val s = state) {
@@ -76,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                             },
                         )
                     }
-                    AppRoot(s)
+                    AppRoot(s, updateRestartPrompts = inAppUpdater.restartPrompts, onRestartForUpdate = inAppUpdater::completeUpdate)
                 }
             }
         }

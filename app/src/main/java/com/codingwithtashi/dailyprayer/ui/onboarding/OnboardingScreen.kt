@@ -75,6 +75,7 @@ import com.codingwithtashi.dailyprayer.ui.components.FlagStrip
 import com.codingwithtashi.dailyprayer.ui.components.IconActionButton
 import com.codingwithtashi.dailyprayer.ui.components.LanguageOption
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
+import com.codingwithtashi.dailyprayer.ui.components.toastAnchor
 import com.codingwithtashi.dailyprayer.ui.components.PickRow
 import com.codingwithtashi.dailyprayer.ui.components.PillButton
 import com.codingwithtashi.dailyprayer.ui.components.PillVariant
@@ -354,7 +355,7 @@ private fun StepName(state: OnboardingUiState, onEvent: (OnboardingEvent) -> Uni
             autofocus = true,
         )
         Spacer(Modifier.weight(1f))
-        PillButton(stringResource(R.string.continue_), { onEvent(OnboardingEvent.Next) }, modifier = Modifier.fillMaxWidth(), height = 54.dp)
+        PillButton(stringResource(R.string.continue_), { onEvent(OnboardingEvent.Next) }, modifier = Modifier.fillMaxWidth().toastAnchor(), height = 54.dp)
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             PillButton(
                 stringResource(R.string.skip),
@@ -417,7 +418,7 @@ private fun StepRoutine(state: OnboardingUiState, routineName: String, onEvent: 
         PillButton(
             stringResource(R.string.ob_start),
             { onEvent(OnboardingEvent.Finish(true, routineName)) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().toastAnchor(),
             height = 54.dp,
         )
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {

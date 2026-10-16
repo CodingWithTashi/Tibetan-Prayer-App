@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import com.codingwithtashi.dailyprayer.core.text.TibetanNumerals
 import com.codingwithtashi.dailyprayer.playback.PlaybackError
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
+import com.codingwithtashi.dailyprayer.ui.components.toastAnchor
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberCoroutineScope
@@ -148,7 +149,7 @@ internal fun MainScaffoldContent(
     }
     val mini: @Composable () -> Unit = {
         AnimatedVisibility(visible = miniPlayer != null) {
-            miniPlayer?.let { MiniPlayer(it, onMiniPlayerOpen, onMiniPlayerPlayPause, onMiniPlayerClose, Modifier.then(if (compact) Modifier else Modifier.contentWidth())) }
+            miniPlayer?.let { MiniPlayer(it, onMiniPlayerOpen, onMiniPlayerPlayPause, onMiniPlayerClose, Modifier.toastAnchor().then(if (compact) Modifier else Modifier.contentWidth())) }
         }
     }
 
@@ -157,7 +158,7 @@ internal fun MainScaffoldContent(
             Column(Modifier.fillMaxSize()) {
                 Box(Modifier.weight(1f).fillMaxWidth()) { content() }
                 mini()
-                PrayerBottomBar(Tabs, tab.ordinal, onSelectIndex)
+                PrayerBottomBar(Tabs, tab.ordinal, onSelectIndex, Modifier.toastAnchor())
             }
         } else {
             Row(Modifier.fillMaxSize()) {

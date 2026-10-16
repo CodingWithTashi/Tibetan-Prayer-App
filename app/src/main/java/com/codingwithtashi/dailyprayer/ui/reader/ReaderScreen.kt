@@ -71,6 +71,7 @@ import com.codingwithtashi.dailyprayer.ui.components.AppText
 import com.codingwithtashi.dailyprayer.ui.components.CounterBar
 import com.codingwithtashi.dailyprayer.ui.components.IconActionButton
 import com.codingwithtashi.dailyprayer.ui.components.LocalToaster
+import com.codingwithtashi.dailyprayer.ui.components.toastAnchor
 import com.codingwithtashi.dailyprayer.ui.components.PillButton
 import com.codingwithtashi.dailyprayer.ui.components.PillVariant
 import com.codingwithtashi.dailyprayer.ui.components.ProgressBarThin
@@ -292,6 +293,7 @@ fun ReaderContent(state: ReaderUiState, onEvent: (ReaderEvent) -> Unit) {
                 .align(Alignment.BottomCenter)
                 .widthIn(max = 640.dp)
                 .fillMaxWidth()
+                .toastAnchor()
                 .navigationBarsPadding()
                 .padding(start = 14.dp, end = 14.dp, bottom = if (compactHeight) 12.dp else 28.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),

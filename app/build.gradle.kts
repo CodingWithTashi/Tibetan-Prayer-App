@@ -160,6 +160,9 @@ dependencies {
     implementation(libs.firebase.messaging)
     implementation(libs.firebase.crashlytics)
 
+    // Play in-app updates
+    implementation(libs.play.app.update.ktx)
+
     // Unit tests
     testImplementation(libs.junit)
     testImplementation(libs.truth)
