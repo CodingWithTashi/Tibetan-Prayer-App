@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId = "com.codingwithtashi.dailyprayer"
-        minSdk = 23
+        minSdk = 24
         targetSdk = 36
         versionCode = 28
         versionName = "3.0.0"
