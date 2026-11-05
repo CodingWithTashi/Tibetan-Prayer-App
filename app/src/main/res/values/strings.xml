@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Daily Prayer</string>
+    <string name="app_name">Tibetan Prayer</string>
     <string name="app_name_tibetan" translatable="false">ཉིན་རེའི་ཁ་འདོན།</string>
     <string name="app_name_english" translatable="false">Daily Prayer</string>
     <string name="tab_today">Today</string>

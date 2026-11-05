@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Adaptive-icon foreground: the praying-hands artwork inset into the 66dp safe zone. -->
+<!-- Adaptive-icon foreground: the praying-hands + prayer-flags artwork (source: assets/app-icon.png).
+     Its flat maroon background equals @color/launcher_background, so the two layers blend seamlessly.
+     19% inset keeps the farthest flag corner (~31dp from centre) inside the 33dp-radius safe circle. -->
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
     android:drawable="@drawable/prayer"
-    android:inset="16%" />
+    android:inset="19%" />

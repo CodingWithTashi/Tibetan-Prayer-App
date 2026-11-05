@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Themed-icon (monochrome) layer: white silhouette of the praying hands, tinted by the launcher. -->
+<!-- Themed-icon (monochrome) layer: white silhouette of the hands and flags, tinted by the launcher.
+     Same framing as the foreground (19% inset) so both layers line up. -->
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
     android:drawable="@drawable/ic_launcher_monochrome_png"
-    android:inset="22%" />
+    android:inset="19%" />
